@@ -1,0 +1,4 @@
+set PATH=C:\TDM-GCC-32\bin;%PATH%
+windres launcher27.rc -O coff -o launcher27.res
+gcc -o launcher27.exe launcher27.c launcher27.res -Wall -I c:\\Python27\\include
+python ziptool.py launcher27.exe bootstrap27.py
