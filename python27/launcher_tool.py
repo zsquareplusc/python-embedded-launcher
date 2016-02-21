@@ -12,11 +12,13 @@ import shutil
 def main():
     parser = argparse.ArgumentParser(description='Launcher assembler')
 
-    parser.add_argument('-o', '--output', metavar='FILE',
+    parser.add_argument('-o', '--output', metavar='FILE', required=True,
                         help='Filename to write the result to')
     parser.add_argument('--launcher', metavar='EXE',
                         help='Launcher executable to use [default: launcher27.exe]')
-    parser.add_argument('MAIN', help='Start this script')
+    parser.add_argument('--main', required=True, metavar='FILE', help='Start this script')
+    parser.add_argument('FILE', nargs='*',
+                        help='Add additional files to zip')
 
     group = parser.add_argument_group('Wheels as dependecies')
     #~ group.add_argument('-i', '--internal-wheel', action='append', default=[],
@@ -27,11 +29,13 @@ def main():
                        #~ help='Extract wheel file (e.g. wheels with binaries)')
 
     args = parser.parse_args()
-
+    print args
     archive_data = StringIO()
     with zipfile.ZipFile(archive_data, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
-        archive.write(args.MAIN, arcname='__main__.py')
+        archive.write(args.main, arcname='__main__.py')
         archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
+        for filename in args.FILE:
+            archive.write(filename)
         #~ for wheel in args.internal_wheel:
             
 
