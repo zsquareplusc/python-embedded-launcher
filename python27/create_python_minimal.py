@@ -19,7 +19,7 @@ python_destination = 'python27-minimal'
 if not os.path.exists(python_destination):
     os.mkdir(python_destination)
 
-for name in ('python.exe', 'pythonw.exe', 'w9xpopen.exe'):
+for name in ('python.exe', 'pythonw.exe', 'w9xpopen.exe', 'README.txt', 'NEWS.txt', 'LICENSE.txt'):
     shutil.copy2(os.path.join(python_source, name),
                  os.path.join(python_destination, name))
 
@@ -33,7 +33,7 @@ for name in os.listdir(os.path.join(python_source, 'DLLs')):
 shutil.copy2(os.path.expandvars('%WINDIR%\\System32\\python27.dll'),
              os.path.join(python_destination, 'python27.dll'))
 
-# zip the standard libarary (no site-packages and no TCL/TK)
+# zip the standard libarary (no site-packages and no tcl/tk)
 EXCLUDE_DIRS = ('lib-tk', 'site-packages', 'test')
 with zipfile.ZipFile(os.path.join(python_destination, 'python27.zip'), 'w') as archive:
     zip_root = os.path.join(python_source, 'Lib')
