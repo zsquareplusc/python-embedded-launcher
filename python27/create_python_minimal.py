@@ -14,6 +14,9 @@ import os
 import shutil
 import zipfile
 
+if sys.version_info.major != 2 or sys.version_info.minor != 7:
+    raise ValueError('this tool must be run with Python 2.7 itself!')
+
 python_source = os.path.dirname(sys.executable)
 python_destination = 'python27-minimal'
 if not os.path.exists(python_destination):
@@ -34,8 +37,9 @@ shutil.copy2(os.path.expandvars('%WINDIR%\\System32\\python27.dll'),
              os.path.join(python_destination, 'python27.dll'))
 
 # zip the standard libarary (no site-packages and no tcl/tk)
-EXCLUDE_DIRS = ('lib-tk', 'site-packages', 'test')
-with zipfile.ZipFile(os.path.join(python_destination, 'python27.zip'), 'w') as archive:
+EXCLUDE_DIRS = ('lib-tk', 'site-packages', 'test', 'tests')
+with zipfile.PyZipFile(os.path.join(python_destination, 'python27.zip'), 'w',
+        compression=zipfile.ZIP_DEFLATED) as archive:
     zip_root = os.path.join(python_source, 'Lib')
     for root, dirs, files in os.walk(zip_root):
         for dir in EXCLUDE_DIRS:
@@ -43,8 +47,20 @@ with zipfile.ZipFile(os.path.join(python_destination, 'python27.zip'), 'w') as a
                 dirs.remove(dir)
         for name in files:
             filename = os.path.join(root, name)
-            archive.write(
+            base, ext = os.path.splitext(name)
+            if ext == '.py':
+                try:
+                    archive.writepy(
+                        filename,
+                        os.path.dirname(filename[len(os.path.commonprefix([zip_root, filename])):]))
+                except:
+                    archive.write(
+                        filename,
+                        filename[len(os.path.commonprefix([zip_root, filename])):])
+            elif ext in ('.pyc', '.pyo'):
+                pass
+            else:
+                archive.write(
                     filename,
                     filename[len(os.path.commonprefix([zip_root, filename])):],
-                    compress_type=zipfile.ZIP_DEFLATED
                     )
