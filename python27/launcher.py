@@ -5,9 +5,15 @@ import sys
 import os
 
 
-def patch_sys_path():
-    """also add the directory of the exe to look for modules"""
-    sys.path.append(os.path.dirname(sys.executable))
+def patch_sys_path(relative_dirs=('.',)):
+    """\
+    Add directories (relative to exe) to sys.path.
+    The default is to add the directory of the exe.
+    """
+    root = os.path.dirname(sys.executable)
+    for path in relative_dirs:
+        sys.path.append(os.path.join(root, path))
+
 
 def add_wheels():
     """add wheel to sys.path"""
