@@ -52,10 +52,31 @@ bool test_zip_file(const char *path) {
 }
 
 
+// given a path, write a null byte where the filename starts
+// does not seem that Windows has this as a function in its core, just in
+// extra DLLs.
+void cut_away_filename(char * path) {
+    unsigned slash = 0;
+    // search the entire string and remember position of last path separator
+    for (unsigned pos=0; path[pos]; pos++) {
+        if (path[pos] == '\\' || path[pos] == '/') {
+            slash = pos;
+        }
+    }
+    path[slash] = '\0';
+}
+
+
 int main(int argc, char *argv[]) {
     // where to find our python? read path from resource and check if it exitsts
     char pythonhome_in[PATH_MAX];
     char pythonhome[PATH_MAX];
+    // set an environment variable pointing to the location of the executable
+    char env_self[PATH_MAX+5] = "SELF=";
+    GetModuleFileName(NULL, &env_self[5], sizeof(env_self)-5);
+    cut_away_filename(env_self);
+    putenv(env_self);
+
     LoadString(NULL, IDS_PYTHONHOME, pythonhome_in, sizeof(pythonhome_in));
     ExpandEnvironmentStrings(pythonhome_in, pythonhome, sizeof(pythonhome));
     struct stat st;

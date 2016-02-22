@@ -38,7 +38,7 @@ END
 STRINGTABLE
 {
     IDS_NAME,                   "Python Launcher"
-    IDS_PYTHONHOME,             "python27-minimal"
+    IDS_PYTHONHOME,             "%SELF%\\python27-minimal"
     IDS_PY_NOT_FOUND,           "Python minimal distribution not found!"
     IDS_PYDLL_NOT_FOUND,        "Python DLL could not be loaded! (File not found)"
     IDS_PYDLL_ERROR,            "Python DLL could not be loaded! (Symbols)"
