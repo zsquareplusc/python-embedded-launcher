@@ -29,7 +29,7 @@ def main():
                        #~ help='Extract wheel file (e.g. wheels with binaries)')
 
     args = parser.parse_args()
-    print args
+
     archive_data = StringIO()
     with zipfile.ZipFile(archive_data, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         archive.write(args.main, arcname='__main__.py')
@@ -38,6 +38,10 @@ def main():
             archive.write(filename)
         #~ for wheel in args.internal_wheel:
             
+
+    dest_dir = os.path.dirname(args.output)
+    if not os.path.exists(dest_dir):
+        os.makedirs(dest_dir)
 
     with open(args.output, 'wb') as exe:
         if args.launcher:

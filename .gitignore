@@ -1,13 +1,5 @@
 /python27/launcher27.exe
 /python27/launcher27.res
 /python27/python27-minimal
-/python27/demo1/python27-minimal
-/python27/demo1/demo1.exe
-/python27/demo2/python27-minimal
 /python27/demo2/wheelhouse
-/python27/demo2/wheels
-/python27/demo2/demo2.exe
-/python27/demo3/python27-minimal
-/python27/demo3/wx-3.0-msw
-/python27/demo3/demo3.exe
-/python27/demo3/wx
+/python27/demo*/dist

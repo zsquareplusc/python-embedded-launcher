@@ -9,58 +9,71 @@ virtualenv could probably also be used to do this job...
 You do not need this for Python 3.5, just download the embedded
 distribution from the official site instead!
 """
-import sys
+import argparse
 import os
 import shutil
-import zipfile
+import sys
+import zipfile
+def main():
+    parser = argparse.ArgumentParser(description='Launcher assembler')
 
-if sys.version_info.major != 2 or sys.version_info.minor != 7:
-    raise ValueError('this tool must be run with Python 2.7 itself!')
+    parser.add_argument('-d', '--directory', metavar='DIR', default='.',
+                        help='Set a destination directory [default: %(default)s]')
+    parser.add_argument('-n', '--name', metavar='DIR', default='python27-minimal',
+                        help='Set a directory name [default: %(default)s]')
 
-python_source = os.path.dirname(sys.executable)
-python_destination = 'python27-minimal'
-if not os.path.exists(python_destination):
-    os.mkdir(python_destination)
+    args = parser.parse_args()
 
-for name in ('python.exe', 'pythonw.exe', 'w9xpopen.exe', 'README.txt', 'NEWS.txt', 'LICENSE.txt'):
-    shutil.copy2(os.path.join(python_source, name),
-                 os.path.join(python_destination, name))
+    if sys.version_info.major != 2 or sys.version_info.minor != 7:
+        raise ValueError('this tool must be run with Python 2.7 itself!')
 
-DLL_EXCLUDES = ('tcl85.dll', 'tclpip85.dll', 'tk85.dll', '_tkinter.pyd')
-for name in os.listdir(os.path.join(python_source, 'DLLs')):
-    if name not in DLL_EXCLUDES:
-        shutil.copy2(os.path.join(python_source, 'DLLs', name),
+    python_source = os.path.dirname(sys.executable)
+    python_destination = os.path.join(args.directory, args.name)
+    if not os.path.exists(python_destination):
+        os.mkdir(python_destination)
+
+    for name in ('python.exe', 'pythonw.exe', 'w9xpopen.exe', 'README.txt', 'NEWS.txt', 'LICENSE.txt'):
+        shutil.copy2(os.path.join(python_source, name),
                      os.path.join(python_destination, name))
 
-# for some reason, this file is somewhere else...
-shutil.copy2(os.path.expandvars('%WINDIR%\\System32\\python27.dll'),
-             os.path.join(python_destination, 'python27.dll'))
+    DLL_EXCLUDES = ('tcl85.dll', 'tclpip85.dll', 'tk85.dll', '_tkinter.pyd')
+    for name in os.listdir(os.path.join(python_source, 'DLLs')):
+        if name not in DLL_EXCLUDES:
+            shutil.copy2(os.path.join(python_source, 'DLLs', name),
+                         os.path.join(python_destination, name))
 
-# zip the standard libarary (no site-packages and no tcl/tk)
-EXCLUDE_DIRS = ('lib-tk', 'site-packages', 'test', 'tests')
-with zipfile.PyZipFile(os.path.join(python_destination, 'python27.zip'), 'w',
-        compression=zipfile.ZIP_DEFLATED) as archive:
-    zip_root = os.path.join(python_source, 'Lib')
-    for root, dirs, files in os.walk(zip_root):
-        for dir in EXCLUDE_DIRS:
-            if dir in dirs:
-                dirs.remove(dir)
-        for name in files:
-            filename = os.path.join(root, name)
-            base, ext = os.path.splitext(name)
-            if ext == '.py':
-                try:
-                    archive.writepy(
-                        filename,
-                        os.path.dirname(filename[len(os.path.commonprefix([zip_root, filename])):]))
-                except:
+    # for some reason, this file is somewhere else...
+    shutil.copy2(os.path.expandvars('%WINDIR%\\System32\\python27.dll'),
+                 os.path.join(python_destination, 'python27.dll'))
+
+    # zip the standard libarary (no site-packages and no tcl/tk)
+    EXCLUDE_DIRS = ('lib-tk', 'site-packages', 'test', 'tests')
+    with zipfile.PyZipFile(os.path.join(python_destination, 'python27.zip'), 'w',
+            compression=zipfile.ZIP_DEFLATED) as archive:
+        zip_root = os.path.join(python_source, 'Lib')
+        for root, dirs, files in os.walk(zip_root):
+            for dir in EXCLUDE_DIRS:
+                if dir in dirs:
+                    dirs.remove(dir)
+            for name in files:
+                filename = os.path.join(root, name)
+                base, ext = os.path.splitext(name)
+                if ext == '.py':
+                    try:
+                        archive.writepy(
+                            filename,
+                            os.path.dirname(filename[len(os.path.commonprefix([zip_root, filename])):]))
+                    except:
+                        archive.write(
+                            filename,
+                            filename[len(os.path.commonprefix([zip_root, filename])):])
+                elif ext in ('.pyc', '.pyo'):
+                    pass
+                else:
                     archive.write(
                         filename,
-                        filename[len(os.path.commonprefix([zip_root, filename])):])
-            elif ext in ('.pyc', '.pyo'):
-                pass
-            else:
-                archive.write(
-                    filename,
-                    filename[len(os.path.commonprefix([zip_root, filename])):],
-                    )
+                        filename[len(os.path.commonprefix([zip_root, filename])):],
+                        )
+
+if __name__ == '__main__':
+    main()

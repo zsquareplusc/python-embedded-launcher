@@ -16,7 +16,7 @@ wx_name = os.path.basename(os.path.dirname(wx_source))
 for root, dirs, files in os.walk(wx_source):
     for name in files:
         filename = os.path.join(root, name)
-        dst = os.path.join('wx', filename[1+len(os.path.commonprefix([wx_source, filename])):])
+        dst = os.path.join(sys.argv[1], 'wx', filename[1+len(os.path.commonprefix([wx_source, filename])):])
         if not os.path.exists(os.path.dirname(dst)):
             os.makedirs(os.path.dirname(dst))
         shutil.copy2(filename, dst)
