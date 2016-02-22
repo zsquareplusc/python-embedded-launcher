@@ -1,13 +1,16 @@
 """\
 A tool to append files to zip which is in turn appended to an other file.
 """
-import sys
-import os
-import zipfile
-import argparse
 from StringIO import StringIO
+import argparse
+import glob
+import os
 import pkgutil
+import re
 import shutil
+import sys
+import zipfile
+
 
 def main():
     parser = argparse.ArgumentParser(description='Launcher assembler')
@@ -27,6 +30,8 @@ def main():
                        help='Copy wheel file as a whole')
     #~ group.add_argument('-x', '--extract-wheel',  action='append', default=[],
                        #~ help='Extract wheel file (e.g. wheels with binaries)')
+    parser.add_argument('--wheel-dir', metavar='DIR', default='wheelhouse',
+                        help='Directory containing the wheel files [default: (%(default)s]')
 
     args = parser.parse_args()
 
@@ -55,7 +60,11 @@ def main():
         if not os.path.exists(wheel_destination):
             os.mkdir(wheel_destination)
         for wheel in args.external_wheel:
-            shutil.copy2(wheel, wheel_destination)
+            distribution_name = re.sub("[^\w\d.]+", "_", wheel, re.UNICODE)
+            candidates = glob.glob(os.path.join(args.wheelhouse, '{}*.whl'.format(distribution_name)))
+            if len(candidates) > 1:
+                raise NotImplementedError('please remove other versions of wheel files, currently this tool can only cope with one versioon per distribution')
+            shutil.copy2(candidates[0], wheel_destination)
         
 
 if __name__ == '__main__':
