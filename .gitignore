@@ -1,5 +1,5 @@
-/python27/launcher27.exe
-/python27/launcher27.res
-/python27/python27-minimal
-/python27/demo2/wheelhouse
-/python27/demo*/dist
+/launcher_tool/launcher27.exe
+/src/python27/launcher27.res
+/examples/demo*/wheelhouse
+/examples/demo*/dist
+/examples/python27/demo*/dist
