@@ -70,10 +70,41 @@ for Python 2.7
 In the ``python27`` directory has some examples, e.g. try ``python27/demo1``,
 the batch file builds an exe.
 
-- run ``create_python_minimal.py`` to create a Python distribution (see
-  examples for usage)
-- use ``pip`` to download and install dependencies
-- use ``launcher_tool.py`` to create exe.
+Create a Python distribution::
+
+    python create_python_minimal.py -d dist
+    
+Use ``pip`` to download and install dependencies, e.g. using a requirements
+file::
+
+    set PYTHONUSERBASE=dist
+    python -m pip install --user --ignore-installed -r requirements.txt
+
+Alternatively, download all dependencies as wheels first, so that subsequent
+runs to create a distribution do not need to download from the internet.
+
+Fetch dependencies once::
+
+    python -m pip wheel -r requirements.txt
+
+Then use these with ``--find-links`` and ``--no-index`` options::
+
+    set PYTHONUSERBASE=dist
+    python -m pip install --user --ignore-installed --find-links=wheelhouse --no-index -r requirements.txt
+
+
+Write a regular ``setup.py`` script for your application and install it::
+
+    set PYTHONUSERBASE=dist
+    python setup.py install --user
+
+Use the launcher tool to write the exe, calling your app::
+
+    python launcher_tool.py -o dist/myapp.exe -x mymodule:main
+
+
+.. note:: pip will also install scripts in a subdirectory called ``Scripts``.
+          this usually not needed for a packaged app, so this can be deleted.
 
 
 for Python 3
