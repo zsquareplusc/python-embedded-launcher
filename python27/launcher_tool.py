@@ -11,6 +11,14 @@ import shutil
 import sys
 import zipfile
 
+DEFAULT_MAIN = """\
+import launcher
+launcher.patch_sys_path(['.', 'Python27/site-packages'])
+launcher.restore_sys_argv()
+
+import {module}
+{module}.{main}()"""
+
 
 def main():
     parser = argparse.ArgumentParser(description='Launcher assembler')
@@ -19,7 +27,10 @@ def main():
                         help='Filename to write the result to')
     parser.add_argument('--launcher', metavar='EXE',
                         help='Launcher executable to use [default: launcher27.exe]')
-    parser.add_argument('--main', required=True, metavar='FILE', help='Start this script')
+    parser.add_argument('--main', metavar='FILE',
+                        help='use this as __main__.py instead of built-in code')
+    parser.add_argument('-x', '--entry-point', metavar='MOD:FUNC',
+                        help='import given module and call function')
     parser.add_argument('FILE', nargs='*',
                         help='Add additional files to zip')
 
@@ -34,10 +45,20 @@ def main():
                         help='Directory containing the wheel files [default: (%(default)s]')
 
     args = parser.parse_args()
+    if args.main is None and args.entry_point is None:
+        parser.error('either --entry-point or --main has to be used')
+
+    if args.main is not None:
+        main = open(args.main).read()
+    else:
+        main = DEFAULT_MAIN
+    if args.entry_point is not None:
+        mod, func = args.entry_point.split(':')
+        main = main.format(module=mod, main=func)
 
     archive_data = StringIO()
     with zipfile.ZipFile(archive_data, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
-        archive.write(args.main, arcname='__main__.py')
+        archive.writestr('__main__.py', main)
         archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
         for filename in args.FILE:
             archive.write(filename)
