@@ -1,6 +1,6 @@
-=================================
- python-embedded-launcher - demo
-=================================
+==================================
+ demo3 - python-embedded-launcher
+==================================
 
 This is an exmaple for Python 2.7 with depenencies.
 
@@ -25,7 +25,6 @@ Create a Python minimal distribution (in a directory called ``dist``)::
 
 Install dependencies
 --------------------
-
 Use ``pip`` with custom user site::
 
     set PYTHONUSERBASE=dist
@@ -51,9 +50,9 @@ Create exe
 ----------
 Run the laucher tool::
 
-    python ../launcher_tool.py -o dist/demo2.exe --main demo2.py
+    python ../launcher_tool.py -o dist/miniterm.exe -x serial.tools.miniterm:main
 
 This copies and renames the launcher, appends a zip file to it containing
-the given script as ``__main__.py``
+the default boot code (``__main__.py``) that runs the specified function.
 
-The application should now be read in the ``dist`` directory.
+The application should now be ready in the ``dist`` directory.
