@@ -8,7 +8,7 @@ The launcher is a small C program that loads the Python DLL and calls
 ``Py_Main`` with itself as parameter, loading a zipped Python application
 appended to the exe.
 
-Yes it is yet an other tool to make standalone Windows applications with
+Yes, it is yet an other tool to make standalone Windows applications with
 Python.
 
 See also py2exe_, pyinstaller_, cx_Freeze_.
@@ -17,13 +17,14 @@ complete packages with a Python minimal distribution: Python + wheel files.
 There is no attempt made to search together all the required files, there is
 no scan for ``import`` statements etc.
 
-See also pex_, which can grab dependencies from pypi and make a zipped
+See also pex_, which can grab dependencies from pypi_ and make a zipped
 applications, but that does not bundle the Python interpreter.
 
 .. _py2exe: http://www.py2exe.org/
 .. _pyinstaller: http://www.pyinstaller.org/
 .. _cx_Freeze: http://cx-freeze.sourceforge.net/
 .. _pex: https://github.com/pantsbuild/pex
+.. _pypi: https://pypi.python.org/pypi
 
 
 Scenarios
@@ -32,10 +33,10 @@ Scenarios
 Distribute an application
     Bundle Python with an application so that users can use it without having
     to install Python.
-    
+
     In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
     ``"%SELF%\\python27-minimal"`` (this is already the default). This way,
-    the Python distribution is exepcted at the location of the executable. The
+    the Python distribution is expected at the location of the executable. The
     environment variable ``SELF`` is set automatically by the launcher itself
     (*dirname* of *abspath* of *exe*).
 
@@ -44,26 +45,11 @@ Common python-minimal package
     Multiple tools can use a common copy of Python. e.g. with a package
     manager. Python can be provided as one package and separate application
     packages can use that Python distribution to run.
-    
+
     In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
     ``"%PACKAGE_ROOT%\\python27-minimal"``. This way, the Python distribution
-    is exepcted to be at a fixed location, where the ``PACKAGE_ROOT`` variable
-    points at, it is exepcted to be set by the package manager.
-
-
-Build
-=====
-
-Requires a mingw gcc compiler (see Requirements_).
-
-Run ``compile_all.bat`` in the ``src`` directory.
-
-
-The ``python27`` and ``python3`` directories contain the sources and a batch
-file. The ``compile_all.bat`` file runs both of them.
-
-The resulting binaries will be placed in the ``launcher_tool`` directory so
-that they are available as data files for the Python tool.
+    is expected to be at a fixed location, where the ``PACKAGE_ROOT`` variable
+    points at, it is expected to be set by the package manager.
 
 
 Usage
@@ -71,8 +57,8 @@ Usage
 The ``example`` directory has demos where these steps are written in a batch
 file that is ready to run. The description here explains the steps.
 On windows, once Python 3 is installed, the Python Launcher ``py`` is
-available, this is what is used here. Othwise replace ``py -2``/``py -3`` with
-``python``/``python3``. When packanging an app, the same Python version that
+available, this is what is used here. Otherwise replace ``py -2``/``py -3`` with
+``python``/``python3``. When packaging an app, the same Python version that
 is packaged, should be used to run the steps here (using ``py -2`` or
 ``py -3`` accordingly).
 
@@ -91,7 +77,7 @@ file (using ``py -2`` or ``py -3``)::
     py -m pip install --user --ignore-installed -r requirements.txt
 
 Alternatively, download all dependencies as wheels first, so that subsequent
-runs to create a distribution do not need to download from the internet.
+runs to create a distribution do not need to download from the Internet.
 
 Fetch dependencies once (using ``py -2`` or ``py -3``)::
 
@@ -136,19 +122,36 @@ Tools
     Unpack a Python 3 embedded distribution. The data is downloaded from
     https://www.python.org/downloads/windows/
     and cached locally (so that for repeated runs, it does not need to use
-    the internet again).
+    the Internet again).
 
 
 Customization
 =============
 The texts and the location of Python is stored as Windows resource in the
 ``launcher*.exe``. It is possible to use resource editor tools to patch the
-exe. For example http://www.angusj.com/resourcehacker/ is such a tool.
+exe. For example resourcehacker_ is such a tool.
 
 Alternatively use the sources here to recompile the binaries, it really just
 needs a mingw gcc (which is only a few dozens of megabytes large). In that case
 the ``launcher*.rc`` within the ``src/python*`` directory are edited with a
 text editor and ``compile.bat`` is used to recreate the exe.
+
+.. _resourcehacker: http://www.angusj.com/resourcehacker/
+
+
+Build
+=====
+
+Requires a mingw gcc compiler (see Requirements_).
+
+Run ``compile_all.bat`` in the ``src`` directory.
+
+
+The ``python27`` and ``python3`` directories contain the sources and a batch
+file. The ``compile_all.bat`` file runs both of them.
+
+The resulting binaries will be placed in the ``launcher_tool`` directory so
+that they are available as data files for the Python tool.
 
 
 Requirements
@@ -156,7 +159,7 @@ Requirements
 To build applications:
 
 - ``pip`` and ``wheel``
-- ``requests`` (for download_python3_minimal)
+- ``requests`` (for ``download_python3_minimal``)
 
 Running ``pip install -r requirements.txt`` will install these.
 
@@ -173,23 +176,25 @@ API
 A small helper module called ``launcher`` is automatically packaged with the
 exe. It contains a few helper functions.
 
-launcher.patch_sys_path(relative_dirs=('.',))
-    Add directories (relative to exe) to sys.path. The default is to add the
-    directory of the exe.
+``launcher.patch_sys_path(relative_dirs=('.',))``
+    Add directories (relative to exe) to ``sys.path``. The default is to add
+    the directory of the exe.
 
-launcher.add_wheels()
-    Add àll ``whl`` files in the directory ``wheels`` to sys.path. Only works
-    for pure Python wheels and only if they do no access the filsystem to load
-    data on their own (should use ``pkgutil``).
+``launcher.add_wheels()``
+    Add ï¿½ll ``.whl`` files in the directory ``wheels`` to sys.path. Only works
+    for pure Python wheels and only if they do no access the file system to
+    load data on their own (should use pkgutil_).
 
-launcher.restore_sys_argv()
+``launcher.restore_sys_argv()``
     Get original command line via Windows API. Restores sys.argv (which is used
     by the launcher to pass the location of Python). This function is called
-    by the default ``__main__``
+    by the default boot code (``__main__``).
 
-launcher.close_console()
-    Ueful for GUI applications, it closes a seprate console window if there
+``launcher.close_console()``
+    Useful for GUI applications, it closes a separate console window if there
     is one, e.g. when the exe was started by a double click.
+
+.. _pkgutil: https://docs.python.org/3/library/pkgutil.html
 
 
 Implementation Details
@@ -199,23 +204,23 @@ Some random notes...
 Python 2 uses "ASCII API" while Python 3 uses "Unicode API". Thats why separate
 code for the two launchers exists.
 
-The lauchers are compiled as console application, so they open a console window
+The launcher is compiled as console application, so it opens a console window
 when started from the explorer. However it is easily closed with a Windows API
-call and launcher.py which is added to the application has a function for that.
-The advantage is, that applications can be started in a console and one can
-see the output - and wait for the program to terminate etc.
+call and launcher.py, which is added to the application, has a function for
+that. The advantage is, that applications can be started in a console and one
+can see the output - and wait for the program to terminate etc.
 
-There are currently no 64bit versions of the launcher. Though compiling them
+There are currently no 64 bit versions of the launcher. Though compiling them
 should be no more than adding a switch to the compiler...
 
 Starting with Python 3.5, an embedded Python distribution is already available
 (and used here) for download, see
 https://docs.python.org/3/using/windows.html#embedded-distribution
 
-Python is loaded dynamically via ``LoadLibrary``. The laucher is not linked
+Python is loaded dynamically via ``LoadLibrary``. The launcher is not linked
 against the DLL. This has the advantage that the location of the DLL can be
 different to the one of the exe. It should also enable the possibility to
-make one laucher of all Python 3 versions. Though the current version has
+make one launcher of all Python 3 versions. Though the current version has
 the Python version number on its code (however it would be easy to move
 this to the resources for easier editing). The separation would also allow
 to check if the VC runtime is installed and direct the user to the download
