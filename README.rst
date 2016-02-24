@@ -108,12 +108,12 @@ Write a regular ``setup.py`` script for your application and install it (using
 ``py -2`` or ``py -3``)::
 
     set PYTHONUSERBASE=dist
-    py setup.py install --user
+    py setup.py install --user --ignore-installed
 
 Use the launcher tool to write the exe, calling your app (using ``py -2`` or
 ``py -3``)::
 
-    py launcher_tool.py -o dist/myapp.exe -x mymodule:main
+    py launcher_tool.py -o dist/myapp.exe -e mymodule:main
 
 
 .. note:: pip will also install scripts in a subdirectory called ``Scripts``.
@@ -164,6 +164,33 @@ To build the launcher exe:
 
 - mingw(-64) GCC compiler, e.g. http://tdm-gcc.tdragon.net/ has one.
 
+The either ``PATH`` must be set so that ``gcc`` can be found or the
+``compile*.bat`` files have to be edited (they set ``PATH``).
+
+
+API
+===
+A small helper module called ``launcher`` is automatically packaged with the
+exe. It contains a few helper functions.
+
+launcher.patch_sys_path(relative_dirs=('.',))
+    Add directories (relative to exe) to sys.path. The default is to add the
+    directory of the exe.
+
+launcher.add_wheels()
+    Add àll ``whl`` files in the directory ``wheels`` to sys.path. Only works
+    for pure Python wheels and only if they do no access the filsystem to load
+    data on their own (should use ``pkgutil``).
+
+launcher.restore_sys_argv()
+    Get original command line via Windows API. Restores sys.argv (which is used
+    by the launcher to pass the location of Python). This function is called
+    by the default ``__main__``
+
+launcher.close_console()
+    Ueful for GUI applications, it closes a seprate console window if there
+    is one, e.g. when the exe was started by a double click.
+
 
 Implementation Details
 ======================
@@ -184,3 +211,16 @@ should be no more than adding a switch to the compiler...
 Starting with Python 3.5, an embedded Python distribution is already available
 (and used here) for download, see
 https://docs.python.org/3/using/windows.html#embedded-distribution
+
+Python is loaded dynamically via ``LoadLibrary``. The laucher is not linked
+against the DLL. This has the advantage that the location of the DLL can be
+different to the one of the exe. It should also enable the possibility to
+make one laucher of all Python 3 versions. Though the current version has
+the Python version number on its code (however it would be easy to move
+this to the resources for easier editing). The separation would also allow
+to check if the VC runtime is installed and direct the user to the download
+if it is not, but this is not implemented yet.
+
+``pip --user`` installs the packages into a subdirectory ``PythonXY`` named
+after he Python version. We would not need that, but on the other side, it's
+easier that way, so that we do not have to write our own install/extract code.

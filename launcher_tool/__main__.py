@@ -32,23 +32,21 @@ def main():
     parser.add_argument('-o', '--output', metavar='FILE', required=True,
                         help='Filename to write the result to')
     parser.add_argument('--launcher', metavar='EXE',
-                        help='Launcher executable to use instead of built-in')
+                        help='Launcher executable to use instead of built-in one')
     parser.add_argument('--main', metavar='FILE',
                         help='use this as __main__.py instead of built-in code')
-    parser.add_argument('-x', '--entry-point', metavar='MOD:FUNC',
+    parser.add_argument('-e', '--entry-point', metavar='MOD:FUNC',
                         help='import given module and call function')
     parser.add_argument('FILE', nargs='*',
                         help='Add additional files to zip')
 
-    group = parser.add_argument_group('Wheels as dependecies')
+    #~ group = parser.add_argument_group('Wheels as dependecies')
     #~ group.add_argument('-i', '--internal-wheel', action='append', default=[],
                        #~ help='Add contents of wheel file to appended zip')
-    group.add_argument('-e', '--external-wheel', action='append', default=[],
-                       help='Copy wheel file as a whole')
-    #~ group.add_argument('-x', '--extract-wheel',  action='append', default=[],
-                       #~ help='Extract wheel file (e.g. wheels with binaries)')
-    parser.add_argument('--wheel-dir', metavar='DIR', default='wheelhouse',
-                        help='Directory containing the wheel files [default: (%(default)s]')
+    #~ group.add_argument('-x', '--external-wheel', action='append', default=[],
+                       #~ help='Copy wheel file as a whole')
+    #~ parser.add_argument('--wheel-dir', metavar='DIR', default='wheelhouse',
+                        #~ help='Directory containing the wheel files [default: (%(default)s]')
 
     args = parser.parse_args()
     if args.main is None and args.entry_point is None:
@@ -84,16 +82,16 @@ def main():
             exe.write(pkgutil.get_data(__name__, 'launcher27.exe' if sys.version_info.major == 2 else 'launcher3.exe'))
         exe.write(archive_data.getvalue())
 
-    if args.external_wheel:
-        wheel_destination = os.path.join(os.path.dirname(os.path.abspath(args.output)), 'wheels')
-        if not os.path.exists(wheel_destination):
-            os.mkdir(wheel_destination)
-        for wheel in args.external_wheel:
-            distribution_name = re.sub("[^\w\d.]+", "_", wheel, re.UNICODE)
-            candidates = glob.glob(os.path.join(args.wheelhouse, '{}*.whl'.format(distribution_name)))
-            if len(candidates) > 1:
-                raise NotImplementedError('please remove other versions of wheel files, currently this tool can only cope with one versioon per distribution')
-            shutil.copy2(candidates[0], wheel_destination)
+    #~ if args.external_wheel:
+        #~ wheel_destination = os.path.join(os.path.dirname(os.path.abspath(args.output)), 'wheels')
+        #~ if not os.path.exists(wheel_destination):
+            #~ os.mkdir(wheel_destination)
+        #~ for wheel in args.external_wheel:
+            #~ distribution_name = re.sub("[^\w\d.]+", "_", wheel, re.UNICODE)
+            #~ candidates = glob.glob(os.path.join(args.wheelhouse, '{}*.whl'.format(distribution_name)))
+            #~ if len(candidates) > 1:
+                #~ raise NotImplementedError('please remove other versions of wheel files, currently this tool can only cope with one versioon per distribution')
+            #~ shutil.copy2(candidates[0], wheel_destination)
         
 
 if __name__ == '__main__':
