@@ -181,7 +181,7 @@ exe. It contains a few helper functions.
     the directory of the exe.
 
 ``launcher.add_wheels()``
-    Add �ll ``.whl`` files in the directory ``wheels`` to sys.path. Only works
+    Add all ``.whl`` files in the directory ``wheels`` to sys.path. Only works
     for pure Python wheels and only if they do no access the file system to
     load data on their own (should use pkgutil_).
 
@@ -229,3 +229,7 @@ if it is not, but this is not implemented yet.
 ``pip --user`` installs the packages into a subdirectory ``PythonXY`` named
 after he Python version. We would not need that, but on the other side, it's
 easier that way, so that we do not have to write our own install/extract code.
+
+Why put Python in a subdirectory? Bacause someone could add the directory
+containing the exe to the ``PATH`` and then the system would find multiple
+``python.exe`` and ``pythonXY.dll``s...
