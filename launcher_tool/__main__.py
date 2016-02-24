@@ -1,7 +1,6 @@
 """\
 A tool to append files to zip which is in turn appended to an other file.
 """
-from StringIO import StringIO
 import argparse
 import glob
 import os
@@ -10,10 +9,14 @@ import re
 import shutil
 import sys
 import zipfile
+try:
+    from StringIO import StringIO as BytesIO
+except ImportError:
+    from io import BytesIO
 
 DEFAULT_MAIN = """\
 import launcher
-launcher.patch_sys_path(['.', 'Python27/site-packages'])
+launcher.patch_sys_path(['.', 'Python{py.major}{py.minor}/site-packages'])
 launcher.restore_sys_argv()
 
 import {module}
@@ -26,7 +29,7 @@ def main():
     parser.add_argument('-o', '--output', metavar='FILE', required=True,
                         help='Filename to write the result to')
     parser.add_argument('--launcher', metavar='EXE',
-                        help='Launcher executable to use [default: launcher27.exe]')
+                        help='Launcher executable to use instead of built-in')
     parser.add_argument('--main', metavar='FILE',
                         help='use this as __main__.py instead of built-in code')
     parser.add_argument('-x', '--entry-point', metavar='MOD:FUNC',
@@ -48,15 +51,17 @@ def main():
     if args.main is None and args.entry_point is None:
         parser.error('either --entry-point or --main has to be used')
 
+    #~ sys.stderr.write('running for {}\n'.format('Python 2.7' if sys.version_info.major == 2 else 'Python 3.x'))
+
     if args.main is not None:
         main = open(args.main).read()
     else:
         main = DEFAULT_MAIN
     if args.entry_point is not None:
         mod, func = args.entry_point.split(':')
-        main = main.format(module=mod, main=func)
+        main = main.format(module=mod, main=func, py=sys.version_info)
 
-    archive_data = StringIO()
+    archive_data = BytesIO()
     with zipfile.ZipFile(archive_data, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
         archive.writestr('__main__.py', main)
         archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
@@ -73,7 +78,7 @@ def main():
         if args.launcher:
             exe.write(open(args.launcher, 'rb').read())
         else:
-            exe.write(pkgutil.get_data(__name__, 'launcher27.exe'))
+            exe.write(pkgutil.get_data(__name__, 'launcher27.exe' if sys.version_info.major == 2 else 'launcher3.exe'))
         exe.write(archive_data.getvalue())
 
     if args.external_wheel:

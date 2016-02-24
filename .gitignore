@@ -5,3 +5,5 @@
 /examples/python27/demo*/dist
 /src/python3/launcher3.res
 /launcher_tool/launcher3.exe
+/launcher_tool/*.pyc
+/launcher_tool/__pycache__
