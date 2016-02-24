@@ -11,6 +11,7 @@
         show_message_from_resource(IDS_PYDLL_ERROR); \
         return 1; \
     }
+
 #define FIND_INT(name) \
     int * name = (int *)GetProcAddress(python_dll, #name); \
     if (name == NULL) { \
@@ -26,25 +27,32 @@
 #define IDS_PYDLL_ERROR         5
 #define IDS_ZIP_NOT_FOUND       6
 
+
+char pythonhome_relative[PATH_MAX];
+char pythonhome_absolute[PATH_MAX];
+
+
+
 // show a message dialog with text from the built-in resource
 void show_message_from_resource(int id) {
-    char name[80];
-    char message[1024];
-    LoadString(NULL, IDS_NAME, name, sizeof(name));
-    LoadString(NULL, id, message, sizeof(message));
-    MessageBox(NULL, message, name, MB_OK | MB_ICONSTOP);
+    wchar_t name[80];
+    wchar_t message[1024];
+    LoadStringW(NULL, IDS_NAME, name, sizeof(name));
+    LoadStringW(NULL, id, message, sizeof(message));
+    MessageBoxW(NULL, message, name, MB_OK | MB_ICONSTOP);
 }
 
 
 // test if a file has a zip appended to it
 bool test_zip_file(const char *path) {
-    FILE *f = fopen(path, "rb");
-    if (f != NULL) {
+    HANDLE hFile = CreateFile(path, GENERIC_READ, 0, NULL, OPEN_EXISTING, 
+                              FILE_ATTRIBUTE_NORMAL, NULL);
+    if (hFile != INVALID_HANDLE_VALUE) {
         char zipid[22];
-        fseek(f, -sizeof(zipid), 2);
-        fread(zipid, 1, sizeof(zipid), f);
-        fclose(f);
-        //~ printf("zipid: %s\n", zipid);
+        DWORD len;
+        SetFilePointer(hFile, -sizeof(zipid), NULL, FILE_END);
+        ReadFile(hFile, zipid, sizeof(zipid), &len, NULL);
+        CloseHandle(hFile);
         return 0 == memcmp(zipid, "PK\005\006", 4);
     } else {
         return false;
@@ -66,41 +74,81 @@ void cut_away_filename(char * path) {
     path[slash] = '\0';
 }
 
+// append a filename to a path
+// does not seem that Windows has this as a function in its core, just in
+// extra DLLs.
+void append_filename(char *path_out, size_t outsize, const char *path_in, const char *filename) {
+    while (outsize && *path_in) {
+        *path_out++ = *path_in++;
+        outsize--;
+    }
+    if (outsize) {
+        *path_out++ = '\\';
+        outsize--;
+    }
+    while (outsize && *filename) {
+        *path_out++ = *filename++;
+        outsize--;
+    }
+    if (outsize) *path_out = '\0';
+}
 
-int main(int argc, char *argv[]) {
-    // where to find our python? read path from resource and check if it exitsts
-    char pythonhome_in[PATH_MAX];
-    char pythonhome[PATH_MAX];
-    // set an environment variable pointing to the location of the executable
-    char env_self[PATH_MAX+5] = "SELF=";
-    GetModuleFileName(NULL, &env_self[5], sizeof(env_self)-5);
+
+bool check_if_directory_exists(char * path) {
+    DWORD dwAttrib = GetFileAttributes(path);
+    return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
+          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+}
+
+
+// set an environment variable "SELF" pointing to the location of the executable
+void set_self_env(void) {
+    static char env_self[PATH_MAX];
+    GetModuleFileName(NULL, env_self, sizeof(env_self));
     cut_away_filename(env_self);
-    putenv(env_self);
+    SetEnvironmentVariable("SELF", env_self);
+}
 
+
+// where to find our python?
+void get_pythonhome(void) {
+    char pythonhome_in[PATH_MAX];
     LoadString(NULL, IDS_PYTHONHOME, pythonhome_in, sizeof(pythonhome_in));
-    ExpandEnvironmentStrings(pythonhome_in, pythonhome, sizeof(pythonhome));
-    struct stat st;
-    if (0 > stat(pythonhome, &st)) {
-        printf("ERROR python minimal distribution not found!\ndirectory not found: %s\n", pythonhome);
+    ExpandEnvironmentStrings(pythonhome_in, pythonhome_relative, sizeof(pythonhome_relative));
+    GetFullPathName(pythonhome_relative, sizeof(pythonhome_absolute), pythonhome_absolute, NULL);
+    //~ wprintf(L"env: %s\n", pythonhome_absolute);
+}
+
+
+// prefix PATH environment variable with the location of our Python installation
+void patch_path_env(void) {
+    static char env_path[32760];
+    unsigned pos = snprintf(env_path, sizeof(env_path), "%s;", pythonhome_absolute);
+    GetEnvironmentVariable("PATH", &env_path[pos], sizeof(env_path) - pos);
+    SetEnvironmentVariable("PATH", env_path);
+}
+
+
+int main() {
+    set_self_env();
+    get_pythonhome();
+    if (check_if_directory_exists(pythonhome_absolute)) {
+        wprintf(L"ERROR python minimal distribution not found!\n"
+                 "Directory not found: %s\n", pythonhome_absolute);
         show_message_from_resource(IDS_PY_NOT_FOUND);
         return 3;
     }
+    // patch PATH so that DLLs can be found
+    patch_path_env();
 
-    // patch PATH so that DLL can be found
-    char pyminimal_path[PATH_MAX];
-    char env_path[32768];
-    char argv_0[PATH_MAX];
-    GetFullPathName(pythonhome, sizeof(pyminimal_path), pyminimal_path, NULL);
-    //~ printf("env: %s\n", pyminimal_path);
-    snprintf(env_path, sizeof(env_path), "PATH=%s;%s", pyminimal_path, getenv("PATH"));
-    putenv(env_path);
-    //~ printf("env: %s\n", env_path);
-    //~ printf("argv_0: %s\n", argv_0);
-
-    // load the python DLL
-    HMODULE python_dll = LoadLibrary("python27.dll");
+    char pydll_path[PATH_MAX];
+    // XXX would like to use python3.dll but it would not find the real python dll (e.g. python27.dll ...)
+    append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, "python27.dll");
+    HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {
-        printf("ERROR Python DLL not found!\nfile not found: python27.dll\n");
+        printf("Python is expected in: %s\n\n"
+               "ERROR Python DLL not found!\n"
+               "File not found: %s\n" , pythonhome_absolute, pydll_path);
         show_message_from_resource(IDS_PYDLL_NOT_FOUND);
         return 1;
     }
@@ -117,39 +165,33 @@ int main(int argc, char *argv[]) {
     FIND_INT(Py_DontWriteBytecodeFlag)
 
     // Set the name and isolate Python from the environment
-    char name[80];
-    LoadString(NULL, IDS_NAME, name, sizeof(name));
-    Py_SetProgramName(name);
-    Py_SetPythonHome(pyminimal_path);
+    char argv_0[PATH_MAX];
+    GetModuleFileName(NULL, argv_0, sizeof(argv_0));
+    Py_SetProgramName(argv_0);
+    Py_SetPythonHome(pythonhome_absolute);
     *Py_NoUserSiteDirectory = 1;
     *Py_IgnoreEnvironmentFlag = 1;
     *Py_DontWriteBytecodeFlag = 1;
     *Py_NoSiteFlag = 1;
     // must ensure that python finds its "landmark file" Lib/os.py (it is in our python27.zip)
+    // Python 2.7 lacks the handy Py_SetPath function (available in 3.x only)
+    // so we have to call Py_Initialize and override sys.path afterwards
     Py_Initialize();
     char pythonpath[32768];
-    snprintf(pythonpath, sizeof(pythonpath), "%s;%s\\python27.zip", pyminimal_path, pyminimal_path);
+    snprintf(pythonpath, sizeof(pythonpath), "%s;%s\\python27.zip", pythonhome_absolute, pythonhome_absolute);
     PySys_SetPath(pythonpath);
 
     // the application is appended as zip to the exe. so load ourselfes
-    // fix filename as windows does not always tell the truth (PATHEXT stuff)
-    GetFullPathName(argv[0], sizeof(argv_0), argv_0, NULL);
-    int len = strlen(argv_0);
-    // append .exe if it is missing
-    if (strcasecmp(&argv_0[len-4], ".exe")) {
-        strncat(argv_0, ".exe", sizeof(argv_0));
-    }
-
     // to get a nice user feedback, test first if the zip is really appended
     if (!test_zip_file(argv_0)) {
-        printf("ERROR application not found!\nno zip data appended to file: %s\n", argv_0);
+        printf("ERROR application not found!\n"
+               "No zip data appended to file: %s\n", argv_0);
         show_message_from_resource(IDS_ZIP_NOT_FOUND);
         return 1;
     }
 
     // use the high level entry to start our boot code, pass along the location of our python installation
-    int retcode = Py_Main(3, (char *[]){"", argv_0, pyminimal_path});
-    //~ int retcode = Py_Main(4, (char *[]){"", "-i", argv_0, pyminimal_path});
+    int retcode = Py_Main(3, (char *[]){"", argv_0, pythonhome_absolute});
     //~ printf("exitcode %d\n", retcode);
     return retcode;
 }

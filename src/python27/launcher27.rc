@@ -1,29 +1,31 @@
 #include "winuser.h"
 1 RT_MANIFEST launcher27.manifest
-2 ICON "launcher.ico"
+1 ICON "launcher.ico"
 
-3 VERSIONINFO
+1 VERSIONINFO
 FILEVERSION     1,0,0,0
 PRODUCTVERSION  1,0,0,0
+FILEOS 0x4
+FILETYPE 0x1
 BEGIN
   BLOCK "StringFileInfo"
   BEGIN
-    BLOCK "080904E4"
+    BLOCK "000004b0"
     BEGIN
-      VALUE "CompanyName",     "My Company Name"
-      VALUE "FileDescription", "My excellent application"
+      VALUE "CompanyName",     "Open Source"
+      VALUE "FileDescription", "Python Embedded Launcher"
       VALUE "FileVersion",     "1.0"
-      VALUE "InternalName",    "my_app"
+      VALUE "InternalName",    "Python Embedded Launcher"
       VALUE "LegalCopyright",  "My Name"
-      VALUE "OriginalFilename", "my_app.exe"
-      VALUE "ProductName",     "My App"
+      VALUE "OriginalFilename", "launcher3.exe"
+      VALUE "ProductName",     "launcher"
       VALUE "ProductVersion",  "1.0"
     END
   END
 
   BLOCK "VarFileInfo"
   BEGIN
-    VALUE "Translation", 0x809, 1252
+    VALUE "Translation", 0x0000, 0x04b0
   END
 END
 
