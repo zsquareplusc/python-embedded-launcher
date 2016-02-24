@@ -27,4 +27,7 @@ try:
 finally:
     sys.stdout.flush()
     sys.stderr.flush()
-    input('[ENTER]')
+    try:
+        raw_input('[ENTER]')    # python 2
+    except:
+        input('[ENTER]')        # python 3
