@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <wchar.h>
+#include "launcher3.h"
 
 #define Py_LIMITED_API
 #include <Python.h>
@@ -16,17 +17,9 @@
         return 1; \
     }
 
-#define IDS_NAME                1
-#define IDS_PYTHONHOME          2
-#define IDS_PY_NOT_FOUND        3
-#define IDS_PYDLL_NOT_FOUND     4
-#define IDS_PYDLL_ERROR         5
-#define IDS_ZIP_NOT_FOUND       6
-
 
 wchar_t pythonhome_relative[PATH_MAX];
 wchar_t pythonhome_absolute[PATH_MAX];
-
 
 
 // show a message dialog with text from the built-in resource
@@ -73,7 +66,8 @@ void cut_away_filename(wchar_t * path) {
 // append a filename to a path
 // does not seem that Windows has this as a function in its core, just in
 // extra DLLs.
-void append_filename(wchar_t *path_out, size_t outsize, const wchar_t *path_in, const wchar_t *filename) {
+void append_filename(wchar_t *path_out, size_t outsize, const wchar_t *path_in,
+                     const wchar_t *filename, const wchar_t *extension) {
     while (outsize && *path_in) {
         *path_out++ = *path_in++;
         outsize--;
@@ -84,6 +78,10 @@ void append_filename(wchar_t *path_out, size_t outsize, const wchar_t *path_in, 
     }
     while (outsize && *filename) {
         *path_out++ = *filename++;
+        outsize--;
+    }
+    while (outsize && *extension) {
+        *path_out++ = *extension++;
         outsize--;
     }
     if (outsize) *path_out = '\0';
@@ -138,8 +136,9 @@ int main() {
     patch_path_env();
 
     wchar_t pydll_path[PATH_MAX];
-    // XXX would like to use python3.dll but it would not find the real python dll (e.g. python35.dll ...)
-    append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, L"python35.dll");
+    wchar_t python_version[20];
+    LoadString(NULL, IDS_PY_VERSION, python_version, sizeof(python_version));
+    append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, python_version,  L".dll");
     HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {
         wprintf(L"Python is expected in: %s\n\n"
@@ -163,7 +162,8 @@ int main() {
     // must ensure that python finds its "landmark file" Lib/os.py (it is in python35.zip)
     wchar_t pythonpath[32768];
     // XXX python3.dll is easy, but how to guess the zip name?
-    snwprintf(pythonpath, sizeof(pythonpath), L"%s;%s\\python35.zip", pythonhome_absolute, pythonhome_absolute);
+    snwprintf(pythonpath, sizeof(pythonpath), L"%s;%s\\%s.zip", 
+              pythonhome_absolute, pythonhome_absolute, python_version);
     Py_SetPath(pythonpath);
 
     // the application is appended as zip to the exe. so load ourselfes

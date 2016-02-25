@@ -1,4 +1,6 @@
 #include "winuser.h"
+#include "launcher27.h"
+
 1 RT_MANIFEST launcher27.manifest
 1 ICON "launcher.ico"
 
@@ -28,14 +30,6 @@ BEGIN
     VALUE "Translation", 0x0000, 0x04b0
   END
 END
-
-
-#define IDS_NAME                1
-#define IDS_PYTHONHOME          2
-#define IDS_PY_NOT_FOUND        3
-#define IDS_PYDLL_NOT_FOUND     4
-#define IDS_PYDLL_ERROR         5
-#define IDS_ZIP_NOT_FOUND       6
 
 STRINGTABLE
 {

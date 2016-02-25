@@ -3,6 +3,7 @@
 #include <shellapi.h>
 #include <stdbool.h>
 #include <Python.h>
+#include "launcher27.h"
 
 #define FIND_FUNCTION(name) \
     FARPROC name = GetProcAddress(python_dll, #name); \
@@ -20,17 +21,8 @@
         return 1; \
     }
 
-#define IDS_NAME                1
-#define IDS_PYTHONHOME          2
-#define IDS_PY_NOT_FOUND        3
-#define IDS_PYDLL_NOT_FOUND     4
-#define IDS_PYDLL_ERROR         5
-#define IDS_ZIP_NOT_FOUND       6
-
-
 char pythonhome_relative[PATH_MAX];
 char pythonhome_absolute[PATH_MAX];
-
 
 
 // show a message dialog with text from the built-in resource

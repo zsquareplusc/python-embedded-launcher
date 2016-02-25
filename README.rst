@@ -217,19 +217,22 @@ Starting with Python 3.5, an embedded Python distribution is already available
 (and used here) for download, see
 https://docs.python.org/3/using/windows.html#embedded-distribution
 
+While Python 3 has a ``python3.dll``, which would be nice to use, as it would
+make the launcher independent of the Python version -- it won't work.
+``Py_SetPath`` is not exposed by that library.
+
 Python is loaded dynamically via ``LoadLibrary``. The launcher is not linked
 against the DLL. This has the advantage that the location of the DLL can be
-different to the one of the exe. It should also enable the possibility to
-make one launcher of all Python 3 versions. Though the current version has
-the Python version number on its code (however it would be easy to move
-this to the resources for easier editing). The separation would also allow
+different to the one of the exe and that the DLL name can be provided and
+edited as resource (only in ``launcher.exe``). The separation would also allow
 to check if the VC runtime is installed and direct the user to the download
 if it is not, but this is not implemented yet.
-
-``pip --user`` installs the packages into a subdirectory ``PythonXY`` named
-after he Python version. We would not need that, but on the other side, it's
-easier that way, so that we do not have to write our own install/extract code.
 
 Why put Python in a subdirectory? Because someone could add the directory
 containing the exe to the ``PATH`` and then the system would find multiple
 ``python.exe`` and ``pythonXY.dll``...
+
+``pip --user`` installs the packages into a subdirectory ``PythonXY`` named
+after he Python version. We would not need that directory structure, but on the
+other side, it's easier that way, so that we do not have to write our own
+install/extract code.
