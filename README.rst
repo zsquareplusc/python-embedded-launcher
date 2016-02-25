@@ -114,7 +114,7 @@ Tools
     ``launcher.py`` a helper module for the boot script is also appended
     to the zip. This zip file is appended to the exe.
 
-``launcher_tool.create_python27_minimal.py``
+``launcher_tool.create_python27_minimal``
     Used to create a python27-minimal distribution. It copies the Python
     installation from the system.
 
@@ -206,7 +206,7 @@ code for the two launchers exists.
 
 The launcher is compiled as console application, so it opens a console window
 when started from the explorer. However it is easily closed with a Windows API
-call and launcher.py, which is added to the application, has a function for
+call and ``launcher.py``, which is added to the application, has a function for
 that. The advantage is, that applications can be started in a console and one
 can see the output - and wait for the program to terminate etc.
 
@@ -230,6 +230,6 @@ if it is not, but this is not implemented yet.
 after he Python version. We would not need that, but on the other side, it's
 easier that way, so that we do not have to write our own install/extract code.
 
-Why put Python in a subdirectory? Bacause someone could add the directory
+Why put Python in a subdirectory? Because someone could add the directory
 containing the exe to the ``PATH`` and then the system would find multiple
-``python.exe`` and ``pythonXY.dll``s...
+``python.exe`` and ``pythonXY.dll``...

@@ -12,14 +12,14 @@ BEGIN
   BEGIN
     BLOCK "000004b0"
     BEGIN
-      VALUE "CompanyName",     "Open Source"
+      //~ VALUE "CompanyName",     "Open Source"
       VALUE "FileDescription", "Python Embedded Launcher"
-      VALUE "FileVersion",     "1.0"
+      //~ VALUE "FileVersion",     "1.0"
       VALUE "InternalName",    "Python Embedded Launcher"
-      VALUE "LegalCopyright",  "My Name"
+      //~ VALUE "LegalCopyright",  "My Name"
       VALUE "OriginalFilename", "launcher3.exe"
       VALUE "ProductName",     "launcher"
-      VALUE "ProductVersion",  "1.0"
+      //~ VALUE "ProductVersion",  "1.0"
     END
   END
 
