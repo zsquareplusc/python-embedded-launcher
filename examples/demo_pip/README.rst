@@ -2,7 +2,7 @@
  demo3 - python-embedded-launcher
 ==================================
 
-This is an exmaple with depenencies.
+This is an example with depenencies.
 
 - dependencies are cached locally as wheels (``pip wheel -r requirements.txt``)
 - install wheels localy

@@ -9,10 +9,7 @@ import re
 import shutil
 import sys
 import zipfile
-try:
-    from StringIO import StringIO as BytesIO
-except ImportError:
-    from io import BytesIO
+
 
 DEFAULT_MAIN = """\
 import sys
@@ -29,28 +26,35 @@ import {module}
 def main():
     parser = argparse.ArgumentParser(description='Launcher assembler')
 
-    parser.add_argument('-o', '--output', metavar='FILE', required=True,
+    parser.add_argument('-o', '--output', metavar='FILE',
                         help='Filename to write the result to')
+    parser.add_argument('-a', '--append-only', metavar='FILE',
+                        help='Append to this file instead of ceating a new one')
     parser.add_argument('--launcher', metavar='EXE',
                         help='Launcher executable to use instead of built-in one')
     parser.add_argument('--main', metavar='FILE',
                         help='use this as __main__.py instead of built-in code')
+    parser.add_argument('--raw', action='store_true', default=False,
+                        help='Do not append zip data (used to copy launcher only)')
     parser.add_argument('-e', '--entry-point', metavar='MOD:FUNC',
                         help='import given module and call function')
-    parser.add_argument('FILE', nargs='*',
-                        help='Add additional files to zip')
-
-    #~ group = parser.add_argument_group('Wheels as dependecies')
-    #~ group.add_argument('-i', '--internal-wheel', action='append', default=[],
-                       #~ help='Add contents of wheel file to appended zip')
-    #~ group.add_argument('-x', '--external-wheel', action='append', default=[],
-                       #~ help='Copy wheel file as a whole')
-    #~ parser.add_argument('--wheel-dir', metavar='DIR', default='wheelhouse',
-                        #~ help='Directory containing the wheel files [default: (%(default)s]')
+    parser.add_argument('--add-file', action='append', default=[], metavar='FILE',
+                        help='Add additional file to zip')
+    parser.add_argument('--add-zip', action='append', default=[], metavar='ZIPFILE',
+                        help='add contents of zip file')
 
     args = parser.parse_args()
-    if args.main is None and args.entry_point is None:
+    if args.main is None and args.entry_point is None and not args.raw:
         parser.error('either --entry-point or --main has to be used')
+    if args.append_only and args.output:
+        parser.error('either --output and --append-only are conflicting options')
+    if not args.append_only and not args.output:
+        parser.error('either --output or --append-only must be given')
+    if args.append_only:
+        args.output = args.append_only  # easier to handle below
+        mode = 'ab'
+    else:
+        mode = 'wb'
 
     #~ sys.stderr.write('running for {}\n'.format('Python 2.7' if sys.version_info.major == 2 else 'Python 3.x'))
 
@@ -62,37 +66,28 @@ def main():
         mod, func = args.entry_point.split(':')
         main = main.format(module=mod, main=func, py=sys.version_info)
 
-    archive_data = BytesIO()
-    with zipfile.ZipFile(archive_data, 'w', compression=zipfile.ZIP_DEFLATED) as archive:
-        archive.writestr('__main__.py', main)
-        archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
-        for filename in args.FILE:
-            archive.write(filename)
-        #~ for wheel in args.internal_wheel:
-            
-
     dest_dir = os.path.dirname(args.output)
     if not os.path.exists(dest_dir):
         os.makedirs(dest_dir)
 
-    with open(args.output, 'wb') as exe:
-        if args.launcher:
-            exe.write(open(args.launcher, 'rb').read())
-        else:
-            exe.write(pkgutil.get_data(__name__, 'launcher27.exe' if sys.version_info.major == 2 else 'launcher3.exe'))
-        exe.write(archive_data.getvalue())
+    with open(args.output, mode) as exe:
+        if not args.append_only:
+            if args.launcher:
+                exe.write(open(args.launcher, 'rb').read())
+            else:
+                exe.write(pkgutil.get_data(__name__, 'launcher27.exe' if sys.version_info.major == 2 else 'launcher3.exe'))
 
-    #~ if args.external_wheel:
-        #~ wheel_destination = os.path.join(os.path.dirname(os.path.abspath(args.output)), 'wheels')
-        #~ if not os.path.exists(wheel_destination):
-            #~ os.mkdir(wheel_destination)
-        #~ for wheel in args.external_wheel:
-            #~ distribution_name = re.sub("[^\w\d.]+", "_", wheel, re.UNICODE)
-            #~ candidates = glob.glob(os.path.join(args.wheelhouse, '{}*.whl'.format(distribution_name)))
-            #~ if len(candidates) > 1:
-                #~ raise NotImplementedError('please remove other versions of wheel files, currently this tool can only cope with one versioon per distribution')
-            #~ shutil.copy2(candidates[0], wheel_destination)
-        
+        if not args.raw:
+            with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
+                archive.writestr('__main__.py', main)
+                archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
+                for filename in args.add_file:
+                    archive.write(filename)
+                for filename in args.add_zip:
+                    with zipfile.ZipFile(filename) as source_archive:
+                        for entry in source_archive.infolist():
+                            archive.writestr(entry, source_archive.read(entry))
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
     main()

@@ -124,12 +124,45 @@ Tools
     and cached locally (so that for repeated runs, it does not need to use
     the Internet again).
 
+``launcher_tool.resource_editor``
+    A small Windows resource editor that can modify the launcher. It uses
+    Windows API functions to read and write the data.
+    
+    - adding and editing strings
+    - removing any resource type
+    - adding any resource type is supported partially (currently limited by
+      data input possibilities)
+    - dump resources
+    - dump decoded string table
+
+    Attention!
+    It will strip debug data and remove the attached ZIP file! So this tool
+    must be used before the application is appended to the launcher.
+
 
 Customization
 =============
 The texts and the location of Python is stored as Windows resource in the
 ``launcher*.exe``. It is possible to use resource editor tools to patch the
-exe. For example resourcehacker_ is such a tool.
+exe.
+
+Unsing ``launcher_tool.resource_editor`` it is possible to make small edits
+on the command line, but it does not support all resource types.
+
+E.g. if there was a common Python package installed under ``%LOCAL_APPDATA%``
+a series of commands like this would create a modified launcher.
+
+    python -m launcher_tool --raw -o %DIST%/myapplication.exe
+    python -m launcher_tool.resource_editor edit_strings %DIST%/myapplication.exe --set 1:^%LOCAL_APPDATA^%\python27-minimal
+    python -m launcher_tool --append-only %DIST%/myapplication.exe -e mymodule:main
+
+Note that ``^`` is the escape character of ``cmd.exe`` when used interactively
+and makes that the ``%`` is not trated specially but as normal text (and the
+variable is thus not expanded). For some reason ``%%`` must be used instead of
+``^%`` when these lines are put in a ``.bat`` file.
+
+An 3rd party tool would be resourcehacker_. It can even edit exe files with
+attached zip data without destroying them.
 
 Alternatively use the sources here to recompile the binaries, it really just
 needs a mingw gcc (which is only a few dozens of megabytes large). In that case
