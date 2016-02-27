@@ -10,9 +10,9 @@ import argparse
 import platform
 import os
 import re
-import requests
 import sys
 import zipfile
+import requests
 
 
 URL_32 = 'https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-win32.zip'
@@ -20,6 +20,7 @@ URL_64 = 'https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip'
 
 
 def main():
+    """Console application entry point"""
     parser = argparse.ArgumentParser(description='Launcher assembler')
 
     parser.add_argument('-d', '--directory', metavar='DIR', default='.',
@@ -60,10 +61,10 @@ def main():
     # download
     if not os.path.exists(cache_name) or args.force_download:
         sys.stderr.write('downloading {} to {}\n'.format(args.url, cache_name))
-        r = requests.get(args.url, stream=True)
-        with open(cache_name, 'wb') as fd:
-            for chunk in r.iter_content(2**20):
-                fd.write(chunk)
+        response = requests.get(args.url, stream=True)
+        with open(cache_name, 'wb') as downloaded_data:
+            for chunk in response.iter_content(2**20):
+                downloaded_data.write(chunk)
     else:
         sys.stderr.write('using cached file {}\n'.format(cache_name))
 
@@ -75,6 +76,6 @@ def main():
     with zipfile.ZipFile(cache_name) as archive:
         archive.extractall(python_destination)
 
-
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
     main()

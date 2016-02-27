@@ -1,3 +1,6 @@
+"""\
+Helper functions for executables packaged with python-embedded-launcher.
+"""
 # imports are delayed, made within the function calls. this is intentionally
 # in case the startup code alters sys.path etc.
 

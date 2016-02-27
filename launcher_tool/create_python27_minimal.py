@@ -13,8 +13,10 @@ import argparse
 import os
 import shutil
 import sys
-import zipfile
+import zipfile
+
 def main():
+    """Console application entry point"""
     parser = argparse.ArgumentParser(description='Launcher assembler')
 
     parser.add_argument('-d', '--directory', metavar='DIR', default='.',
@@ -36,9 +38,9 @@ def main():
         shutil.copy2(os.path.join(python_source, name),
                      os.path.join(python_destination, name))
 
-    DLL_EXCLUDES = ('tcl85.dll', 'tclpip85.dll', 'tk85.dll', '_tkinter.pyd')
+    dll_excludes = ('tcl85.dll', 'tclpip85.dll', 'tk85.dll', '_tkinter.pyd')
     for name in os.listdir(os.path.join(python_source, 'DLLs')):
-        if name not in DLL_EXCLUDES:
+        if name not in dll_excludes:
             shutil.copy2(os.path.join(python_source, 'DLLs', name),
                          os.path.join(python_destination, name))
 
@@ -47,14 +49,14 @@ def main():
                  os.path.join(python_destination, 'python27.dll'))
 
     # zip the standard libarary (no site-packages and no tcl/tk)
-    EXCLUDE_DIRS = ('lib-tk', 'site-packages', 'test', 'tests')
+    exclude_dirs = ('lib-tk', 'site-packages', 'test', 'tests')
     with zipfile.PyZipFile(os.path.join(python_destination, 'python27.zip'), 'w',
-            compression=zipfile.ZIP_DEFLATED) as archive:
+                           compression=zipfile.ZIP_DEFLATED) as archive:
         zip_root = os.path.join(python_source, 'Lib')
         for root, dirs, files in os.walk(zip_root):
-            for dir in EXCLUDE_DIRS:
-                if dir in dirs:
-                    dirs.remove(dir)
+            for directory in exclude_dirs:
+                if directory in dirs:
+                    dirs.remove(directory)
             for name in files:
                 filename = os.path.join(root, name)
                 base, ext = os.path.splitext(name)
@@ -75,5 +77,6 @@ def main():
                         filename[len(os.path.commonprefix([zip_root, filename])):],
                         )
 
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
     main()
