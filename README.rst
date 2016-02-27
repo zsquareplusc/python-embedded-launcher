@@ -99,11 +99,37 @@ Write a regular ``setup.py`` script for your application and install it (using
 Use the launcher tool to write the exe, calling your app (using ``py -2`` or
 ``py -3``)::
 
-    py launcher_tool.py -o dist/myapp.exe -e mymodule:main
+    py -m launcher_tool -o dist/myapp.exe -e mymodule:main
 
 
 .. note:: pip will also install scripts in a subdirectory called ``Scripts``.
           this usually not needed for a packaged app, so this can be deleted.
+
+
+Alternatives
+------------
+It is also possible to install pip within the embedded Python distribution
+and use that distribution itself to install packages::
+
+    py -3 -m launcher_tool.download_python3_minimal
+    cd python3-minimal
+    python get-pip.py
+    python -m pip install --find-links=/path/to/wheelhouse --no-index -r requirements.txt
+    cd ..
+    py -3 -m launcher_tool -o myapp.exe -e mymodule:main
+
+First we use ``py -3`` to use the systems Python 3, then ``python`` to call
+the local version in the directory. The first step is installing pip with
+`get-pip.py`_. Then using this to install more packages. Installing from
+source may not work, it is recommended to only use wheels for this step.
+
+.. _get-pip.py: https://bootstrap.pypa.io/get-pip.py:
+
+
+Python 3's zipapp module can be used to package the application::
+
+    py -3 -m zipapp myapp.py -o myapp.pyz
+    py -3 -m launcher_tool -o myapp.exe --run-path myapp.pyz
 
 
 Tools
