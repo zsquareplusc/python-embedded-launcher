@@ -7,3 +7,6 @@
 /launcher_tool/launcher3.exe
 /launcher_tool/*.pyc
 /launcher_tool/__pycache__
+/build
+/dist
+/python_embedded_launcher.egg-info

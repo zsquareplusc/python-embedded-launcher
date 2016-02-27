@@ -1,0 +1,34 @@
+include requirements.txt
+include README.rst
+include LICENSE.txt
+include examples/demo_custom_main/demo1.py
+include examples/demo_custom_main/make_demo_py27.bat
+include examples/demo_custom_main/make_demo_py3.bat
+include examples/demo_pip/make_demo_py27.bat
+include examples/demo_pip/make_demo_py3.bat
+include examples/demo_pip/README.rst
+include examples/demo_pip/requirements.txt
+include examples/demo_wx_classic/copy_wx.py
+include examples/demo_wx_classic/make_demo_py27.bat
+include examples/demo_wx_classic/README.rst
+include examples/demo_wx_classic/sample_application.py
+include src/compile_all.bat
+include src/python27/compile.bat
+include src/python27/launcher.ico
+include src/python27/launcher27.c
+include src/python27/launcher27.h
+include src/python27/launcher27.manifest
+include src/python27/launcher27.rc
+include src/python3/compile.bat
+include src/python3/launcher.ico
+include src/python3/launcher3.c
+include src/python3/launcher3.h
+include src/python3/launcher3.manifest
+include src/python3/launcher3.rc
+
+
+
+
+
+
+
