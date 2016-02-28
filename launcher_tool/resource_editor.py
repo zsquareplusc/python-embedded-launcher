@@ -13,9 +13,12 @@ import struct
 import sys
 from pprint import pprint
 
+import icon
 
 LOAD_LIBRARY_AS_DATAFILE = 2
 RT_STRING = 6
+RT_ICON = 3
+RT_GROUP_ICON = 14
 
 RESOURCE_TYPES = {
     1: 'RT_CURSOR',
@@ -72,19 +75,19 @@ LockResource.argtypes = [HGLOBAL]  # hResData
 LockResource.restype = ctypes.c_void_p
 
 #~ EnumResTypeProc = ctypes.CFUNCTYPE(BOOL, HMODULE, LPTSTR, LONG_PTR) # hModule lpszType lParam
-EnumResTypeProc = ctypes.CFUNCTYPE(BOOL, HMODULE, ctypes.c_int, ctypes.c_int) # hModule lpszType lParam
+EnumResTypeProc = ctypes.CFUNCTYPE(BOOL, HMODULE, ctypes.c_int, ctypes.c_int)  # hModule lpszType lParam
 
 EnumResourceTypes = ctypes.windll.Kernel32.EnumResourceTypesW
-EnumResourceTypes.argtypes = [HMODULE, EnumResTypeProc, ctypes.c_int] # hModule, lpEnumFunc, lParam
+EnumResourceTypes.argtypes = [HMODULE, EnumResTypeProc, ctypes.c_int]  # hModule, lpEnumFunc, lParam
 EnumResourceTypes.restype = check_bool
 
 
 #~ EnumResNameProc = ctypes.CFUNCTYPE(BOOL, HMODULE, LPCWSTR, LPWSTR, ctypes.c_int) # hModule, lpszType, lpszName, lParam
-EnumResNameProc = ctypes.CFUNCTYPE(BOOL, HMODULE, ctypes.c_int, ctypes.c_int, ctypes.c_int) # hModule, lpszType, lpszName, lParam
+EnumResNameProc = ctypes.CFUNCTYPE(BOOL, HMODULE, ctypes.c_int, ctypes.c_int, ctypes.c_int)  # hModule, lpszType, lpszName, lParam
 
 EnumResourceNames = ctypes.windll.kernel32.EnumResourceNamesW
 #~ EnumResourceNames.argtypes = [HMODULE, LPCWSTR, EnumResNameProc, ctypes.c_int] # hModule, lpszType, lpEnumFunc, lParam
-EnumResourceNames.argtypes = [HMODULE, ctypes.c_int, EnumResNameProc, ctypes.c_int] # hModule, lpszType, lpEnumFunc, lParam
+EnumResourceNames.argtypes = [HMODULE, ctypes.c_int, EnumResNameProc, ctypes.c_int]  # hModule, lpszType, lpEnumFunc, lParam
 EnumResourceNames.restype = check_bool
 
 # hModule, lpszType,lpszName, wIDLanguage, lParam
@@ -99,15 +102,15 @@ EnumResourceLanguages.restype = check_bool
 
 UpdateResource = ctypes.windll.kernel32.UpdateResourceW
 #~ UpdateResource.argtypes = [HANDLE, LPCWSTR, LPCWSTR, WORD, LPVOID, DWORD] # hUpdate  lpType  lpName wLanguage lpData cbData
-UpdateResource.argtypes = [HANDLE, ctypes.c_int, ctypes.c_int, WORD, ctypes.POINTER(ctypes.c_ubyte), DWORD] # hUpdate  lpType  lpName wLanguage lpData cbData
+UpdateResource.argtypes = [HANDLE, ctypes.c_int, ctypes.c_int, WORD, ctypes.POINTER(ctypes.c_ubyte), DWORD]  # hUpdate  lpType  lpName wLanguage lpData cbData
 UpdateResource.restype = BOOL
 
 BeginUpdateResource = ctypes.windll.kernel32.BeginUpdateResourceW
-BeginUpdateResource.argtypes = [LPCWSTR, BOOL] # pFileName  bDeleteExistingResources
+BeginUpdateResource.argtypes = [LPCWSTR, BOOL]  # pFileName  bDeleteExistingResources
 BeginUpdateResource.restype = HANDLE
 
 EndUpdateResource = ctypes.windll.kernel32.EndUpdateResourceW
-EndUpdateResource.argtypes = [HANDLE, BOOL] # hUpdate  fDiscard
+EndUpdateResource.argtypes = [HANDLE, BOOL]  # hUpdate  fDiscard
 EndUpdateResource.restype = BOOL
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -122,9 +125,9 @@ def decode_string_table_bundle(table):
             break
         (length,) = struct.unpack(b'<H', table[pos : pos + 2])
         pos += 2
-        strings[i] = table[pos : pos + length*2].decode('utf-16')
+        strings[i] = table[pos : pos + length * 2].decode('utf-16')
         #~ print i, table[pos :]
-        pos += length*2
+        pos += length * 2
     return first_index, strings
 
 
@@ -243,6 +246,15 @@ class ResourceReader(object):
         size = SizeofResource(self.hsrc, hres)
         return bytearray((ctypes.c_ubyte * size).from_address(LockResource(r)))
 
+    def list_resources(self):
+        """Get a flat list of resources in the file"""
+        resources = []
+        for res_type in self.enumerate_types():
+            for res_name in self.enumerate_names(res_type):
+                for res_lang in self.enumerate_languages(res_type, res_name):
+                    resources.append((res_type, res_name, res_lang))
+        return resources
+
     def make_dict(self):
         """Convert all resource entries to a dictionary"""
         d = {}
@@ -301,6 +313,41 @@ def action_dump(args):
         pprint(d)
 
 
+def action_list(args):
+    """Print all resources as dict"""
+    with ResourceReader(args.FILE) as res:
+        for res_type, res_name, res_lang in sorted(res.list_resources()):
+            sys.stdout.write('{}:{}:{} {}\n'.format(
+                res_type, res_name, res_lang, RESOURCE_TYPES.get(res_type, '?')))
+
+
+def action_export(args):
+    """Export a single resource to a file"""
+    with ResourceReader(args.FILE) as res:
+        res_type, res_name, res_lang = args.RESOURCE.split(':')
+        data = res.get_resource(int(res_type), int(res_name), int(res_lang))
+        args.output.write(data)
+
+
+def action_export_icon(args):
+    """Export an icon from resources to a file"""
+    ico = icon.Icon()
+    with ResourceReader(args.FILE) as res:
+        if args.name is None:
+            # guess an image number
+            args.name = min(res_name for res_type, res_name, res_lang in res.list_resources() if res_type == RT_GROUP_ICON)
+        ico.load_from_resource(res, args.name, args.lang)
+    ico.save(args.output)
+
+
+def write_icon(args):
+    """Update an icon resource"""
+    ico = icon.Icon()
+    ico.load(args.ICON)
+    with ResourceEditor(args.FILE) as res:
+        ico.save_as_resource(res, args.name, args.lang)
+
+
 def action_edit(args):
     """Write (add or modify) or deletete resource entries"""
     with ResourceEditor(args.FILE) as res:
@@ -336,25 +383,46 @@ def action_edit_strings(args):
 
 def main():
     """Console application entry point"""
+    if sys.version_info.major == 3:
+        binary_stdout = sys.stdout.buffer
+    else:
+        binary_stdout = sys.stdout
     parser = argparse.ArgumentParser(description='Windows Resource Editor')
+    parser.add_argument('FILE', help='File containing the resources (.exe, .dll)')
     subparsers = parser.add_subparsers(help='sub-command help')
 
     parser_dump = subparsers.add_parser('dump', help='Read and output resources.')
-    parser_dump.add_argument('FILE', help='File to read from (.exe, .dll)')
     parser_dump.set_defaults(func=action_dump)
 
+    parser_list = subparsers.add_parser('list', help='Read and output resources identifiers.')
+    parser_list.set_defaults(func=action_list)
+
+    parser_export = subparsers.add_parser('export', help='Export one entry to a file.')
+    parser_export.add_argument('RESOURCE', metavar='TYPE:NAME:LANG', help='identification')
+    parser_export.add_argument('--output', '-o', default=binary_stdout, type=argparse.FileType('wb'), help='file to write data')
+    parser_export.set_defaults(func=action_export)
+
+    parser_export_icon = subparsers.add_parser('export_icon', help='Export icon to a file.')
+    parser_export_icon.add_argument('--name', type=int, help='resource ID')
+    parser_export_icon.add_argument('--lang', type=int, default=1033, help='resource language')
+    parser_export_icon.add_argument('--output', '-o', metavar='FILE', help='file to write data', required=True)
+    parser_export_icon.set_defaults(func=action_export_icon)
+
+    parser_write_icon = subparsers.add_parser('write_icon', help='Write icon to a resource file.')
+    parser_write_icon.add_argument('ICON', help='icon to read')
+    parser_write_icon.add_argument('--name', type=int, default=1, help='resource ID')
+    parser_write_icon.add_argument('--lang', type=int, default=1033, help='resource language')
+    parser_write_icon.set_defaults(func=write_icon)
+
     parser_edit = subparsers.add_parser('edit', help='Edit resources.')
-    parser_edit.add_argument('FILE', help='File to edit (.exe, .dll)')
     parser_edit.add_argument('--add', action='append', default=[], help='add specified resource')
     parser_edit.add_argument('--delete', action='append', default=[], help='remove resources')
     parser_edit.set_defaults(func=action_edit)
 
     parser_dump_strings = subparsers.add_parser('dump_strings', help='Read and output string table resource.')
-    parser_dump_strings.add_argument('FILE', help='File to read from (.exe, .dll)')
     parser_dump_strings.set_defaults(func=action_dump_strings)
 
     parser_edit_strings = subparsers.add_parser('edit_strings', help='Edit resources.')
-    parser_edit_strings.add_argument('FILE', help='File to edit (.exe, .dll)')
     parser_edit_strings.add_argument('--set', action='append', default=[], help='(over)write specified text')
     parser_edit_strings.add_argument('--lang', type=int, default=1033, help='language ID')
     parser_edit_strings.set_defaults(func=action_edit_strings)

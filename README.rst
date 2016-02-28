@@ -155,6 +155,8 @@ Tools
     Windows API functions to read and write the data.
     
     - adding and editing strings
+    - retrieving and writing icons
+    - export resources as (binary) blob
     - removing any resource type
     - adding any resource type is supported partially (currently limited by
       data input possibilities)
@@ -176,14 +178,15 @@ Unsing ``launcher_tool.resource_editor`` it is possible to make small edits
 on the command line, but it does not support all resource types.
 
 E.g. if there was a common Python package installed under ``%LOCAL_APPDATA%``
-a series of commands like this would create a modified launcher.
+a series of commands like this would create a modified launcher::
 
-    python -m launcher_tool --raw -o %DIST%/myapplication.exe
-    python -m launcher_tool.resource_editor edit_strings %DIST%/myapplication.exe --set 1:^%LOCAL_APPDATA^%\python27-minimal
-    python -m launcher_tool --append-only %DIST%/myapplication.exe -e mymodule:main
+    python -m launcher_tool --raw -o %DIST%/myapp.exe
+    python -m launcher_tool.resource_editor %DIST%/myapp.exe edit_strings --set 1:^%LOCAL_APPDATA^%\python27-minimal
+    python -m launcher_tool.resource_editor %DIST%/myapp.exe write_icon newicon.ico
+    python -m launcher_tool --append-only %DIST%/myapp.exe -e mymodule:main
 
 Note that ``^`` is the escape character of ``cmd.exe`` when used interactively
-and makes that the ``%`` is not trated specially but as normal text (and the
+and makes that the ``%`` is not treated specially but as normal text (and the
 variable is thus not expanded). For some reason ``%%`` must be used instead of
 ``^%`` when these lines are put in a ``.bat`` file.
 
@@ -200,7 +203,6 @@ text editor and ``compile.bat`` is used to recreate the exe.
 
 Build
 =====
-
 Requires a mingw gcc compiler (see Requirements_).
 
 Run ``compile_all.bat`` in the ``src`` directory.
