@@ -24,12 +24,14 @@ def add_wheels():
     for whl in glob.glob(os.path.join(os.path.dirname(sys.executable), 'wheels', '*.whl')):
         sys.path.append(whl)
 
+
 def restore_sys_argv():
     """get original command line via Windows API"""
     import ctypes
     import shlex
     commandline = ctypes.c_wchar_p(ctypes.windll.kernel32.GetCommandLineW())
     sys.argv = shlex.split(commandline.value, posix=False)
+
 
 def close_console():
     """closes the console window, if one was opened for the process"""

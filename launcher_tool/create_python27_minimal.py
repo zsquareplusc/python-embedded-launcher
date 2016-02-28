@@ -15,6 +15,7 @@ import shutil
 import sys
 import zipfile
 
+
 def main():
     """Console application entry point"""
     parser = argparse.ArgumentParser(description='Launcher assembler')
@@ -74,8 +75,7 @@ def main():
                 else:
                     archive.write(
                         filename,
-                        filename[len(os.path.commonprefix([zip_root, filename])):],
-                        )
+                        filename[len(os.path.commonprefix([zip_root, filename])):])
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':

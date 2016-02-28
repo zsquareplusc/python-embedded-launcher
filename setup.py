@@ -21,7 +21,7 @@ setup(
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",
     packages=['launcher_tool'],
-    package_data={'launcher_tool':['launcher27.exe', 'launcher3.exe']},
+    package_data={'launcher_tool': ['launcher27.exe', 'launcher3.exe']},
     license="BSD",
     long_description="Launcher exe for distributin Python apps on Windows",
     classifiers=[
