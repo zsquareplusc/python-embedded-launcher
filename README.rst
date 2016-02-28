@@ -174,14 +174,14 @@ The texts and the location of Python is stored as Windows resource in the
 ``launcher*.exe``. It is possible to use resource editor tools to patch the
 exe.
 
-Unsing ``launcher_tool.resource_editor`` it is possible to make small edits
+Using ``launcher_tool.resource_editor`` it is possible to make small edits
 on the command line, but it does not support all resource types.
 
-E.g. if there was a common Python package installed under ``%LOCAL_APPDATA%``
+E.g. if there was a common Python package installed under ``%LOCALAPPDATA%``
 a series of commands like this would create a modified launcher::
 
     python -m launcher_tool --raw -o %DIST%/myapp.exe
-    python -m launcher_tool.resource_editor %DIST%/myapp.exe edit_strings --set 1:^%LOCAL_APPDATA^%\python27-minimal
+    python -m launcher_tool.resource_editor %DIST%/myapp.exe edit_strings --set 1:^%LOCALAPPDATA^%\python27-minimal
     python -m launcher_tool.resource_editor %DIST%/myapp.exe write_icon newicon.ico
     python -m launcher_tool --append-only %DIST%/myapp.exe -e mymodule:main
 
@@ -280,7 +280,9 @@ https://docs.python.org/3/using/windows.html#embedded-distribution
 
 While Python 3 has a ``python3.dll``, which would be nice to use, as it would
 make the launcher independent of the Python version -- it won't work.
-``Py_SetPath`` is not exposed by that library.
+``Py_SetPath`` is not exposed by that library. As a workaround, the name
+(e.g. ``python35``) is in the resources of ``launcher3.exe`` so that it can
+be changed without recompiling.
 
 Python is loaded dynamically via ``LoadLibrary``. The launcher is not linked
 against the DLL. This has the advantage that the location of the DLL can be
@@ -290,8 +292,8 @@ to check if the VC runtime is installed and direct the user to the download
 if it is not, but this is not implemented yet.
 
 Why put Python in a subdirectory? Because someone could add the directory
-containing the exe to the ``PATH`` and then the system would find multiple
-``python.exe`` and ``pythonXY.dll``...
+containing the exe to the ``PATH`` and then the system would potentially find
+multiple ``python.exe`` and ``pythonXY.dll``...
 
 ``pip --user`` installs the packages into a subdirectory ``PythonXY`` named
 after he Python version. We would not need that directory structure, but on the

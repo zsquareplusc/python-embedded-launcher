@@ -67,7 +67,7 @@ def main():
             main_script = DEFAULT_MAIN
         if args.entry_point is not None:
             mod, func = args.entry_point.split(':')
-            run = '{module}.{main}()'.format(module=mod, main=func)
+            run = 'import {module}\n{module}.{main}()'.format(module=mod, main=func)
         elif args.run_path is not None:
             run = 'import runpy\nrunpy.run_path("{}")'.format(args.run_path)
         elif args.run_module is not None:

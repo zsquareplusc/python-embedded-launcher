@@ -13,7 +13,7 @@ import struct
 import sys
 from pprint import pprint
 
-import icon
+import launcher_tool.icon as icon
 
 LOAD_LIBRARY_AS_DATAFILE = 2
 RT_STRING = 6
