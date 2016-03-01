@@ -77,27 +77,25 @@ file (using ``py -2`` or ``py -3``)::
     py -m pip install --user --ignore-installed -r requirements.txt
 
 Alternatively, download all dependencies as wheels first, so that subsequent
-runs to create a distribution do not need to download from the Internet.
+runs to create a distribution do not need to download from the Internet
+(recommended).
 
-Fetch dependencies once (using ``py -2`` or ``py -3``)::
+Fetch the dependencies once::
 
     py -m pip wheel -r requirements.txt
 
-Then use these with ``--find-links`` and ``--no-index`` options (using
-``py -2`` or ``py -3``)::
+Then use these with ``--find-links`` and ``--no-index`` options::
 
     set PYTHONUSERBASE=dist
     py -m pip install --user --ignore-installed --find-links=wheelhouse --no-index -r requirements.txt
 
 
-Write a regular ``setup.py`` script for your application and install it (using
-``py -2`` or ``py -3``)::
+Write a regular ``setup.py`` script for your application and install it::
 
     set PYTHONUSERBASE=dist
     py setup.py install --user --ignore-installed
 
-Use the launcher tool to write the exe, calling your app (using ``py -2`` or
-``py -3``)::
+Use the launcher tool to write the exe, calling your app::
 
     py -m launcher_tool -o dist/myapp.exe -e mymodule:main
 

@@ -40,7 +40,7 @@ def main():
     group_run.add_argument('--run-path', metavar='FILE',
                            help='execute given file (e.g. .py, .zip)')
     group_run.add_argument('--run-module', metavar='MODULE',
-                           help='execute Python module name')
+                           help='execute module (similar to python -m)')
     group_run.add_argument('--main', metavar='FILE',
                            help='use this as __main__.py instead of built-in code')
 
@@ -98,8 +98,9 @@ def main():
                 for filename in args.add_zip:
                     with zipfile.ZipFile(filename) as source_archive:
                         for entry in source_archive.infolist():
-                            #~ if entry.filename == '__main__.py':
-                                #~ entry.filename = '_main.py'
+                            if entry.filename == '__main__.py':
+                                sys.stdwrr.write('warning: included {}/__main__.py as _main.py'.format(entry.filename))
+                                entry.filename = '_main.py'
                             archive.writestr(entry, source_archive.read(entry))
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
