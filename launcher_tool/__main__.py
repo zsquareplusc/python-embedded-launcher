@@ -25,7 +25,7 @@ def main():
     parser = argparse.ArgumentParser(description='Launcher exe assembler')
 
     group_out = parser.add_argument_group('output options')
-    group_out_out = group_out.add_mutually_exclusive_group()
+    group_out_out = group_out.add_mutually_exclusive_group(required=True)
     group_out_out.add_argument('-o', '--output', metavar='FILE',
                                help='filename to write the result to')
     group_out_out.add_argument('-a', '--append-only', metavar='FILE',
@@ -71,7 +71,7 @@ def main():
         elif args.run_path is not None:
             run = 'import runpy\nrunpy.run_path("{}")'.format(args.run_path)
         elif args.run_module is not None:
-            run = 'import runpy\nrunpy.run_module("{}")'.format(args.run_path)
+            run = 'import runpy\nrunpy.run_module("{}")'.format(args.run_module)
         else:
             run = ''
         main_script = main_script.format(run=run, py=sys.version_info)
