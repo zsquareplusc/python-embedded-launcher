@@ -91,7 +91,7 @@ void append_filename(wchar_t *path_out, size_t outsize, const wchar_t *path_in,
 bool check_if_directory_exists(wchar_t * path) {
     DWORD dwAttrib = GetFileAttributes(path);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
-          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+           (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 
@@ -126,7 +126,7 @@ void patch_path_env(void) {
 int main() {
     set_self_env();
     get_pythonhome();
-    if (check_if_directory_exists(pythonhome_absolute)) {
+    if (!check_if_directory_exists(pythonhome_absolute)) {
         wprintf(L"ERROR python minimal distribution not found!\n"
                  "Directory not found: %s\n", pythonhome_absolute);
         show_message_from_resource(IDS_PY_NOT_FOUND);
@@ -161,7 +161,6 @@ int main() {
     Py_SetPythonHome(pythonhome_absolute);
     // must ensure that python finds its "landmark file" Lib/os.py (it is in python35.zip)
     wchar_t pythonpath[32768];
-    // XXX python3.dll is easy, but how to guess the zip name?
     snwprintf(pythonpath, sizeof(pythonpath), L"%s;%s\\%s.zip", 
               pythonhome_absolute, pythonhome_absolute, python_version);
     Py_SetPath(pythonpath);

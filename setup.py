@@ -4,6 +4,7 @@
 #
 # SPDX-License-Identifier:    BSD-3-Clause
 import subprocess
+import sys
 try:
     from setuptools import setup
 except ImportError:
@@ -11,7 +12,7 @@ except ImportError:
 
 # compile the launcher binaries
 # other users may need to edit the batch file or add gcc somehow to the PATH
-print subprocess.check_output(['compile_all.bat'], cwd='src', shell=True)
+sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True))
 
 setup(
     name="python-embedded-launcher",
@@ -23,7 +24,7 @@ setup(
     packages=['launcher_tool'],
     package_data={'launcher_tool': ['launcher27.exe', 'launcher3.exe']},
     license="BSD",
-    long_description="Launcher exe for distributin Python apps on Windows",
+    long_description="Launcher exe for distributing Python apps on Windows",
     classifiers=[
         #~ 'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

@@ -89,7 +89,7 @@ void append_filename(char *path_out, size_t outsize, const char *path_in, const 
 bool check_if_directory_exists(char * path) {
     DWORD dwAttrib = GetFileAttributes(path);
     return (dwAttrib != INVALID_FILE_ATTRIBUTES && 
-          !(dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
+           (dwAttrib & FILE_ATTRIBUTE_DIRECTORY));
 }
 
 
@@ -124,7 +124,7 @@ void patch_path_env(void) {
 int main() {
     set_self_env();
     get_pythonhome();
-    if (check_if_directory_exists(pythonhome_absolute)) {
+    if (!check_if_directory_exists(pythonhome_absolute)) {
         wprintf(L"ERROR python minimal distribution not found!\n"
                  "Directory not found: %s\n", pythonhome_absolute);
         show_message_from_resource(IDS_PY_NOT_FOUND);

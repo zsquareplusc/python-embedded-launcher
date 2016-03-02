@@ -17,7 +17,7 @@ complete packages with a Python minimal distribution: Python + wheel files.
 There is no attempt made to search together all the required files, there is
 no scan for ``import`` statements etc.
 
-See also pex_, which can grab dependencies from pypi_ and make a zipped
+See also pex_, which can grab dependencies from pypi_ and make zip
 applications, but that does not bundle the Python interpreter.
 
 .. _py2exe: http://www.py2exe.org/
@@ -49,14 +49,14 @@ Common python-minimal package
     In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
     ``"%PACKAGE_ROOT%\\python27-minimal"``. This way, the Python distribution
     is expected to be at a fixed location, where the ``PACKAGE_ROOT`` variable
-    points at, it is expected to be set by the package manager.
+    points at. It is expected to be set by the package manager.
 
 
 Usage
 =====
 The ``example`` directory has demos where these steps are written in a batch
 file that is ready to run. The description here explains the steps.
-On windows, once Python 3 is installed, the Python Launcher ``py`` is
+On Windows, once Python 3 is installed, the Python Launcher ``py`` is
 available, this is what is used here. Otherwise replace ``py -2``/``py -3`` with
 ``python``/``python3``. When packaging an app, the same Python version that
 is packaged, should be used to run the steps here (using ``py -2`` or
@@ -136,7 +136,8 @@ Tools
     A tool to combine scripts with the ``launcher27.exe`` or ``launcher3.exe``.
     A script is added with the name ``__main__.py`` to a zip file.
     ``launcher.py`` a helper module for the boot script is also appended
-    to the zip. This zip file is appended to the exe.
+    to the zip. This zip file is appended to the exe. Optionally it can also
+    include other files too.
 
 ``launcher_tool.create_python27_minimal``
     Used to create a python27-minimal distribution. It copies the Python
