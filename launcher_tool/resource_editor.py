@@ -1,6 +1,9 @@
 #!python
 """\
 Use Windows API to change resources in exe/dll's.
+
+This module uses the Windows API to manipulate files and therefore must
+be run on Windows or a compatible system.
 """
 # pylint: disable=invalid-name,line-too-long,unused-argument,missing-docstring
 
@@ -115,6 +118,7 @@ EndUpdateResource.restype = BOOL
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+
 def decode_string_table_bundle(table):
     """Decode a bundle of 16 strings from a resource"""
     (first_index,) = struct.unpack(b'<H', table[:2])
@@ -206,6 +210,7 @@ class ResourceReader(object):
     def enumerate_types(self):
         """Return a list of resource types in the file"""
         types = []
+
         @EnumResTypeProc
         def remember_type(handle, res_type, param):
             types.append(res_type)
@@ -219,6 +224,7 @@ class ResourceReader(object):
         type in the file.
         """
         names = []
+
         @EnumResNameProc
         def remember_name(hModule, lpszType, lpszName, lParam):
             names.append(lpszName)
@@ -232,6 +238,7 @@ class ResourceReader(object):
         name and type in the file.
         """
         languages = []
+
         @EnumResLangProc
         def remember_languages(hModule, lpszType, lpszName, wIDLanguage, lParam):
             languages.append(wIDLanguage)
@@ -303,6 +310,7 @@ class ResourceEditor(object):
                            len(data))
         else:
             UpdateResource(self.hdst, res_type, res_name, res_lang, None, 0)  # deletes entry
+
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
@@ -388,41 +396,41 @@ def main():
     else:
         binary_stdout = sys.stdout
     parser = argparse.ArgumentParser(description='Windows Resource Editor')
-    parser.add_argument('FILE', help='File containing the resources (.exe, .dll)')
+    parser.add_argument('FILE', help='file containing the resources (.exe, .dll)')
     subparsers = parser.add_subparsers(help='sub-command help')
 
-    parser_dump = subparsers.add_parser('dump', help='Read and output resources.')
+    parser_dump = subparsers.add_parser('dump', help='read and output resources.')
     parser_dump.set_defaults(func=action_dump)
 
-    parser_list = subparsers.add_parser('list', help='Read and output resources identifiers.')
+    parser_list = subparsers.add_parser('list', help='read and output resources identifiers.')
     parser_list.set_defaults(func=action_list)
 
-    parser_export = subparsers.add_parser('export', help='Export one entry to a file.')
+    parser_export = subparsers.add_parser('export', help='export one entry to a file.')
     parser_export.add_argument('RESOURCE', metavar='TYPE:NAME:LANG', help='identification')
     parser_export.add_argument('--output', '-o', default=binary_stdout, type=argparse.FileType('wb'), help='file to write data')
     parser_export.set_defaults(func=action_export)
 
-    parser_export_icon = subparsers.add_parser('export_icon', help='Export icon to a file.')
+    parser_export_icon = subparsers.add_parser('export_icon', help='export icon to a file.')
     parser_export_icon.add_argument('--name', type=int, help='resource ID')
     parser_export_icon.add_argument('--lang', type=int, default=1033, help='resource language')
     parser_export_icon.add_argument('--output', '-o', metavar='FILE', help='file to write data', required=True)
     parser_export_icon.set_defaults(func=action_export_icon)
 
-    parser_write_icon = subparsers.add_parser('write_icon', help='Write icon to a resource file.')
+    parser_write_icon = subparsers.add_parser('write_icon', help='write icon to a resource file.')
     parser_write_icon.add_argument('ICON', help='icon to read')
     parser_write_icon.add_argument('--name', type=int, default=1, help='resource ID')
     parser_write_icon.add_argument('--lang', type=int, default=1033, help='resource language')
     parser_write_icon.set_defaults(func=write_icon)
 
-    parser_edit = subparsers.add_parser('edit', help='Edit resources.')
+    parser_edit = subparsers.add_parser('edit', help='edit resources.')
     parser_edit.add_argument('--add', action='append', default=[], help='add specified resource')
     parser_edit.add_argument('--delete', action='append', default=[], help='remove resources')
     parser_edit.set_defaults(func=action_edit)
 
-    parser_dump_strings = subparsers.add_parser('dump_strings', help='Read and output string table resource.')
+    parser_dump_strings = subparsers.add_parser('dump_strings', help='read and output string table resource.')
     parser_dump_strings.set_defaults(func=action_dump_strings)
 
-    parser_edit_strings = subparsers.add_parser('edit_strings', help='Edit resources.')
+    parser_edit_strings = subparsers.add_parser('edit_strings', help='edit resources.')
     parser_edit_strings.add_argument('--set', action='append', default=[], help='(over)write specified text')
     parser_edit_strings.add_argument('--lang', type=int, default=1033, help='language ID')
     parser_edit_strings.set_defaults(func=action_edit_strings)
