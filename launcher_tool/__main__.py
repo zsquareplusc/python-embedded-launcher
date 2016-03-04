@@ -52,6 +52,8 @@ def main():
                               help='add contents of zip file')
     group_custom.add_argument('--launcher', metavar='EXE',
                               help='launcher executable to use instead of built-in one')
+    group_custom.add_argument('--wait', action='store_true', default=False,
+                              help='do not close console window automatically')
 
     args = parser.parse_args()
     if args.append_only:
@@ -74,6 +76,8 @@ def main():
             run = 'import runpy\nrunpy.run_module("{}")'.format(args.run_module)
         else:
             run = ''
+        if args.wait:
+            run = 'launcher.wait_at_exit()\n{}'.format(run)
         main_script = main_script.format(run=run, py=sys.version_info)
 
     dest_dir = os.path.dirname(args.output)

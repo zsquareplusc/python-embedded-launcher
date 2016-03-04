@@ -45,3 +45,25 @@ def close_console():
     """closes the console window, if one was opened for the process"""
     import ctypes
     ctypes.windll.kernel32.FreeConsole()
+
+
+def wait_at_exit():
+    """wait at exit, but only if console window was opened separately"""
+    import ctypes
+    import ctypes.wintypes
+    window = ctypes.windll.kernel32.GetConsoleWindow()
+    pid = ctypes.wintypes.DWORD()
+    ctypes.windll.user32.GetWindowThreadProcessId(window, ctypes.byref(pid))
+    if pid.value != ctypes.windll.kernel32.GetCurrentProcessId():
+        return
+
+    import atexit
+    import msvcrt
+
+    def wait_at_end():
+        """Print a message and wait for a key"""
+        sys.stdout.write('\n[Press any key]\n')
+        sys.stdout.flush()
+        sys.stderr.flush()
+        msvcrt.getch()
+    atexit.register(wait_at_end)
