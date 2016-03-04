@@ -8,7 +8,7 @@ import sys
 import os
 
 
-def patch_sys_path(relative_dirs=('.',)):
+def patch_sys_path(relative_dirs=('.',), scan_pth=True):
     """\
     Add directories (relative to exe) to sys.path.
     The default is to add the directory of the exe.
@@ -16,6 +16,14 @@ def patch_sys_path(relative_dirs=('.',)):
     root = os.path.dirname(sys.executable)
     for path in relative_dirs:
         sys.path.append(os.path.join(root, path))
+    if scan_pth:
+        import glob
+        for pth_file in glob.glob(os.path.join(root, '*.pth')):
+            for line in open(pth_file):
+                if not line.lstrip().startswith('#'):
+                    path = os.path.join(root, line)
+                    if os.path.exists(path):
+                        sys.path.append(path)
 
 
 def add_wheels():
