@@ -41,12 +41,6 @@ def restore_sys_argv():
     sys.argv = shlex.split(commandline.value, posix=False)
 
 
-def close_console():
-    """closes the console window, if one was opened for the process"""
-    import ctypes
-    ctypes.windll.kernel32.FreeConsole()
-
-
 def is_separate_console_window():
     """\
     return true if the console window was opened with this process.
@@ -59,6 +53,13 @@ def is_separate_console_window():
     console_pid = ctypes.wintypes.DWORD()
     ctypes.windll.user32.GetWindowThreadProcessId(window, ctypes.byref(console_pid))
     return console_pid.value == ctypes.windll.kernel32.GetCurrentProcessId()
+
+
+def close_console():
+    """closes the console window, if one was opened for the process"""
+    if is_separate_console_window():
+        import ctypes
+        ctypes.windll.kernel32.FreeConsole()
 
 
 def wait_at_exit():
