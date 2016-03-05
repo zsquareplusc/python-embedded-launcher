@@ -47,14 +47,23 @@ def close_console():
     ctypes.windll.kernel32.FreeConsole()
 
 
-def wait_at_exit():
-    """wait at exit, but only if console window was opened separately"""
+def is_separate_console_window():
+    """\
+    return true if the console window was opened with this process.
+    return false if the console was already open and this application was
+    started within it.
+    """
     import ctypes
     import ctypes.wintypes
     window = ctypes.windll.kernel32.GetConsoleWindow()
-    pid = ctypes.wintypes.DWORD()
-    ctypes.windll.user32.GetWindowThreadProcessId(window, ctypes.byref(pid))
-    if pid.value != ctypes.windll.kernel32.GetCurrentProcessId():
+    console_pid = ctypes.wintypes.DWORD()
+    ctypes.windll.user32.GetWindowThreadProcessId(window, ctypes.byref(console_pid))
+    return console_pid.value == ctypes.windll.kernel32.GetCurrentProcessId()
+
+
+def wait_at_exit():
+    """wait at exit, but only if console window was opened separately"""
+    if not is_separate_console_window():
         return
 
     import atexit
@@ -67,3 +76,23 @@ def wait_at_exit():
         sys.stderr.flush()
         msvcrt.getch()
     atexit.register(wait_at_end)
+
+
+
+def wait_on_error():
+    """wait on exception, but only if console window was opened separately"""
+    if not is_separate_console_window():
+        return
+
+    import msvcrt
+    import traceback
+
+    def handle_exception(exctype, value, tb):
+        """Print a exception and wait for a key"""
+        traceback.print_exception(exctype, value, tb)
+        sys.stdout.write('\n[Press any key]\n')
+        sys.stdout.flush()
+        sys.stderr.flush()
+        msvcrt.getch()
+    
+    sys.excepthook = handle_exception

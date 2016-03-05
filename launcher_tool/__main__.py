@@ -54,6 +54,8 @@ def main():
                               help='launcher executable to use instead of built-in one')
     group_custom.add_argument('--wait', action='store_true', default=False,
                               help='do not close console window automatically')
+    group_custom.add_argument('--wait-on-error', action='store_true', default=False,
+                              help='wait if there is an excpetion')
 
     args = parser.parse_args()
     if args.append_only:
@@ -78,6 +80,8 @@ def main():
             run = ''
         if args.wait:
             run = 'launcher.wait_at_exit()\n{}'.format(run)
+        if args.wait_on_error:
+            run = 'launcher.wait_on_error()\n{}'.format(run)
         main_script = main_script.format(run=run, py=sys.version_info)
 
     dest_dir = os.path.dirname(args.output)
