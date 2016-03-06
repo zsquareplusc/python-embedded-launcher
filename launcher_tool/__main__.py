@@ -13,7 +13,7 @@ import sys
 sys.path.append(sys.argv[1])
 
 import launcher
-launcher.patch_sys_path(['.', 'Python{py.major}{py.minor}/site-packages'])
+launcher.patch_sys_path()
 launcher.restore_sys_argv()
 
 {run}

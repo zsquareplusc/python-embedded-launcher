@@ -7,8 +7,25 @@ Helper functions for executables packaged with python-embedded-launcher.
 import sys
 import os
 
+SITE_PACKAGES = 'Python{py.major}{py.minor}/site-packages'.format(py=sys.version_info)
 
-def patch_sys_path(relative_dirs=('.',), scan_pth=True):
+
+def process_pth_file(root, pth_file):
+    with open(pth_file, 'rU') as f:
+        for line in f:
+            line = line.rstrip()
+            if not line or line.startswith('#'):
+                continue
+            elif line.startswith(("import ", "import\t")):
+                exec(line)  # statement in py2, function in py3
+                continue
+            else:
+                path = os.path.abspath(os.path.join(root, line))
+                if os.path.exists(path):
+                    sys.path.append(path)
+
+
+def patch_sys_path(relative_dirs=('.', SITE_PACKAGES), scan_pth=True):
     """\
     Add directories (relative to exe) to sys.path.
     The default is to add the directory of the exe.
@@ -18,12 +35,9 @@ def patch_sys_path(relative_dirs=('.',), scan_pth=True):
         sys.path.append(os.path.join(root, path))
     if scan_pth:
         import glob
-        for pth_file in glob.glob(os.path.join(root, '*.pth')):
-            for line in open(pth_file):
-                if not line.lstrip().startswith('#'):
-                    path = os.path.join(root, line)
-                    if os.path.exists(path):
-                        sys.path.append(path)
+        for path in relative_dirs:
+            for pth_file in glob.glob(os.path.join(root, path, '*.pth')):
+                process_pth_file(os.path.join(root, path), pth_file)
 
 
 def add_wheels():
