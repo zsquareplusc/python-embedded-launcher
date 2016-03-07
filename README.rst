@@ -62,6 +62,15 @@ available, this is what is used here. Otherwise replace ``py -2``/``py -3`` with
 is packaged, should be used to run the steps here (using ``py -2`` or
 ``py -3`` accordingly).
 
+
+Assuming your own project has a ``setup.py``, install to a ``dist`` directory::
+
+    py -m pip install --prefix=dist --ignore-installed /path/to/your/project
+
+Install dependencies::
+
+    py -m pip install --prefix=dist --ignore-installed -r requirements.txt
+
 Create a Python distribution::
 
     py -2 create_python27_minimal.py -d dist
@@ -69,31 +78,6 @@ Create a Python distribution::
 or for Python 3::
 
     py -3 -m launcher_tool.download_python3_minimal -d dist
-
-Use ``pip`` to download and install dependencies, e.g. using a requirements
-file (using ``py -2`` or ``py -3``)::
-
-    set PYTHONUSERBASE=dist
-    py -m pip install --user --ignore-installed -r requirements.txt
-
-Alternatively, download all dependencies as wheels first, so that subsequent
-runs to create a distribution do not need to download from the Internet
-(recommended).
-
-Fetch the dependencies once::
-
-    py -m pip wheel -r requirements.txt
-
-Then use these with ``--find-links`` and ``--no-index`` options::
-
-    set PYTHONUSERBASE=dist
-    py -m pip install --user --ignore-installed --find-links=wheelhouse --no-index -r requirements.txt
-
-
-Write a regular ``setup.py`` script for your application and install it::
-
-    set PYTHONUSERBASE=dist
-    py setup.py install --user --ignore-installed
 
 Use the launcher tool to write the exe, calling your app::
 
@@ -104,6 +88,27 @@ Use the launcher tool to write the exe, calling your app::
           this usually not needed for a packaged app, so this can be deleted.
 
 
+
+Variations
+----------
+Instead of ``--prefix=dist`` it is also possible to use ``--user`` when the
+envirionment variable ``PYTHONUSERBASE`` is set to ``dist``. This will install
+into a slightly different subdirectory of ``dist`` but ``lanucher.py`` also
+searches this one.
+
+It is also possible download all dependencies as wheels first, so that
+subsequent runs to create a distribution do not need to download from the
+Internet (recommended).
+
+Fetch the dependencies once::
+
+    py -m pip wheel -w wheels -r requirements.txt
+
+Then use these with ``--find-links`` and ``--no-index`` options::
+
+    py -m pip install --root=dist --ignore-installed --find-links=wheels --no-index -r requirements.txt
+
+
 Alternatives
 ------------
 It is also possible to install pip within the embedded Python distribution
@@ -112,7 +117,7 @@ and use that distribution itself to install packages::
     py -3 -m launcher_tool.download_python3_minimal
     cd python3-minimal
     python get-pip.py
-    python -m pip install --find-links=/path/to/wheelhouse --no-index -r requirements.txt
+    python -m pip install --find-links=/path/to/wheels --no-index -r requirements.txt
     cd ..
     py -3 -m launcher_tool -o myapp.exe -e mymodule:main
 
@@ -236,9 +241,15 @@ API
 A small helper module called ``launcher`` is automatically packaged with the
 exe. It contains a few helper functions.
 
-``launcher.patch_sys_path(relative_dirs=('.',))``
-    Add directories (relative to exe) to ``sys.path``. The default is to add
-    the directory of the exe.
+``launcher.patch_sys_path()``
+    Add directories (relative to executable, if existing) to ``sys.path``.
+
+    - the direcrtory of the executable
+    - ``Python{py.major}{py.minor}/site-packages``
+    - ``Python{py.major}{py.minor}/Lib/site-packages``
+    - ``Lib/site-packages``
+    
+    These locations are also scanned for ``.pth`` files.
 
 ``launcher.add_wheels()``
     Add all ``.whl`` files in the directory ``wheels`` to sys.path. Only works
@@ -253,6 +264,21 @@ exe. It contains a few helper functions.
 ``launcher.close_console()``
     Useful for GUI applications, it closes a separate console window if there
     is one, e.g. when the exe was started by a double click.
+
+``launcher.is_separate_console_window()``
+    Return true if the console window was opened with this process (e.g.
+    the console was opened because the exe was started from the file Explorer).
+
+``launcher.wait_at_exit()``
+    Wait at exit, but only if console window was opened separately.
+    This function is called automatically if the command line option
+    ``--wait`` is used.
+
+``launcher.wait_on_error()``
+    Wait if the program terminates with an exception, but only if console
+    window was opened separately.
+    This function is called automatically if the command line option
+    ``--wait-on-error`` is used.
 
 .. _pkgutil: https://docs.python.org/3/library/pkgutil.html
 
@@ -294,7 +320,9 @@ Why put Python in a subdirectory? Because someone could add the directory
 containing the exe to the ``PATH`` and then the system would potentially find
 multiple ``python.exe`` and ``pythonXY.dll``...
 
-``pip --user`` installs the packages into a subdirectory ``PythonXY`` named
-after he Python version. We would not need that directory structure, but on the
-other side, it's easier that way, so that we do not have to write our own
-install/extract code.
+``pip install --user`` installs the packages into a subdirectory
+``PythonXY/site-packages`` named after the Python version.
+
+``pip install --prefix=dist`` installs the packages to a subdirectory
+``Lib/site-packages``.
+

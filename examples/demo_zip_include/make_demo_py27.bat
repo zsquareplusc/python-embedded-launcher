@@ -1,7 +1,7 @@
 set DIST=dist27
 set PYTHONPATH=..\..
 set PYTHONUSERBASE=%DIST%
-if not exist wheelhouse  python -m pip wheel -r requirements.txt
+if not exist wheelhouse  python -m pip wheel -w wheelhouse -r requirements.txt
 python -m launcher_tool --raw -o %DIST%/miniterm_py27.exe
 REM ~ python -m launcher_tool.resource_editor %DIST%/miniterm_py27.exe edit_strings --set 1:%%LOCALAPPDATA%%\python27-minimal
 python -m launcher_tool.resource_editor %DIST%/miniterm_py27.exe write_icon icon.ico
