@@ -7,8 +7,14 @@ Helper functions for executables packaged with python-embedded-launcher.
 import sys
 import os
 
-SITE_PACKAGES = 'Python{py.major}{py.minor}/site-packages'.format(py=sys.version_info)
 
+SCAN_DIRECTORIES = [
+    '.',
+    'Python{py.major}{py.minor}/site-packages'.format(py=sys.version_info),
+    'Python{py.major}{py.minor}/Lib/site-packages'.format(py=sys.version_info),
+    'Lib/site-packages',
+]
+    
 
 def process_pth_file(root, pth_file):
     with open(pth_file, 'rU') as f:
@@ -25,17 +31,19 @@ def process_pth_file(root, pth_file):
                     sys.path.append(path)
 
 
-def patch_sys_path(relative_dirs=('.', SITE_PACKAGES), scan_pth=True):
+def patch_sys_path(scan_pth=True):
     """\
     Add directories (relative to exe) to sys.path.
     The default is to add the directory of the exe.
     """
     root = os.path.dirname(sys.executable)
-    for path in relative_dirs:
-        sys.path.append(os.path.join(root, path))
+    for path in SCAN_DIRECTORIES:
+        location = os.path.join(root, path)
+        if os.path.exists(location):
+            sys.path.append(location)
     if scan_pth:
         import glob
-        for path in relative_dirs:
+        for path in SCAN_DIRECTORIES:
             for pth_file in glob.glob(os.path.join(root, path, '*.pth')):
                 process_pth_file(os.path.join(root, path), pth_file)
 
