@@ -33,7 +33,7 @@ def main():
     python_source = os.path.dirname(sys.executable)
     python_destination = os.path.join(args.directory, args.name)
     if not os.path.exists(python_destination):
-        os.mkdir(python_destination)
+        os.makedirs(python_destination)
 
     for name in ('python.exe', 'pythonw.exe', 'w9xpopen.exe', 'README.txt', 'NEWS.txt', 'LICENSE.txt'):
         shutil.copy2(os.path.join(python_source, name),
