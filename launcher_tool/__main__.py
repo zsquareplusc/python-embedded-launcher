@@ -2,6 +2,7 @@
 A tool to append files to zip which is in turn appended to an other file.
 """
 import argparse
+import glob
 import os
 import pkgutil
 import sys
@@ -101,15 +102,25 @@ def main():
             with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
                 archive.writestr('__main__.py', main_script.encode('utf-8'))
                 archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
-                for filename in args.add_file:
-                    archive.write(filename)
-                for filename in args.add_zip:
-                    with zipfile.ZipFile(filename) as source_archive:
-                        for entry in source_archive.infolist():
-                            if entry.filename == '__main__.py':
-                                sys.stdwrr.write('warning: included {}/__main__.py as _main.py'.format(entry.filename))
-                                entry.filename = '_main.py'
-                            archive.writestr(entry, source_archive.read(entry))
+                for pattern in args.add_file:
+                    matches = glob.glob(pattern)
+                    if matches:
+                        for filename in matches:
+                            archive.write(filename)
+                    else:
+                        sys.stderr.write('WARNING: {} does not match any files\n'.format(pattern))
+                for pattern in args.add_zip:
+                    matches = glob.glob(pattern)
+                    if matches:
+                        for filename in matches:
+                            with zipfile.ZipFile(filename) as source_archive:
+                                for entry in source_archive.infolist():
+                                    if entry.filename == '__main__.py':
+                                        sys.stdwrr.write('WARNING: included {}/__main__.py as _main.py'.format(entry.filename))
+                                        entry.filename = '_main.py'
+                                    archive.writestr(entry, source_archive.read(entry))
+                    else:
+                        sys.stderr.write('WARNING: {} does not match any files\n'.format(pattern))
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
