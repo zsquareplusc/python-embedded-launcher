@@ -48,10 +48,10 @@ def patch_sys_path(scan_pth=True):
                 process_pth_file(os.path.join(root, path), pth_file)
 
 
-def add_wheels():
-    """add wheel to sys.path"""
+def extend_sys_path_by_pattern(pattern):
+    """add files matching pattern (e.g. *.zip, *.whl, *.egg) to sys.path"""
     import glob
-    for whl in glob.glob(os.path.join(os.path.dirname(sys.executable), 'wheels', '*.whl')):
+    for whl in glob.glob(os.path.join(os.path.dirname(sys.executable), pattern)):
         sys.path.append(whl)
 
 
@@ -98,8 +98,8 @@ def wait_at_exit():
         sys.stdout.flush()
         sys.stderr.flush()
         msvcrt.getch()
-    atexit.register(wait_at_end)
 
+    atexit.register(wait_at_end)
 
 
 def wait_on_error():
@@ -117,5 +117,5 @@ def wait_on_error():
         sys.stdout.flush()
         sys.stderr.flush()
         msvcrt.getch()
-    
+
     sys.excepthook = handle_exception

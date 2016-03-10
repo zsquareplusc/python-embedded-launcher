@@ -251,10 +251,13 @@ exe. It contains a few helper functions.
     
     These locations are also scanned for ``.pth`` files.
 
-``launcher.add_wheels()``
-    Add all ``.whl`` files in the directory ``wheels`` to sys.path. Only works
-    for pure Python wheels and only if they do no access the file system to
-    load data on their own (should use pkgutil_).
+``launcher.extend_sys_path_by_pattern(pattern)``
+    Add files matching a pattern (e.g. ``*.zip``, ``*.whl``, ``*.egg``) to
+    ``sys.path``. the pattern is prefixed with the location of the executable.
+    In case of wheel files, it only works for pure Python wheels and only if
+    they do no access the file system to load data on their own (should use
+    pkgutil_). This function is used if the command line option
+    ``--extend-sys-path`` is used.
 
 ``launcher.restore_sys_argv()``
     Get original command line via Windows API. Restores sys.argv (which is used

@@ -40,7 +40,7 @@ def main():
                            help='import given module and call function')
     group_run.add_argument('--run-path', metavar='FILE',
                            help='execute given file (e.g. .py, .zip)')
-    group_run.add_argument('--run-module', metavar='MODULE',
+    group_run.add_argument('-m', '--run-module', metavar='MODULE',
                            help='execute module (similar to python -m)')
     group_run.add_argument('--main', metavar='FILE',
                            help='use this as __main__.py instead of built-in code')
@@ -48,15 +48,17 @@ def main():
     group_custom = parser.add_argument_group('customization')
 
     group_custom.add_argument('--add-file', action='append', default=[], metavar='FILE',
-                              help='add additional file to zip')
+                              help='add additional file(s) to zip')
     group_custom.add_argument('--add-zip', action='append', default=[], metavar='ZIPFILE',
-                              help='add contents of zip file')
+                              help='add contents of zip file(s)')
     group_custom.add_argument('--launcher', metavar='EXE',
                               help='launcher executable to use instead of built-in one')
     group_custom.add_argument('--wait', action='store_true', default=False,
                               help='do not close console window automatically')
     group_custom.add_argument('--wait-on-error', action='store_true', default=False,
                               help='wait if there is an excpetion')
+    group_custom.add_argument('-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
+                              help='add search pattern for files added to sys.path')
 
     args = parser.parse_args()
     if args.append_only:
@@ -66,24 +68,28 @@ def main():
         mode = 'wb'
 
     if not args.raw:
+        run_lines = []
+        if args.extend_sys_path:
+            for pattern in args.extend_sys_path:
+                run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
+        if args.wait:
+            run_lines.append('launcher.wait_at_exit()')
+        if args.wait_on_error:
+            run_lines.append('launcher.wait_on_error()')
+
+        if args.entry_point is not None:
+            mod, func = args.entry_point.split(':')
+            run_lines.append('import {module}\n{module}.{main}()'.format(module=mod, main=func))
+        elif args.run_path is not None:
+            run_lines.append('import runpy\nrunpy.run_path("{}")'.format(args.run_path))
+        elif args.run_module is not None:
+            run_lines.append('import runpy\nrunpy.run_module("{}")'.format(args.run_module))
+
         if args.main is not None:
             main_script = open(args.main).read()
         else:
             main_script = DEFAULT_MAIN
-        if args.entry_point is not None:
-            mod, func = args.entry_point.split(':')
-            run = 'import {module}\n{module}.{main}()'.format(module=mod, main=func)
-        elif args.run_path is not None:
-            run = 'import runpy\nrunpy.run_path("{}")'.format(args.run_path)
-        elif args.run_module is not None:
-            run = 'import runpy\nrunpy.run_module("{}")'.format(args.run_module)
-        else:
-            run = ''
-        if args.wait:
-            run = 'launcher.wait_at_exit()\n{}'.format(run)
-        if args.wait_on_error:
-            run = 'launcher.wait_on_error()\n{}'.format(run)
-        main_script = main_script.format(run=run, py=sys.version_info)
+        main_script = main_script.format(run='\n'.join(run_lines), py=sys.version_info)
 
     dest_dir = os.path.dirname(args.output)
     if dest_dir and not os.path.exists(dest_dir):
