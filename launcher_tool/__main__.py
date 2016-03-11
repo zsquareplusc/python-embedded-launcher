@@ -31,8 +31,6 @@ def main():
                                help='filename to write the result to')
     group_out_out.add_argument('-a', '--append-only', metavar='FILE',
                                help='append to this file instead of ceating a new one')
-    group_out.add_argument('--raw', action='store_true', default=False,
-                           help='do not append zip data (used to copy launcher only)')
 
     group_run_group = parser.add_argument_group('entry point options')
     group_run = group_run_group.add_mutually_exclusive_group()
@@ -67,29 +65,28 @@ def main():
     else:
         mode = 'wb'
 
-    if not args.raw:
-        run_lines = []
-        if args.extend_sys_path:
-            for pattern in args.extend_sys_path:
-                run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
-        if args.wait:
-            run_lines.append('launcher.wait_at_exit()')
-        if args.wait_on_error:
-            run_lines.append('launcher.wait_on_error()')
+    run_lines = []
+    if args.extend_sys_path:
+        for pattern in args.extend_sys_path:
+            run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
+    if args.wait:
+        run_lines.append('launcher.wait_at_exit()')
+    if args.wait_on_error:
+        run_lines.append('launcher.wait_on_error()')
 
-        if args.entry_point is not None:
-            mod, func = args.entry_point.split(':')
-            run_lines.append('import {module}\n{module}.{main}()'.format(module=mod, main=func))
-        elif args.run_path is not None:
-            run_lines.append('import runpy\nrunpy.run_path("{}")'.format(args.run_path))
-        elif args.run_module is not None:
-            run_lines.append('import runpy\nrunpy.run_module("{}")'.format(args.run_module))
+    if args.entry_point is not None:
+        mod, func = args.entry_point.split(':')
+        run_lines.append('import {module}\n{module}.{main}()'.format(module=mod, main=func))
+    elif args.run_path is not None:
+        run_lines.append('import runpy\nrunpy.run_path("{}")'.format(args.run_path))
+    elif args.run_module is not None:
+        run_lines.append('import runpy\nrunpy.run_module("{}")'.format(args.run_module))
 
-        if args.main is not None:
-            main_script = open(args.main).read()
-        else:
-            main_script = DEFAULT_MAIN
-        main_script = main_script.format(run='\n'.join(run_lines), py=sys.version_info)
+    if args.main is not None:
+        main_script = open(args.main).read()
+    else:
+        main_script = DEFAULT_MAIN
+    main_script = main_script.format(run='\n'.join(run_lines), py=sys.version_info)
 
     dest_dir = os.path.dirname(args.output)
     if dest_dir and not os.path.exists(dest_dir):
@@ -104,29 +101,28 @@ def main():
                                            'launcher27.exe'
                                            if sys.version_info.major == 2
                                            else 'launcher3.exe'))
-        if not args.raw:
-            with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
-                archive.writestr('__main__.py', main_script.encode('utf-8'))
-                archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
-                for pattern in args.add_file:
-                    matches = glob.glob(pattern)
-                    if matches:
-                        for filename in matches:
-                            archive.write(filename)
-                    else:
-                        sys.stderr.write('WARNING: {} does not match any files\n'.format(pattern))
-                for pattern in args.add_zip:
-                    matches = glob.glob(pattern)
-                    if matches:
-                        for filename in matches:
-                            with zipfile.ZipFile(filename) as source_archive:
-                                for entry in source_archive.infolist():
-                                    if entry.filename == '__main__.py':
-                                        sys.stdwrr.write('WARNING: included {}/__main__.py as _main.py'.format(entry.filename))
-                                        entry.filename = '_main.py'
-                                    archive.writestr(entry, source_archive.read(entry))
-                    else:
-                        sys.stderr.write('WARNING: {} does not match any files\n'.format(pattern))
+        with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
+            archive.writestr('__main__.py', main_script.encode('utf-8'))
+            archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
+            for pattern in args.add_file:
+                matches = glob.glob(pattern)
+                if matches:
+                    for filename in matches:
+                        archive.write(filename)
+                else:
+                    sys.stderr.write('WARNING: {} does not match any files\n'.format(pattern))
+            for pattern in args.add_zip:
+                matches = glob.glob(pattern)
+                if matches:
+                    for filename in matches:
+                        with zipfile.ZipFile(filename) as source_archive:
+                            for entry in source_archive.infolist():
+                                if entry.filename == '__main__.py':
+                                    sys.stdwrr.write('WARNING: included {}/__main__.py as _main.py'.format(entry.filename))
+                                    entry.filename = '_main.py'
+                                archive.writestr(entry, source_archive.read(entry))
+                else:
+                    sys.stderr.write('WARNING: {} does not match any files\n'.format(pattern))
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':

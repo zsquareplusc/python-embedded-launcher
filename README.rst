@@ -106,7 +106,7 @@ Fetch the dependencies once::
 
 Then use these with ``--find-links`` and ``--no-index`` options::
 
-    py -m pip install --root=dist --ignore-installed --find-links=wheels --no-index -r requirements.txt
+    py -m pip install --prefix=dist --ignore-installed --find-links=wheels --no-index -r requirements.txt
 
 
 Alternatives
@@ -154,6 +154,10 @@ Tools
     and cached locally (so that for repeated runs, it does not need to use
     the Internet again).
 
+``launcher_tool.copy_launcher``
+    Copy the ``launcher.exe`` to a file. Used e.g. for customizations using
+    ``launcher_tool.resource_editor``.
+
 ``launcher_tool.resource_editor``
     A small Windows resource editor that can modify the launcher. It uses
     Windows API functions to read and write the data.
@@ -184,7 +188,7 @@ on the command line, but it does not support all resource types.
 E.g. if there was a common Python package installed under ``%LOCALAPPDATA%``
 a series of commands like this would create a modified launcher::
 
-    python -m launcher_tool --raw -o %DIST%/myapp.exe
+    python -m launcher_tool.copy_launcher -o %DIST%/myapp.exe
     python -m launcher_tool.resource_editor %DIST%/myapp.exe edit_strings --set 1:^%LOCALAPPDATA^%\python27-minimal
     python -m launcher_tool.resource_editor %DIST%/myapp.exe write_icon newicon.ico
     python -m launcher_tool --append-only %DIST%/myapp.exe -e mymodule:main
