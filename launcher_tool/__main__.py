@@ -1,5 +1,7 @@
+#!python
 """\
-A tool to append files to zip which is in turn appended to an other file.
+Create customized launcher.exe. A zip file is created and appended to the
+laucher. The zip contains boot code (__main__) and optionally other data files.
 """
 import argparse
 import glob
@@ -23,7 +25,7 @@ launcher.restore_sys_argv()
 
 def main():
     """Command line tool entry point"""
-    parser = argparse.ArgumentParser(description='Launcher exe assembler')
+    parser = argparse.ArgumentParser(description='create customized launcher.exe')
 
     group_out = parser.add_argument_group('output options')
     group_out_out = group_out.add_mutually_exclusive_group(required=True)
@@ -78,9 +80,9 @@ def main():
         mod, func = args.entry_point.split(':')
         run_lines.append('import {module}\n{module}.{main}()'.format(module=mod, main=func))
     elif args.run_path is not None:
-        run_lines.append('import runpy\nrunpy.run_path("{}")'.format(args.run_path))
+        run_lines.append('import runpy\nrunpy.run_path({!r})'.format(args.run_path))
     elif args.run_module is not None:
-        run_lines.append('import runpy\nrunpy.run_module("{}")'.format(args.run_module))
+        run_lines.append('import runpy\nrunpy.run_module({!r})'.format(args.run_module))
 
     if args.main is not None:
         main_script = open(args.main).read()
