@@ -1,5 +1,11 @@
+#!python
+#
+# This file is part of https://github.com/zsquareplusc/python-embedded-launcher
+# (C) 2016 Chris Liechti <cliechti@gmx.net>
+#
+# SPDX-License-Identifier:    BSD-3-Clause
 """
-Extract the official python embedded distribution
+Extract the official Python embedded distribution
 
 - download when necessary
 - extract a cached version by default
@@ -69,7 +75,7 @@ def main():
         sys.stderr.write('using cached file {}\n'.format(cache_name))
 
     if not os.path.exists(cache_name):
-        sys.stderr.write('failed to download/lod from cache: file not found: {}\n'.format(cache_name))
+        sys.stderr.write('failed to download/load from cache: file not found: {}\n'.format(cache_name))
         sys.exit(1)
 
     sys.stderr.write('extracting to {}\n'.format(python_destination))

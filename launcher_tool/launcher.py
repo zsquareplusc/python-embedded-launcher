@@ -1,6 +1,13 @@
+#!python
+#
+# This file is part of https://github.com/zsquareplusc/python-embedded-launcher
+# (C) 2016 Chris Liechti <cliechti@gmx.net>
+#
+# SPDX-License-Identifier:    BSD-3-Clause
 """\
 Helper functions for executables packaged with python-embedded-launcher.
 """
+
 # imports are delayed, made within the function calls. this is intentionally
 # in case the startup code alters sys.path etc.
 

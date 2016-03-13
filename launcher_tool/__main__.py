@@ -1,7 +1,13 @@
 #!python
+#
+# This file is part of https://github.com/zsquareplusc/python-embedded-launcher
+# (C) 2016 Chris Liechti <cliechti@gmx.net>
+#
+# SPDX-License-Identifier:    BSD-3-Clause
 """\
-Create customized launcher.exe. A zip file is created and appended to the
-laucher. The zip contains boot code (__main__) and optionally other data files.
+Create a customized launcher.exe. A zip file is created and appended to the
+launcher. The zip contains boot code (__main__) and optionally other data
+files.
 """
 import argparse
 import glob
@@ -32,7 +38,7 @@ def main():
     group_out_out.add_argument('-o', '--output', metavar='FILE',
                                help='filename to write the result to')
     group_out_out.add_argument('-a', '--append-only', metavar='FILE',
-                               help='append to this file instead of ceating a new one')
+                               help='append to this file instead of creating a new one')
 
     group_run_group = parser.add_argument_group('entry point options')
     group_run = group_run_group.add_mutually_exclusive_group()

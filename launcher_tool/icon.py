@@ -1,4 +1,9 @@
 #!python
+#
+# This file is part of https://github.com/zsquareplusc/python-embedded-launcher
+# (C) 2016 Chris Liechti <cliechti@gmx.net>
+#
+# SPDX-License-Identifier:    BSD-3-Clause
 """\
 Windows ICO file load/save to .ico file and resource file (.exe, .dll).
 """
