@@ -57,7 +57,7 @@ def extract(url, destination, force_download=False):
 
 def main():
     """Console application entry point"""
-    parser = argparse.ArgumentParser(description='Launcher assembler')
+    parser = argparse.ArgumentParser(description='download/extract for python3-minimal')
 
     group_out = parser.add_argument_group('output options')
     group_out.add_argument('-d', '--directory', metavar='DIR', default='.',
