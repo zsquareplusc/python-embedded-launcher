@@ -14,8 +14,7 @@ be run on Windows or a compatible system.
 
 import argparse
 import ctypes
-from ctypes.wintypes import HANDLE, HMODULE, HRSRC, HGLOBAL, BOOL, LPCWSTR, \
-                            WORD, DWORD
+from ctypes.wintypes import HANDLE, HMODULE, HRSRC, HGLOBAL, BOOL, LPCWSTR, WORD, DWORD
 import itertools
 import struct
 import sys

@@ -21,16 +21,23 @@ SCAN_DIRECTORIES = [
     'Python{py.major}{py.minor}/Lib/site-packages'.format(py=sys.version_info),
     'Lib/site-packages',
 ]
-    
 
-def process_pth_file(root, pth_file):
-    with open(pth_file, 'rU') as f:
-        for line in f:
+
+def process_pth_file(root, filename):
+    """\
+    Read and process a Python .pth file:
+    - ignore comments and empty lines
+    - excute lines starting with 'import'
+    - all others: take it as path, test if path exists and append it to
+      sys.path when it does.
+    """
+    with open(filename, 'rU') as pth_file:
+        for line in pth_file:
             line = line.rstrip()
             if not line or line.startswith('#'):
                 continue
             elif line.startswith(("import ", "import\t")):
-                exec(line)  # statement in py2, function in py3
+                exec(line)  # statement in py2, function in py3, pylint: disable=exec-used
                 continue
             else:
                 path = os.path.abspath(os.path.join(root, line))
@@ -40,8 +47,8 @@ def process_pth_file(root, pth_file):
 
 def patch_sys_path(scan_pth=True):
     """\
-    Add directories (relative to exe) to sys.path.
-    The default is to add the directory of the exe.
+    Add an internal list of directories (relative to exe) to sys.path.
+    In each of these directories also scan for .pth files.
     """
     root = os.path.dirname(sys.executable)
     for path in SCAN_DIRECTORIES:
