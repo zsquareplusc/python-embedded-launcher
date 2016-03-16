@@ -126,7 +126,7 @@ def main():
                         with zipfile.ZipFile(filename) as source_archive:
                             for entry in source_archive.infolist():
                                 if entry.filename == '__main__.py':
-                                    sys.stdwrr.write('WARNING: included {}/__main__.py as _main.py'.format(entry.filename))
+                                    sys.stderr.write('WARNING: included {}/__main__.py as _main.py'.format(entry.filename))
                                     entry.filename = '_main.py'
                                 archive.writestr(entry, source_archive.read(entry))
                 else:
