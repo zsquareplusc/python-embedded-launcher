@@ -16,8 +16,8 @@ sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=T
 
 setup(
     name="python-embedded-launcher",
-    description="Python Embedded Launcher",
-    version='0.2',
+    description=open('README.rst').read(),
+    version='0.3',
     author="Chris Liechti",
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",

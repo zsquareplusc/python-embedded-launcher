@@ -94,7 +94,7 @@ def main():
         main_script = open(args.main).read()
     else:
         main_script = DEFAULT_MAIN
-    main_script = main_script.format(run='\n'.join(run_lines), py=sys.version_info)
+        main_script = main_script.format(run='\n'.join(run_lines), py=sys.version_info)
 
     dest_dir = os.path.dirname(args.output)
     if dest_dir and not os.path.exists(dest_dir):
