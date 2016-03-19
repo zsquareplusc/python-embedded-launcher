@@ -17,7 +17,7 @@ sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=T
 setup(
     name="python-embedded-launcher",
     description="Launcher exe for distributing Python apps on Windows",
-    version='0.3',
+    version='0.3.1',
     author="Chris Liechti",
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",
