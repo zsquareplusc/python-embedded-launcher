@@ -112,7 +112,7 @@ void get_pythonhome(void) {
     LoadString(NULL, IDS_PYTHONHOME, pythonhome_in, sizeof(pythonhome_in));
     ExpandEnvironmentStrings(pythonhome_in, pythonhome_relative, sizeof(pythonhome_relative));
     GetFullPathName(pythonhome_relative, sizeof(pythonhome_absolute), pythonhome_absolute, NULL);
-    //~ wprintf(L"env: %s\n", pythonhome_absolute);
+    //~ printf("env: %s\n", pythonhome_absolute);
 }
 
 
@@ -129,8 +129,8 @@ int main() {
     set_self_env();
     get_pythonhome();
     if (!check_if_directory_exists(pythonhome_absolute)) {
-        wprintf(L"ERROR python minimal distribution not found!\n"
-                 "Directory not found: %s\n", pythonhome_absolute);
+        printf("ERROR python minimal distribution not found!\n"
+               "Directory not found: %s\n", pythonhome_absolute);
         show_message_from_resource(IDS_PY_NOT_FOUND);
         return 3;
     }
