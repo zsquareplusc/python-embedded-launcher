@@ -44,7 +44,7 @@ bool test_zip_file(const wchar_t *path) {
     if (hFile != INVALID_HANDLE_VALUE) {
         char zipid[22];
         DWORD len;
-        SetFilePointer(hFile, -sizeof(zipid), NULL, FILE_END);
+        SetFilePointer(hFile, (LONG)(-sizeof(zipid)), NULL, FILE_END);
         ReadFile(hFile, zipid, sizeof(zipid), &len, NULL);
         CloseHandle(hFile);
         return 0 == memcmp(zipid, "PK\005\006", 4);
@@ -128,6 +128,34 @@ void patch_path_env(void) {
 }
 
 
+// get text messages for windows error codes:
+void print_last_error_message(void) {
+    LPWSTR buffer;
+    DWORD message_length;
+    DWORD error_number = GetLastError();
+    
+    DWORD dwFormatFlags = FORMAT_MESSAGE_ALLOCATE_BUFFER |
+        FORMAT_MESSAGE_IGNORE_INSERTS |
+        FORMAT_MESSAGE_FROM_SYSTEM;
+    
+    message_length = FormatMessage(
+        dwFormatFlags,
+        NULL, // module to get message from (NULL == system)
+        error_number,
+        MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), // default language
+        (LPWSTR) &buffer,
+        0,
+        NULL
+    );
+    if (message_length) {
+        // Output message
+        wprintf(L"Windows error message (Error %d):\n%s\n", error_number, buffer);
+        // Free the buffer allocated by the system.
+        LocalFree(buffer);
+    }
+}
+
+
 int main() {
     set_self_env();
     get_pythonhome();
@@ -147,8 +175,9 @@ int main() {
     HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {
         wprintf(L"Python is expected in: %s\n\n"
-                 "ERROR Python DLL not found!\n"
-                 "File not found: %s\n" , pythonhome_absolute, pydll_path);
+                 "ERROR Python DLL not be loaded!\n"
+                 "full path: %s\n\n" , pythonhome_absolute, pydll_path);
+        print_last_error_message();
         show_message_from_resource(IDS_PYDLL_NOT_FOUND);
         return 1;
     }
