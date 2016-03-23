@@ -66,7 +66,36 @@ def main():
     group_custom.add_argument('-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
                               help='add search pattern for files added to sys.path')
 
+    group_bits = parser.add_argument_group('launcher architecture', 'default value is based on sys.executable')
+    group_bits_choice = group_bits.add_mutually_exclusive_group()
+    group_bits_choice.add_argument('--32', dest='bits32', action='store_true', default=False,
+                                   help='force copy of 32 bit version')
+    group_bits_choice.add_argument('--64', dest='bits64', action='store_true', default=False,
+                                   help='force copy of 64 bit version')
+
+    group_pyver = parser.add_argument_group('launcher Python version', 'default value is based on sys.executable')
+    group_pyver_choice = group_pyver.add_mutually_exclusive_group()
+    group_pyver_choice.add_argument('-2', dest='py2', action='store_true', default=False,
+                                    help='force use of Python 2.7 launcher')
+    group_pyver_choice.add_argument('-3', dest='py3', action='store_true', default=False,
+                                    help='force use of Python 3.x launcher')
+
+
     args = parser.parse_args()
+
+    if (sys.version_info.major == 2 and not args.py3) or args.py2:
+        launcher_filename = 'launcher27.exe'
+    else:
+        is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
+        if args.bits64:
+            launcher_filename = 'launcher3-64.exe'
+        elif args.bits32:
+            launcher_filename = 'launcher3-32.exe'
+        elif is_64bits:
+            launcher_filename = 'launcher3-64.exe'
+        else:
+            launcher_filename = 'launcher3-32.exe'
+
     if args.append_only:
         args.output = args.append_only  # easier to handle below
         mode = 'ab'
@@ -105,10 +134,7 @@ def main():
             if args.launcher:
                 exe.write(open(args.launcher, 'rb').read())
             else:
-                exe.write(pkgutil.get_data(__name__,
-                                           'launcher27.exe'
-                                           if sys.version_info.major == 2
-                                           else 'launcher3.exe'))
+                exe.write(pkgutil.get_data(__name__, launcher_filename))
         with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
             archive.writestr('__main__.py', main_script.encode('utf-8'))
             archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
