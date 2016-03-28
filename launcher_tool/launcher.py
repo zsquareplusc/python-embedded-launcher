@@ -69,12 +69,32 @@ def extend_sys_path_by_pattern(pattern):
         sys.path.append(whl)
 
 
+#~ def restore_sys_argv():
+    #~ """get original command line via Windows API"""
+    #~ import ctypes
+    #~ import shlex
+    #~ commandline = ctypes.c_wchar_p(ctypes.windll.kernel32.GetCommandLineW())
+    #~ sys.argv = shlex.split(commandline.value, posix=False)
+
 def restore_sys_argv():
-    """get original command line via Windows API"""
     import ctypes
-    import shlex
-    commandline = ctypes.c_wchar_p(ctypes.windll.kernel32.GetCommandLineW())
-    sys.argv = shlex.split(commandline.value, posix=False)
+    import ctypes.wintypes
+    LocalFree = ctypes.windll.kernel32.LocalFree
+    LocalFree.argtypes = [ctypes.wintypes.HLOCAL]
+    LocalFree.restype = ctypes.wintypes.HLOCAL
+    GetCommandLineW = ctypes.windll.kernel32.GetCommandLineW
+    GetCommandLineW.argtypes = []
+    GetCommandLineW.restype = ctypes.wintypes.LPCWSTR
+    CommandLineToArgvW = ctypes.windll.shell32.CommandLineToArgvW
+    CommandLineToArgvW.argtypes = [ctypes.wintypes.LPCWSTR, ctypes.POINTER(ctypes.c_int)]
+    CommandLineToArgvW.restype = ctypes.POINTER(ctypes.wintypes.LPWSTR)
+
+    argc = ctypes.c_int()
+    argv = CommandLineToArgvW(GetCommandLineW(), ctypes.byref(argc))
+    if not argv:
+        return
+    sys.argv = argv[0:argc.value]
+    LocalFree(argv)
 
 
 def is_separate_console_window():
