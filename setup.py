@@ -17,12 +17,12 @@ sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=T
 setup(
     name="python-embedded-launcher",
     description="Launcher exe for distributing Python apps on Windows",
-    version='0.3.1',
+    version='0.4',
     author="Chris Liechti",
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",
     packages=['launcher_tool'],
-    package_data={'launcher_tool': ['launcher27.exe', 'launcher3.exe']},
+    package_data={'launcher_tool': ['launcher27.exe', 'launcher3-32.exe', 'launcher3-64.exe']},
     license="BSD",
     long_description=open('README.rst').read(),
     classifiers=[
