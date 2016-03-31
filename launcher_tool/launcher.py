@@ -115,6 +115,9 @@ def close_console():
     """closes the console window, if one was opened for the process"""
     if is_separate_console_window():
         import ctypes
+        ctypes.windll.kernel32.CloseHandle(4294967286)  # STD_INPUT_HANDLE
+        ctypes.windll.kernel32.CloseHandle(4294967285)  # STD_OUTPUT_HANDLE
+        ctypes.windll.kernel32.CloseHandle(4294967284)  # STD_ERROR_HANDLE
         ctypes.windll.kernel32.FreeConsole()
 
 
