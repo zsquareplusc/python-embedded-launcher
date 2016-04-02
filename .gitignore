@@ -1,3 +1,4 @@
+*.pyc
 /src/python27/launcher27.res
 /src/python3/launcher3-32.res
 /src/python3/launcher3-64.res
@@ -11,4 +12,5 @@
 /python_embedded_launcher.egg-info
 /examples/demo*/wheelhouse
 /examples/demo*/dist*
-/examples/python27/demo*/dist
+/examples/demo*/build
+/examples/demo*/*.egg-info
