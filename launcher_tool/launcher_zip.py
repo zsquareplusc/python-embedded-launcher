@@ -1,3 +1,12 @@
+#!python
+#
+# This file is part of https://github.com/zsquareplusc/python-embedded-launcher
+# (C) 2016 Chris Liechti <cliechti@gmx.net>
+#
+# SPDX-License-Identifier:    BSD-3-Clause
+"""\
+Build the boot code (__main__.py) for the zip file that is appended to the launcher.
+"""
 
 DEFAULT_MAIN = """\
 import sys

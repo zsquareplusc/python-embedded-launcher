@@ -15,18 +15,7 @@ import os
 import pkgutil
 import sys
 import zipfile
-
-
-DEFAULT_MAIN = """\
-import sys
-sys.path.append(sys.argv[1])
-
-import launcher
-launcher.patch_sys_path()
-launcher.restore_sys_argv()
-
-{run}
-"""
+import launcher_tool.launcher_zip
 
 
 def main():
@@ -80,7 +69,6 @@ def main():
     group_pyver_choice.add_argument('-3', dest='py3', action='store_true', default=False,
                                     help='force use of Python 3.x launcher')
 
-
     args = parser.parse_args()
 
     if (sys.version_info.major == 2 and not args.py3) or args.py2:
@@ -102,28 +90,16 @@ def main():
     else:
         mode = 'wb'
 
-    run_lines = []
-    if args.extend_sys_path:
-        for pattern in args.extend_sys_path:
-            run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
-    if args.wait:
-        run_lines.append('launcher.wait_at_exit()')
-    if args.wait_on_error:
-        run_lines.append('launcher.wait_on_error()')
-
-    if args.entry_point is not None:
-        mod, func = args.entry_point.split(':')
-        run_lines.append('import {module}\n{module}.{main}()'.format(module=mod, main=func))
-    elif args.run_path is not None:
-        run_lines.append('import runpy\nrunpy.run_path({!r})'.format(args.run_path))
-    elif args.run_module is not None:
-        run_lines.append('import runpy\nrunpy.run_module({!r})'.format(args.run_module))
-
     if args.main is not None:
         main_script = open(args.main).read()
     else:
-        main_script = DEFAULT_MAIN
-        main_script = main_script.format(run='\n'.join(run_lines), py=sys.version_info)
+        main_script = launcher_tool.launcher_zip.make_main(
+            entry_point=args.entry_point,
+            run_path=args.run_path,
+            run_module=args.run_module,
+            extend_sys_path=args.extend_sys_path,
+            wait_at_exit=args.wait,
+            wait_on_error=args.wait_on_error)
 
     dest_dir = os.path.dirname(args.output)
     if dest_dir and not os.path.exists(dest_dir):
