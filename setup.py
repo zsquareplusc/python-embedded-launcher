@@ -12,7 +12,7 @@ except ImportError:
 
 # compile the launcher binaries
 # other users may need to edit the batch file or add gcc somehow to the PATH
-sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True))
+#~ sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True))
 
 setup(
     name="python-embedded-launcher",
@@ -25,6 +25,11 @@ setup(
     package_data={'launcher_tool': ['launcher27.exe', 'launcher3-32.exe', 'launcher3-64.exe']},
     license="BSD",
     long_description=open('README.rst').read(),
+    entry_points={
+        'distutils.commands': [
+            'bdist_launcher = launcher_tool.bdist_launcher:LauncherCommand'
+        ],
+    },
     classifiers=[
         #~ 'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',

@@ -1,0 +1,4 @@
+#!python
+import serial.tools.miniterm
+
+serial.tools.miniterm.main()

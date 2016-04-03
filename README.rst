@@ -27,6 +27,17 @@ applications, but that does not bundle the Python interpreter.
 .. _pypi: https://pypi.python.org/pypi
 
 
+Quick Start
+===========
+(assuming setuptools is installed)
+
+- make a ``setup.py`` for your application`, use ``scripts`` and/or
+    ``entry_points`` for ``console_scripts``
+- run ``python setup.py bdist_launcher``
+
+Done. See result in ``dist/launcher``.
+
+
 Scenarios
 =========
 
@@ -86,7 +97,6 @@ Use the launcher tool to write the exe, calling your app::
 
 .. note:: pip will also install scripts in a subdirectory called ``Scripts``.
           this usually not needed for a packaged app, so this can be deleted.
-
 
 
 Variations
