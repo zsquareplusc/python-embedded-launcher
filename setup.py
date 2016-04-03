@@ -27,7 +27,7 @@ setup(
     long_description=open('README.rst').read(),
     entry_points={
         'distutils.commands': [
-            'bdist_launcher = launcher_tool.bdist_launcher:LauncherCommand'
+            'bdist_launcher = launcher_tool.bdist_launcher:bdist_launcher'
         ],
     },
     classifiers=[

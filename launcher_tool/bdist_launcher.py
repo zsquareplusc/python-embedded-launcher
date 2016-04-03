@@ -24,7 +24,7 @@ import zipfile
 
 
 
-class LauncherCommand(distutils.cmd.Command):
+class bdist_launcher(distutils.cmd.Command):
     """\
     Additional command for distutils/setuptools.
     """
