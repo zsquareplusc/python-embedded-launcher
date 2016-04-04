@@ -2,6 +2,11 @@
  Changes
 =========
 
+0.5.1
+=====
+- added missing example (demo_app) to distribution
+- fix: extend_sys_path attribute is now a parameter
+
 0.5
 ===
 - bdist_launcher distuils/setuptools command added
