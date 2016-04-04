@@ -2,6 +2,13 @@
  Changes
 =========
 
+0.5
+===
+- bdist_launcher distuils/setuptools command added
+- new example: demo_app for use with bdist_launcher
+- fix: close stdio channels before closing cosole window, fixes an issue with
+  subprocess
+
 0.4
 ===
 - 64 bit support for Python 3

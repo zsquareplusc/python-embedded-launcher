@@ -10,14 +10,15 @@ try:
 except ImportError:
     from distutils.core import setup
 
-# compile the launcher binaries
-# other users may need to edit the batch file or add gcc somehow to the PATH
-#~ sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True))
+if 'sdist' in sys.argv[1:] or 'bdist_wheel' in sys.argv[1:]:
+    # compile the launcher binaries
+    # other users may need to edit the batch file or add gcc somehow to the PATH
+    sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True))
 
 setup(
     name="python-embedded-launcher",
     description="Launcher exe for distributing Python apps on Windows",
-    version='0.4',
+    version='0.5',
     author="Chris Liechti",
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",

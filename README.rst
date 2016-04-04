@@ -29,42 +29,48 @@ applications, but that does not bundle the Python interpreter.
 
 Quick Start
 ===========
-(assuming setuptools is installed)
-
-- make a ``setup.py`` for your application`, use ``scripts`` and/or
-    ``entry_points`` for ``console_scripts``
+- make a ``setup.py`` for your application, use ``scripts`` and/or
+  ``entry_points`` for ``console_scripts``
 - run ``python setup.py bdist_launcher``
 
-Done. See result in ``dist/launcher``.
-
-
-Scenarios
-=========
-
-Distribute an application
-    Bundle Python with an application so that users can use it without having
-    to install Python.
-
-    In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
-    ``"%SELF%\\python27-minimal"`` (this is already the default). This way,
-    the Python distribution is expected at the location of the executable. The
-    environment variable ``SELF`` is set automatically by the launcher itself
-    (*dirname* of *abspath* of *exe*).
-
-
-Common python-minimal package
-    Multiple tools can use a common copy of Python. e.g. with a package
-    manager. Python can be provided as one package and separate application
-    packages can use that Python distribution to run.
-
-    In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
-    ``"%PACKAGE_ROOT%\\python27-minimal"``. This way, the Python distribution
-    is expected to be at a fixed location, where the ``PACKAGE_ROOT`` variable
-    points at. It is expected to be set by the package manager.
+Done. See result in ``dist/launcher*``.
 
 
 Usage
 =====
+The simplest way to use this tool is to add a ``setup.py`` to the application
+that should be distributed.
+
+::
+
+    setup(
+        name="sample_application",
+        # ...
+        description="Small sample application for python-embedded-launcher",
+        entry_points={
+            'console_scripts': [
+                'app1 = app.core:main',
+            ],
+        },
+        scripts=['scripts/app2'],
+    )
+
+Then simply running ``python setup.py bdist_launcher`` will do the trick:
+
+- Run ``bdist_wheel`` and then ...
+- use that wheel file to install the application and all dependencies to
+  the dist directory.
+- Create executables for all ``scripts`` and ``console_scripts`` entries.
+  When the ``--icon`` option is given, the provided icon will be applied to
+  all executables.
+- Finally, copy/download a ``pythonX-minimal`` distribution to the dist
+  directory.
+
+
+Advanced Usage
+==============
+It is also possible to apply the steps to create a distribution manually.
+
 The ``example`` directory has demos where these steps are written in a batch
 file that is ready to run. The description here explains the steps.
 On Windows, once Python 3 is installed, the Python Launcher ``py`` is
@@ -219,6 +225,30 @@ text editor and ``compile.bat`` is used to recreate the exe.
 .. _resourcehacker: http://www.angusj.com/resourcehacker/
 
 
+Scenarios
+---------
+Distribute an application
+    Bundle Python with an application so that users can use it without having
+    to install Python.
+
+    In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
+    ``"%SELF%\\python27-minimal"`` (this is already the default). This way,
+    the Python distribution is expected at the location of the executable. The
+    environment variable ``SELF`` is set automatically by the launcher itself
+    (*dirname* of *abspath* of *exe*).
+
+
+Common python-minimal package
+    Multiple tools can use a common copy of Python. e.g. with a package
+    manager. Python can be provided as one package and separate application
+    packages can use that Python distribution to run.
+
+    In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
+    ``"%PACKAGE_ROOT%\\python27-minimal"``. This way, the Python distribution
+    is expected to be at a fixed location, where the ``PACKAGE_ROOT`` variable
+    points at. It is expected to be set by the package manager.
+
+
 Build
 =====
 Requires a mingw gcc compiler (see Requirements_).
@@ -312,9 +342,6 @@ when started from the explorer. However it is easily closed with a Windows API
 call and ``launcher.py``, which is added to the application, has a function for
 that. The advantage is, that applications can be started in a console and one
 can see the output - and wait for the program to terminate etc.
-
-There are currently no 64 bit versions of the launcher. Though compiling them
-should be no more than adding a switch to the compiler...
 
 Starting with Python 3.5, an embedded Python distribution is already available
 (and used here) for download, see
