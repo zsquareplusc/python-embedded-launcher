@@ -12,6 +12,7 @@ import os
 import pkgutil
 import sys
 
+
 def copy_launcher(fileobj, use_py2=False, use_64bits=False):
     """copy raw launcher exe to given file object"""
     if use_py2:

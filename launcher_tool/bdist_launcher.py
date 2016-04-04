@@ -11,23 +11,24 @@ easy as "python setup.py bdist_launcher".
 
 import distutils.cmd
 from distutils import log
+import sys
+import os
+import pkgutil
+import zipfile
+
 import launcher_tool.copy_launcher
 import launcher_tool.launcher_zip
 import launcher_tool.resource_editor
 import launcher_tool.create_python27_minimal
 import launcher_tool.download_python3_minimal
 from launcher_tool.download_python3_minimal import URL_32, URL_64
-import sys
-import os
-import pkgutil
-import zipfile
-
 
 
 class bdist_launcher(distutils.cmd.Command):
     """\
     Additional command for distutils/setuptools.
     """
+    #pylint: disable=invalid-name,attribute-defined-outside-init
 
     description = "Build windows executables"
 
@@ -85,14 +86,14 @@ class bdist_launcher(distutils.cmd.Command):
             '64' if self.is_64bits else '32'))
         log.info('installing to {}'.format(dest_dir))
         self.mkpath(dest_dir)
-        
+
         log.info('preparing a wheel file of application')
         self.run_command('bdist_wheel')
         log.info('installing wheel of application (with dependencies)')
         self.spawn([sys.executable, '-m', 'pip', 'install',
                     '--disable-pip-version-check',
                     '--prefix', dest_dir,
-                    '--ignore-installed', #'--no-index',
+                    '--ignore-installed',  # '--no-index',
                     '--find-links=dist', self.distribution.get_name()])
 
         if hasattr(self.distribution, 'entry_points') and self.distribution.entry_points:
