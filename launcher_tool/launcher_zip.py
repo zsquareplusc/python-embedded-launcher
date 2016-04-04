@@ -19,12 +19,13 @@ launcher.restore_sys_argv()
 {run}
 """
 
+
 def make_main(entry_point=None, run_path=None, run_module=None,
               extend_sys_path=(), wait_at_exit=False, wait_on_error=False,
               main_script=DEFAULT_MAIN):
     run_lines = []
     if extend_sys_path:
-        for pattern in args.extend_sys_path:
+        for pattern in extend_sys_path:
             run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
     if wait_at_exit:
         run_lines.append('launcher.wait_at_exit()')
