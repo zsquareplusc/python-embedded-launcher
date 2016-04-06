@@ -110,7 +110,7 @@ class bdist_launcher(distutils.cmd.Command):
                                   launcher_tool.launcher_zip.make_main(entry_point=entry_point)),
                                  'writing launcher {}'.format(filename))
 
-        if hasattr(self.distribution, 'scripts'):
+        if hasattr(self.distribution, 'scripts') and self.distribution.scripts:
             for source in self.distribution.scripts:
                 filename = os.path.join(dest_dir, '{}.exe'.format(os.path.basename(source)))
                 script = open(source).read()
