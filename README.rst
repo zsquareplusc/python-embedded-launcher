@@ -55,7 +55,8 @@ that should be distributed.
         scripts=['scripts/app2'],
     )
 
-Then simply running ``python setup.py bdist_launcher`` will do the trick:
+Then simply running ``python setup.py bdist_launcher`` will do the trick. It
+will do:
 
 - Run ``bdist_wheel`` and then ...
 - use that wheel file to install the application and all dependencies to
@@ -65,6 +66,14 @@ Then simply running ``python setup.py bdist_launcher`` will do the trick:
   all executables.
 - Finally, copy/download a ``pythonX-minimal`` distribution to the dist
   directory.
+
+Options for 'bdist_launcher' command::
+
+      --icon                  filename of icon to use
+      --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
+                              (separated by ";")
+      --wait-at-exit          do not close console window automatically
+      --wait-on-error         wait if there is an exception
 
 
 Advanced Usage

@@ -51,7 +51,7 @@ def main():
     group_custom.add_argument('--wait', action='store_true', default=False,
                               help='do not close console window automatically')
     group_custom.add_argument('--wait-on-error', action='store_true', default=False,
-                              help='wait if there is an excpetion')
+                              help='wait if there is an exception')
     group_custom.add_argument('-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
                               help='add search pattern for files added to sys.path')
 

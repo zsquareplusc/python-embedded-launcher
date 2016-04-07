@@ -33,15 +33,29 @@ class bdist_launcher(distutils.cmd.Command):
     description = "Build windows executables"
 
     user_options = [
-        ('icon=', None, "filename of icon to use"),
+        ('icon=', None, 'filename of icon to use'),
+        ('extend-sys-path=', 'p', 'add search pattern(s) for files added to '
+                                  'sys.path (separated by "{}")'.format(os.pathsep)),
+        ('wait-at-exit', None, 'do not close console window automatically'),
+        ('wait-on-error', None, 'wait if there is an exception'),
     ]
+
+    boolean_options = ['wait-at-exit', 'wait-on-error']
+
 
     def initialize_options(self):
         self.icon = None
+        self.extend_sys_path = None
+        self.wait_at_exit = False
+        self.wait_on_error = False
 
     def finalize_options(self):
         self.use_python27 = (sys.version_info.major == 2)
         self.is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
+        if self.extend_sys_path is None:
+            self.extend_sys_path = ()
+        else:
+            self.extend_sys_path = self.extend_sys_path.split(os.pathsep)
 
     def copy_customized_launcher(self, fileobj, icon):
         """\
@@ -104,10 +118,13 @@ class bdist_launcher(distutils.cmd.Command):
                     name = name.strip()
                     entry_point = entry_point.strip()
                     filename = os.path.join(dest_dir, '{}.exe'.format(name))
+                    main_script = launcher_tool.launcher_zip.make_main(
+                        entry_point=entry_point,
+                        extend_sys_path=self.extend_sys_path,
+                        wait_at_exit=self.wait_at_exit,
+                        wait_on_error=self.wait_on_error)
                     self.execute(self.write_launcher,
-                                 (filename,
-                                  self.icon,
-                                  launcher_tool.launcher_zip.make_main(entry_point=entry_point)),
+                                 (filename, self.icon, main_script),
                                  'writing launcher {}'.format(filename))
 
         if hasattr(self.distribution, 'scripts') and self.distribution.scripts:
@@ -115,7 +132,10 @@ class bdist_launcher(distutils.cmd.Command):
                 filename = os.path.join(dest_dir, '{}.exe'.format(os.path.basename(source)))
                 script = open(source).read()
                 # append users' script to the launcher boot code
-                main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(), script)
+                main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(
+                    extend_sys_path=self.extend_sys_path,
+                    wait_at_exit=self.wait_at_exit,
+                    wait_on_error=self.wait_on_error), script)
                 self.execute(self.write_launcher,
                              (filename, self.icon, main_script),
                              'writing launcher {}'.format(filename))
