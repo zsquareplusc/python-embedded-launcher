@@ -7,5 +7,5 @@
 
 Done.
 
-Check out the result in "dist/launcher". The contents of this
-directory contains all the files needed to run the application.
+Check out the result in "dist/launcher*", it contains all the files needed to
+run the application.

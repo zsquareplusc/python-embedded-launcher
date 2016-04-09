@@ -45,8 +45,11 @@ that should be distributed.
 
     setup(
         name="sample_application",
-        # ...
         description="Small sample application for python-embedded-launcher",
+        # ...
+        packages=[...]
+        setup_requires=[...]
+        # ...
         entry_points={
             'console_scripts': [
                 'app1 = app.core:main',
@@ -55,25 +58,26 @@ that should be distributed.
         scripts=['scripts/app2'],
     )
 
-Then simply running ``python setup.py bdist_launcher`` will do the trick. It
-will do:
+Then running ``python setup.py bdist_launcher`` will do the following steps:
 
 - Run ``bdist_wheel`` and then ...
 - use that wheel file to install the application and all dependencies to
-  the dist directory.
+  a subdirectory within the ``dist`` directory.
 - Create executables for all ``scripts`` and ``console_scripts`` entries.
   When the ``--icon`` option is given, the provided icon will be applied to
   all executables.
-- Finally, copy/download a ``pythonX-minimal`` distribution to the dist
+- Finally, copy/download a ``pythonX-minimal`` distribution to the ``dist``
   directory.
 
 Options for 'bdist_launcher' command::
 
-      --icon                  filename of icon to use
-      --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
-                              (separated by ";")
-      --wait-at-exit          do not close console window automatically
-      --wait-on-error         wait if there is an exception
+    --icon                  filename of icon to use
+    --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
+                            (separated by ";")
+    --wait-at-exit          do not close console window automatically
+    --wait-on-error         wait if there is an exception
+
+These options apply to all created launchers (if more than one is generated).
 
 
 Advanced Usage
