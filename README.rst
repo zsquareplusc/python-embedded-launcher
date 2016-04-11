@@ -65,13 +65,16 @@ Then running ``python setup.py bdist_launcher`` will do the following steps:
   a subdirectory within the ``dist`` directory.
 - Create executables for all ``scripts`` and ``console_scripts`` entries.
   When the ``--icon`` option is given, the provided icon will be applied to
-  all executables.
+  all executables. When the option ``--python-minimal`` is used, then the
+  location of the python-minmal directory is overriden and the following step
+  to create a copy is skipped.
 - Finally, copy/download a ``pythonX-minimal`` distribution to the ``dist``
-  directory.
+  directory (that is, unless ``--python-minimal`` was used).
 
 Options for 'bdist_launcher' command::
 
     --icon                  filename of icon to use
+    --python-minimal        change the location of the python-minimal location
     --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
                             (separated by ";")
     --wait-at-exit          do not close console window automatically

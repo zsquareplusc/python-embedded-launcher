@@ -34,6 +34,7 @@ class bdist_launcher(distutils.cmd.Command):
 
     user_options = [
         ('icon=', None, 'filename of icon to use'),
+        ('python-minimal=', None, 'change the location of the python-minimal location'),
         ('extend-sys-path=', 'p', 'add search pattern(s) for files added to '
                                   'sys.path (separated by "{}")'.format(os.pathsep)),
         ('wait-at-exit', None, 'do not close console window automatically'),
@@ -45,6 +46,7 @@ class bdist_launcher(distutils.cmd.Command):
 
     def initialize_options(self):
         self.icon = None
+        self.python_minimal = None
         self.extend_sys_path = None
         self.wait_at_exit = False
         self.wait_on_error = False
@@ -57,7 +59,7 @@ class bdist_launcher(distutils.cmd.Command):
         else:
             self.extend_sys_path = self.extend_sys_path.split(os.pathsep)
 
-    def copy_customized_launcher(self, fileobj, icon):
+    def copy_customized_launcher(self, fileobj):
         """\
         Copy launcher to build dir and run the resource editor, output result
         to given fileobj.
@@ -69,23 +71,32 @@ class bdist_launcher(distutils.cmd.Command):
         launcher_temp = os.path.join(build_dir, 'launcher.exe')
         with open(launcher_temp, 'wb') as temp_exe:
             launcher_tool.copy_launcher.copy_launcher(temp_exe, self.use_python27, self.is_64bits)
-        ico = launcher_tool.resource_editor.icon.Icon()
-        ico.load(icon)
-        with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
-            ico.save_as_resource(res, 1, 1033)
+        if self.icon is not None:
+            log.info('changing icon to: {}'.format(self.icon))
+            ico = launcher_tool.resource_editor.icon.Icon()
+            ico.load(self.icon)
+            with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
+                ico.save_as_resource(res, 1, 1033)
+        if self.python_minimal is not None:
+            log.info('changing path to python-minimal to: {}'.format(self.python_minimal))
+            with launcher_tool.resource_editor.ResourceReader(launcher_temp) as res:
+                string_table = res.get_string_table()
+            string_table.languages[1033][1] = self.python_minimal
+            with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
+                string_table.save_to_resource(res)
         with open(launcher_temp, 'rb') as temp_exe:
             fileobj.write(temp_exe.read())
 
-    def write_launcher(self, filename, icon, main_script):
+    def write_launcher(self, filename, main_script):
         """\
         helper function that writes a launcher exe with the appended __main__.py
         and support files
         """
         with open(filename, 'wb') as exe:
-            if icon is None:
+            if self.icon is None and self.python_minimal is None:
                 launcher_tool.copy_launcher.copy_launcher(exe, self.use_python27, self.is_64bits)
             else:
-                self.copy_customized_launcher(exe, icon)
+                self.copy_customized_launcher(exe)
             with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
                 archive.writestr('__main__.py', main_script.encode('utf-8'))
                 archive.writestr('launcher.py', pkgutil.get_data('launcher_tool', 'launcher.py'))
@@ -111,7 +122,7 @@ class bdist_launcher(distutils.cmd.Command):
                     '--find-links=dist', self.distribution.get_name()])
 
         if hasattr(self.distribution, 'entry_points') and self.distribution.entry_points:
-            if 'console_scripts' in self.distribution.entry_points:
+            if 'console_scripts' in self.distribution.entry_points and self.distribution.entry_points['console_scripts']:
                 #~ print(self.distribution.entry_points['console_scripts'])
                 for combination in self.distribution.entry_points['console_scripts']:
                     name, entry_point = combination.split('=')
@@ -124,7 +135,7 @@ class bdist_launcher(distutils.cmd.Command):
                         wait_at_exit=self.wait_at_exit,
                         wait_on_error=self.wait_on_error)
                     self.execute(self.write_launcher,
-                                 (filename, self.icon, main_script),
+                                 (filename, main_script),
                                  'writing launcher {}'.format(filename))
 
         if hasattr(self.distribution, 'scripts') and self.distribution.scripts:
@@ -137,20 +148,21 @@ class bdist_launcher(distutils.cmd.Command):
                     wait_at_exit=self.wait_at_exit,
                     wait_on_error=self.wait_on_error), script)
                 self.execute(self.write_launcher,
-                             (filename, self.icon, main_script),
+                             (filename, main_script),
                              'writing launcher {}'.format(filename))
 
-        if self.use_python27:
-            if not os.path.exists(os.path.join(dest_dir, 'python27-minimal')):
-                launcher_tool.create_python27_minimal.copy_python(
-                    os.path.join(dest_dir, 'python27-minimal'))
+        if self.python_minimal is None:
+            if self.use_python27:
+                if not os.path.exists(os.path.join(dest_dir, 'python27-minimal')):
+                    launcher_tool.create_python27_minimal.copy_python(
+                        os.path.join(dest_dir, 'python27-minimal'))
+                else:
+                    log.info('python27-minimal installation already present')
             else:
-                log.info('python27-minimal installation already present')
-        else:
-            if not os.path.exists(os.path.join(dest_dir, 'python3-minimal')):
-                log.info('extracting python minimal installation')
-                launcher_tool.download_python3_minimal.extract(
-                    URL_64 if self.is_64bits else URL_32,
-                    os.path.join(dest_dir, 'python3-minimal'))
-            else:
-                log.info('python3-minimal installation already present')
+                if not os.path.exists(os.path.join(dest_dir, 'python3-minimal')):
+                    log.info('extracting python minimal installation')
+                    launcher_tool.download_python3_minimal.extract(
+                        URL_64 if self.is_64bits else URL_32,
+                        os.path.join(dest_dir, 'python3-minimal'))
+                else:
+                    log.info('python3-minimal installation already present')
