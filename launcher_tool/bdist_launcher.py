@@ -58,6 +58,9 @@ class bdist_launcher(distutils.cmd.Command):
             self.extend_sys_path = ()
         else:
             self.extend_sys_path = self.extend_sys_path.split(os.pathsep)
+        self.dest_dir = os.path.join('dist', 'launcher{}-{}'.format(
+            '27' if self.use_python27 else '3',
+            '64' if self.is_64bits else '32'))
 
     def copy_customized_launcher(self, fileobj):
         """\
@@ -101,68 +104,72 @@ class bdist_launcher(distutils.cmd.Command):
                 archive.writestr('__main__.py', main_script.encode('utf-8'))
                 archive.writestr('launcher.py', pkgutil.get_data('launcher_tool', 'launcher.py'))
 
+    def process_entry_point(self, entry_point_name):
+        if entry_point_name in self.distribution.entry_points and self.distribution.entry_points[entry_point_name]:
+            #~ print(self.distribution.entry_points[entry_point_name])
+            for combination in self.distribution.entry_points[entry_point_name]:
+                name, entry_point = combination.split('=')
+                name = name.strip()
+                entry_point = entry_point.strip()
+                filename = os.path.join(self.dest_dir, '{}.exe'.format(name))
+                main_script = launcher_tool.launcher_zip.make_main(
+                    entry_point=entry_point,
+                    extend_sys_path=self.extend_sys_path,
+                    wait_at_exit=self.wait_at_exit,
+                    wait_on_error=self.wait_on_error)
+                self.execute(self.write_launcher,
+                             (filename, main_script),
+                             'writing launcher {}'.format(filename))
+
+    def process_scripts(self):
+        for source in self.distribution.scripts:
+            filename = os.path.join(self.dest_dir, '{}.exe'.format(os.path.basename(source)))
+            script = open(source).read()
+            # append users' script to the launcher boot code
+            main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(
+                extend_sys_path=self.extend_sys_path,
+                wait_at_exit=self.wait_at_exit,
+                wait_on_error=self.wait_on_error), script)
+            self.execute(self.write_launcher,
+                         (filename, main_script),
+                         'writing launcher {}'.format(filename))
+
     def run(self):
         #~ print(dir(self.distribution))
         #~ print(self.distribution.scripts)
         #~ print(self.distribution.requires)
 
-        dest_dir = os.path.join('dist', 'launcher{}-{}'.format(
-            '27' if self.use_python27 else '3',
-            '64' if self.is_64bits else '32'))
-        log.info('installing to {}'.format(dest_dir))
-        self.mkpath(dest_dir)
+        log.info('installing to {}'.format(self.dest_dir))
+        self.mkpath(self.dest_dir)
 
         log.info('preparing a wheel file of application')
         self.run_command('bdist_wheel')
         log.info('installing wheel of application (with dependencies)')
         self.spawn([sys.executable, '-m', 'pip', 'install',
                     '--disable-pip-version-check',
-                    '--prefix', dest_dir,
+                    '--prefix', self.dest_dir,
                     '--ignore-installed',  # '--no-index',
                     '--find-links=dist', self.distribution.get_name()])
 
         if hasattr(self.distribution, 'entry_points') and self.distribution.entry_points:
-            if 'console_scripts' in self.distribution.entry_points and self.distribution.entry_points['console_scripts']:
-                #~ print(self.distribution.entry_points['console_scripts'])
-                for combination in self.distribution.entry_points['console_scripts']:
-                    name, entry_point = combination.split('=')
-                    name = name.strip()
-                    entry_point = entry_point.strip()
-                    filename = os.path.join(dest_dir, '{}.exe'.format(name))
-                    main_script = launcher_tool.launcher_zip.make_main(
-                        entry_point=entry_point,
-                        extend_sys_path=self.extend_sys_path,
-                        wait_at_exit=self.wait_at_exit,
-                        wait_on_error=self.wait_on_error)
-                    self.execute(self.write_launcher,
-                                 (filename, main_script),
-                                 'writing launcher {}'.format(filename))
+            self.process_entry_point('console_scripts')
+            self.process_entry_point('gui_scripts')
 
         if hasattr(self.distribution, 'scripts') and self.distribution.scripts:
-            for source in self.distribution.scripts:
-                filename = os.path.join(dest_dir, '{}.exe'.format(os.path.basename(source)))
-                script = open(source).read()
-                # append users' script to the launcher boot code
-                main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(
-                    extend_sys_path=self.extend_sys_path,
-                    wait_at_exit=self.wait_at_exit,
-                    wait_on_error=self.wait_on_error), script)
-                self.execute(self.write_launcher,
-                             (filename, main_script),
-                             'writing launcher {}'.format(filename))
+            self.process_scripts()
 
         if self.python_minimal is None:
             if self.use_python27:
-                if not os.path.exists(os.path.join(dest_dir, 'python27-minimal')):
+                if not os.path.exists(os.path.join(self.dest_dir, 'python27-minimal')):
                     launcher_tool.create_python27_minimal.copy_python(
-                        os.path.join(dest_dir, 'python27-minimal'))
+                        os.path.join(self.dest_dir, 'python27-minimal'))
                 else:
                     log.info('python27-minimal installation already present')
             else:
-                if not os.path.exists(os.path.join(dest_dir, 'python3-minimal')):
+                if not os.path.exists(os.path.join(self.dest_dir, 'python3-minimal')):
                     log.info('extracting python minimal installation')
                     launcher_tool.download_python3_minimal.extract(
                         URL_64 if self.is_64bits else URL_32,
-                        os.path.join(dest_dir, 'python3-minimal'))
+                        os.path.join(self.dest_dir, 'python3-minimal'))
                 else:
                     log.info('python3-minimal installation already present')
