@@ -23,6 +23,9 @@ import launcher_tool.create_python27_minimal
 import launcher_tool.download_python3_minimal
 from launcher_tool.download_python3_minimal import URL_32, URL_64
 
+def convert_boolean_option(value):
+    return value.strip().lower() in ('1', 'true', 'yes')
+
 
 class bdist_launcher(distutils.cmd.Command):
     """\
@@ -62,7 +65,22 @@ class bdist_launcher(distutils.cmd.Command):
             '27' if self.use_python27 else '3',
             '64' if self.is_64bits else '32'))
 
-    def copy_customized_launcher(self, fileobj):
+    def get_option_dict_for_file(self, filename):
+        """\
+        combine options (from command line and bdist_launcher setings in setup.cfg)
+        with options that can be specified per file
+        """
+        options = self.distribution.get_option_dict('bdist_launcher')
+        options.update(self.distribution.get_option_dict('bdist_launcher.{}'.format(os.path.basename(filename))))
+        resulting_options = {}
+        for k, v in options.items():
+            if k.replace('_', '-') in self.boolean_options:
+                resulting_options[k] = convert_boolean_option(v[1])
+            else:
+                resulting_options[k] = v[1]
+        return resulting_options
+
+    def copy_customized_launcher(self, fileobj, options):
         """\
         Copy launcher to build dir and run the resource editor, output result
         to given fileobj.
@@ -74,32 +92,32 @@ class bdist_launcher(distutils.cmd.Command):
         launcher_temp = os.path.join(build_dir, 'launcher.exe')
         with open(launcher_temp, 'wb') as temp_exe:
             launcher_tool.copy_launcher.copy_launcher(temp_exe, self.use_python27, self.is_64bits)
-        if self.icon is not None:
-            log.info('changing icon to: {}'.format(self.icon))
+        if 'icon' in options:
+            log.info('changing icon to: {}'.format(options['icon']))
             ico = launcher_tool.resource_editor.icon.Icon()
-            ico.load(self.icon)
+            ico.load(options['icon'])
             with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
                 ico.save_as_resource(res, 1, 1033)
-        if self.python_minimal is not None:
-            log.info('changing path to python-minimal to: {}'.format(self.python_minimal))
+        if 'python_minimal' in options:
+            log.info('changing path to python-minimal to: {}'.format(options['python_minimal']))
             with launcher_tool.resource_editor.ResourceReader(launcher_temp) as res:
                 string_table = res.get_string_table()
-            string_table.languages[1033][1] = self.python_minimal
+            string_table.languages[1033][1] = options['python_minimal']
             with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
                 string_table.save_to_resource(res)
         with open(launcher_temp, 'rb') as temp_exe:
             fileobj.write(temp_exe.read())
 
-    def write_launcher(self, filename, main_script):
+    def write_launcher(self, filename, main_script, options):
         """\
         helper function that writes a launcher exe with the appended __main__.py
         and support files
         """
         with open(filename, 'wb') as exe:
-            if self.icon is None and self.python_minimal is None:
-                launcher_tool.copy_launcher.copy_launcher(exe, self.use_python27, self.is_64bits)
+            if 'icon' in options or 'python_minimal' in options:
+                self.copy_customized_launcher(exe, options)
             else:
-                self.copy_customized_launcher(exe)
+                launcher_tool.copy_launcher.copy_launcher(exe, self.use_python27, self.is_64bits)
             with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
                 archive.writestr('__main__.py', main_script.encode('utf-8'))
                 archive.writestr('launcher.py', pkgutil.get_data('launcher_tool', 'launcher.py'))
@@ -112,26 +130,28 @@ class bdist_launcher(distutils.cmd.Command):
                 name = name.strip()
                 entry_point = entry_point.strip()
                 filename = os.path.join(self.dest_dir, '{}.exe'.format(name))
+                options = self.get_option_dict_for_file(filename)
                 main_script = launcher_tool.launcher_zip.make_main(
                     entry_point=entry_point,
                     extend_sys_path=self.extend_sys_path,
-                    wait_at_exit=self.wait_at_exit,
-                    wait_on_error=self.wait_on_error)
+                    wait_at_exit=options.get('wait_at_exit', False),
+                    wait_on_error=options.get('wait_on_error', False))
                 self.execute(self.write_launcher,
-                             (filename, main_script),
+                             (filename, main_script, options),
                              'writing launcher {}'.format(filename))
 
     def process_scripts(self):
         for source in self.distribution.scripts:
             filename = os.path.join(self.dest_dir, '{}.exe'.format(os.path.basename(source)))
+            options = self.get_option_dict_for_file(filename)
             script = open(source).read()
             # append users' script to the launcher boot code
             main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(
                 extend_sys_path=self.extend_sys_path,
-                wait_at_exit=self.wait_at_exit,
-                wait_on_error=self.wait_on_error), script)
+                wait_at_exit=options.get('wait_at_exit', False),
+                wait_on_error=options.get('wait_on_error', False)), script)
             self.execute(self.write_launcher,
-                         (filename, main_script),
+                         (filename, main_script, options),
                          'writing launcher {}'.format(filename))
 
     def run(self):

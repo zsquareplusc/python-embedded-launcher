@@ -82,6 +82,14 @@ Options for 'bdist_launcher' command::
 
 These options apply to all created launchers (if more than one is generated).
 
+All those options can also be specified in the ``setup.cfg`` file (replace
+``-`` with ``_`` in all option names, drop the leading ``--``).
+
+The section that applies globally is called ``[bdist_launcher]`` but for
+customization of single files, it is also possible to make such a section per
+file, e.g. if an ``example.exe`` is generated, the corresponding section
+would be ``[bdist_launcher.example.exe]``.
+
 
 Advanced Usage
 ==============
