@@ -29,7 +29,7 @@ def make_main(entry_point=None, run_path=None, run_module=None,
             run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
     if wait_at_exit:
         run_lines.append('launcher.wait_at_exit()')
-    if wait_on_error:
+    if wait_on_error and not wait_at_exit: # waiting on error only needed if not already generally waiting
         run_lines.append('launcher.wait_on_error()')
 
     if entry_point is not None:
