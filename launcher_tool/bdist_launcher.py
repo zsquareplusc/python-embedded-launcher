@@ -42,19 +42,24 @@ class bdist_launcher(distutils.cmd.Command):
                                   'sys.path (separated by "{}")'.format(os.pathsep)),
         ('wait-at-exit', None, 'do not close console window automatically'),
         ('wait-on-error', None, 'wait if there is an exception'),
+        ('bin-dir', None, 'put binaries in subdirectory /bin'),
     ]
 
-    boolean_options = ['wait-at-exit', 'wait-on-error']
+    boolean_options = ['wait-at-exit', 'wait-on-error', 'bin-dir']
 
 
     def initialize_options(self):
         self.icon = None
         self.python_minimal = None
+        self.bin_dir = False
         self.extend_sys_path = None
         self.wait_at_exit = False
         self.wait_on_error = False
 
     def finalize_options(self):
+        if self.python_minimal is not None and self.bin_dir:
+            raise ValueError('Can not combine --python-minmal and --bin-dir options')
+
         self.use_python27 = (sys.version_info.major == 2)
         self.is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
         if self.extend_sys_path is None:
@@ -71,7 +76,7 @@ class bdist_launcher(distutils.cmd.Command):
         with options that can be specified per file
         """
         options = self.distribution.get_option_dict('bdist_launcher')
-        options.update(self.distribution.get_option_dict('bdist_launcher.{}'.format(os.path.basename(filename))))
+        options.update(self.distribution.get_option_dict('bdist_launcher:{}'.format(os.path.basename(filename))))
         resulting_options = {}
         for k, v in options.items():
             if k.replace('_', '-') in self.boolean_options:
@@ -105,6 +110,16 @@ class bdist_launcher(distutils.cmd.Command):
             string_table.languages[1033][1] = options['python_minimal']
             with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
                 string_table.save_to_resource(res)
+        if 'bin_dir' in options:
+            log.info('changing path to python-minimal to use "bin" dir')
+            with launcher_tool.resource_editor.ResourceReader(launcher_temp) as res:
+                string_table = res.get_string_table()
+            if self.use_python27:
+                string_table.languages[1033][1] = '%SELF%/../python27-minimal'
+            else:
+                string_table.languages[1033][1] = '%SELF%/../python3-minimal'
+            with launcher_tool.resource_editor.ResourceEditor(launcher_temp) as res:
+                string_table.save_to_resource(res)
         with open(launcher_temp, 'rb') as temp_exe:
             fileobj.write(temp_exe.read())
 
@@ -114,7 +129,7 @@ class bdist_launcher(distutils.cmd.Command):
         and support files
         """
         with open(filename, 'wb') as exe:
-            if 'icon' in options or 'python_minimal' in options:
+            if 'icon' in options or 'python_minimal' in options or 'bin_dir' in options:
                 self.copy_customized_launcher(exe, options)
             else:
                 launcher_tool.copy_launcher.copy_launcher(exe, self.use_python27, self.is_64bits)
@@ -129,8 +144,13 @@ class bdist_launcher(distutils.cmd.Command):
                 name, entry_point = combination.split('=')
                 name = name.strip()
                 entry_point = entry_point.strip()
-                filename = os.path.join(self.dest_dir, '{}.exe'.format(name))
-                options = self.get_option_dict_for_file(filename)
+                exe_name = '{}.exe'.format(name)
+                options = self.get_option_dict_for_file(exe_name)
+                if 'bin_dir' in options:
+                    self.mkpath(os.path.join(self.dest_dir, 'bin'))
+                    filename = os.path.join(self.dest_dir, 'bin', exe_name)
+                else:
+                    filename = os.path.join(self.dest_dir, exe_name)
                 main_script = launcher_tool.launcher_zip.make_main(
                     entry_point=entry_point,
                     extend_sys_path=self.extend_sys_path,
@@ -142,8 +162,14 @@ class bdist_launcher(distutils.cmd.Command):
 
     def process_scripts(self):
         for source in self.distribution.scripts:
-            filename = os.path.join(self.dest_dir, '{}.exe'.format(os.path.basename(source)))
-            options = self.get_option_dict_for_file(filename)
+            exe_name = '{}.exe'.format(os.path.basename(source))
+            options = self.get_option_dict_for_file(exe_name)
+            if 'bin_dir' in options:
+                self.mkpath(os.path.join(self.dest_dir, 'bin'))
+                filename = os.path.join(self.dest_dir, 'bin', exe_name)
+            else:
+                filename = os.path.join(self.dest_dir, exe_name)
+
             script = open(source).read()
             # append users' script to the launcher boot code
             main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(
