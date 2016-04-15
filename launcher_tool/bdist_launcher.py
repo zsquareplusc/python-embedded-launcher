@@ -75,7 +75,7 @@ class bdist_launcher(distutils.cmd.Command):
         combine options (from command line and bdist_launcher setings in setup.cfg)
         with options that can be specified per file
         """
-        options = self.distribution.get_option_dict('bdist_launcher')
+        options = dict(self.distribution.get_option_dict('bdist_launcher')) # copy!
         options.update(self.distribution.get_option_dict('bdist_launcher:{}'.format(os.path.basename(filename))))
         resulting_options = {}
         for k, v in options.items():
