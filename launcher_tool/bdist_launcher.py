@@ -155,7 +155,8 @@ class bdist_launcher(distutils.cmd.Command):
                     entry_point=entry_point,
                     extend_sys_path=self.extend_sys_path,
                     wait_at_exit=options.get('wait_at_exit', False),
-                    wait_on_error=options.get('wait_on_error', False))
+                    wait_on_error=options.get('wait_on_error', False),
+                    use_bin_dir=options.get('bin_dir', False))
                 self.execute(self.write_launcher,
                              (filename, main_script, options),
                              'writing launcher {}'.format(filename))
@@ -172,10 +173,13 @@ class bdist_launcher(distutils.cmd.Command):
 
             script = open(source).read()
             # append users' script to the launcher boot code
-            main_script = '{}\n{}'.format(launcher_tool.launcher_zip.make_main(
-                extend_sys_path=self.extend_sys_path,
-                wait_at_exit=options.get('wait_at_exit', False),
-                wait_on_error=options.get('wait_on_error', False)), script)
+            main_script = '{}\n{}'.format(
+                launcher_tool.launcher_zip.make_main(
+                    extend_sys_path=self.extend_sys_path,
+                    wait_at_exit=options.get('wait_at_exit', False),
+                    wait_on_error=options.get('wait_on_error', False),
+                    use_bin_dir=options.get('bin_dir', False)),
+                script)
             self.execute(self.write_launcher,
                          (filename, main_script, options),
                          'writing launcher {}'.format(filename))

@@ -10,10 +10,11 @@ Build the boot code (__main__.py) for the zip file that is appended to the launc
 
 DEFAULT_MAIN = """\
 import sys
+import os
 sys.path.append(sys.argv[1])
 
 import launcher
-launcher.patch_sys_path()
+launcher.patch_sys_path({patch})
 launcher.restore_sys_argv()
 
 {run}
@@ -22,6 +23,7 @@ launcher.restore_sys_argv()
 
 def make_main(entry_point=None, run_path=None, run_module=None,
               extend_sys_path=(), wait_at_exit=False, wait_on_error=False,
+              use_bin_dir=False,
               main_script=DEFAULT_MAIN):
     run_lines = []
     if extend_sys_path:
@@ -40,4 +42,7 @@ def make_main(entry_point=None, run_path=None, run_module=None,
     elif run_module is not None:
         run_lines.append('import runpy\nrunpy.run_module({!r})'.format(run_module))
 
-    return main_script.format(run='\n'.join(run_lines))
+    patch = ''
+    if use_bin_dir:
+        patch = 'os.path.dirname(os.path.dirname(sys.executable))'
+    return main_script.format(run='\n'.join(run_lines), patch=patch)

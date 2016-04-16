@@ -45,12 +45,11 @@ def process_pth_file(root, filename):
                     sys.path.append(path)
 
 
-def patch_sys_path(scan_pth=True):
+def patch_sys_path(root=os.path.dirname(sys.executable), scan_pth=True):
     """\
     Add an internal list of directories (relative to exe) to sys.path.
     In each of these directories also scan for .pth files.
     """
-    root = os.path.dirname(sys.executable)
     for path in SCAN_DIRECTORIES:
         location = os.path.join(root, path)
         if os.path.exists(location):
