@@ -2,6 +2,11 @@
  Changes
 =========
 
+0.6
+===
+- more configurability for bdist_launcher (--python-minimal, --bin-dir)
+- per-file configuration possibility for bdist_launcher 
+
 0.5.1
 =====
 - added missing example (demo_app) to distribution

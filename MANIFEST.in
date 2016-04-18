@@ -22,8 +22,10 @@ include examples/demo_wx_classic/make_demo_py27.bat
 include examples/demo_wx_classic/README.rst
 include examples/demo_wx_classic/sample_application.py
 include examples/demo_zip_include/icon.ico
-include examples/demo_zip_include/make_demo_py27.bat
+include examples/demo_zip_include/make_demo_external_wheels_py3.bat
 include examples/demo_zip_include/make_demo_py3.bat
+include examples/demo_zip_include/make_demo_py3-64bit.bat
+include examples/demo_zip_include/make_demo_py27.bat
 include examples/demo_zip_include/README.rst
 include examples/demo_zip_include/requirements.txt
 include src/compile_all.bat
