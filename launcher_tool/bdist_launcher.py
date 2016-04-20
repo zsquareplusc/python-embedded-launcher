@@ -24,6 +24,7 @@ import launcher_tool.download_python3_minimal
 from launcher_tool.download_python3_minimal import URL_32, URL_64
 
 def convert_boolean_option(value):
+    """convert a string representation of a boolean to a bool"""
     return value.strip().lower() in ('1', 'true', 'yes')
 
 
@@ -62,10 +63,11 @@ class bdist_launcher(distutils.cmd.Command):
 
         self.use_python27 = (sys.version_info.major == 2)
         self.is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
+        # convert path string to a list of strings
         if self.extend_sys_path is None:
-            self.extend_sys_path = ()
+            self.extend_sys_path_list = ()
         else:
-            self.extend_sys_path = self.extend_sys_path.split(os.pathsep)
+            self.extend_sys_path_list = self.extend_sys_path.split(os.pathsep)
         self.dest_dir = os.path.join('dist', 'launcher{}-{}'.format(
             '27' if self.use_python27 else '3',
             '64' if self.is_64bits else '32'))
@@ -138,6 +140,7 @@ class bdist_launcher(distutils.cmd.Command):
                 archive.writestr('launcher.py', pkgutil.get_data('launcher_tool', 'launcher.py'))
 
     def process_entry_point(self, entry_point_name):
+        """create a launcher for each item in the given entry point"""
         if entry_point_name in self.distribution.entry_points and self.distribution.entry_points[entry_point_name]:
             #~ print(self.distribution.entry_points[entry_point_name])
             for combination in self.distribution.entry_points[entry_point_name]:
@@ -153,7 +156,7 @@ class bdist_launcher(distutils.cmd.Command):
                     filename = os.path.join(self.dest_dir, exe_name)
                 main_script = launcher_tool.launcher_zip.make_main(
                     entry_point=entry_point,
-                    extend_sys_path=self.extend_sys_path,
+                    extend_sys_path=self.extend_sys_path_list,
                     wait_at_exit=options.get('wait_at_exit', False),
                     wait_on_error=options.get('wait_on_error', False),
                     use_bin_dir=options.get('bin_dir', False))
@@ -162,6 +165,7 @@ class bdist_launcher(distutils.cmd.Command):
                              'writing launcher {}'.format(filename))
 
     def process_scripts(self):
+        """create a launcher for each item in the 'scripts' list"""
         for source in self.distribution.scripts:
             exe_name = '{}.exe'.format(os.path.basename(source))
             options = self.get_option_dict_for_file(exe_name)
@@ -175,7 +179,7 @@ class bdist_launcher(distutils.cmd.Command):
             # append users' script to the launcher boot code
             main_script = '{}\n{}'.format(
                 launcher_tool.launcher_zip.make_main(
-                    extend_sys_path=self.extend_sys_path,
+                    extend_sys_path=self.extend_sys_path_list,
                     wait_at_exit=options.get('wait_at_exit', False),
                     wait_on_error=options.get('wait_on_error', False),
                     use_bin_dir=options.get('bin_dir', False)),
