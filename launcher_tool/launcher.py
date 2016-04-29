@@ -131,6 +131,20 @@ def close_console():
         ctypes.windll.kernel32.FreeConsole()
 
 
+def hide_console_until_error():
+    if not is_separate_console_window():
+        return
+
+    def handle_exception(exctype, value, tb, orig_hook=sys.excepthook):
+        """Print a exception and wait for a key"""
+        hide_console(False)
+        orig_hook(exctype, value, tb)
+
+    sys.excepthook = handle_exception
+
+    hide_console()
+
+
 def wait_at_exit():
     """wait at exit, but only if console window was opened separately"""
     if not is_separate_console_window():
