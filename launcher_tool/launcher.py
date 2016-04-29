@@ -110,6 +110,17 @@ def is_separate_console_window():
     return console_pid.value == ctypes.windll.kernel32.GetCurrentProcessId()
 
 
+def hide_console(hide=True):
+    """hides the console window, if one was opened for the process"""
+    if is_separate_console_window():
+        import ctypes
+        window = ctypes.windll.kernel32.GetConsoleWindow()
+        if hide:
+            ctypes.windll.user32.ShowWindow(window, 0) # SW_HIDE
+        else:
+            ctypes.windll.user32.ShowWindow(window, 5) # SW_SHOW
+
+
 def close_console():
     """closes the console window, if one was opened for the process"""
     if is_separate_console_window():
