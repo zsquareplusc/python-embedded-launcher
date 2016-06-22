@@ -38,7 +38,7 @@ def make_main(entry_point=None, run_path=None, run_module=None,
         mod, func = entry_point.split(':')
         run_lines.append('import {module}\n{module}.{main}()'.format(module=mod, main=func))
     elif run_path is not None:
-        run_lines.append('import runpy\nrunpy.run_path({!r})'.format(run_path))
+        run_lines.append('import runpy, os\nrunpy.run_path(os.path.expandvars({!r}))'.format(run_path))
     elif run_module is not None:
         run_lines.append('import runpy\nrunpy.run_module({!r})'.format(run_module))
 
