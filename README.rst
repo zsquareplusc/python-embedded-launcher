@@ -184,6 +184,15 @@ Tools
     to the zip. This zip file is appended to the exe. Optionally it can also
     include other files too.
 
+    Options to specify the entry point:
+
+    - ``--entry-point MODULE:FUNC``: import given module and call function
+    - ``--run-path FILE``: execute given file (e.g. .py, .zip). The path
+      is processed using ``os.path.expandvars()``, e.g. ``$SELF`` will be
+      expanded to the directoy of the executable.
+    - ``--run-module MODULE``: execute module (similar to python -m)
+    - ``--main FILE``: use this as ``__main__.py`` instead of built-in code.
+
 ``launcher_tool.create_python27_minimal``
     Used to create a python27-minimal distribution. It copies the Python
     installation from the system.
