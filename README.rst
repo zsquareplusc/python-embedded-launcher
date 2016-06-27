@@ -2,29 +2,16 @@
  python-embedded-launcher
 ==========================
 
+An other tool to make standalone Windows applications with Python.
 For Windows only.
 
 The launcher is a small C program that loads the Python DLL and calls
 ``Py_Main`` with itself as parameter, loading a zipped Python application
-appended to the exe.
+appended to the exe. It isolates the execution from the environment (e.g. other
+Python installations on the same machine).
 
-Yes, it is yet an other tool to make standalone Windows applications with
-Python.
-
-See also py2exe_, pyinstaller_, cx_Freeze_.
-I guess the basic idea is different from these tools, as we try to combine
-complete packages with a Python minimal distribution: Python + wheel files.
-There is no attempt made to search together all the required files, there is
-no scan for ``import`` statements etc.
-
-See also pex_, which can grab dependencies from pypi_ and make zip
-applications, but that does not bundle the Python interpreter.
-
-.. _py2exe: http://www.py2exe.org/
-.. _pyinstaller: http://www.pyinstaller.org/
-.. _cx_Freeze: http://cx-freeze.sourceforge.net/
-.. _pex: https://github.com/pantsbuild/pex
-.. _pypi: https://pypi.python.org/pypi
+Dependencies are installed with pip. The is no automatic detection or scanning
+of source files. Instead, ``setup.py`` or ``requirements.txt`` is used.
 
 
 Quick Start
@@ -63,15 +50,15 @@ Then running ``python setup.py bdist_launcher`` will do the following steps:
 - Run ``bdist_wheel`` and then ...
 - use that wheel file to install the application and all dependencies to
   a subdirectory within the ``dist`` directory.
-- Create executables for all ``scripts`` and ``console_scripts`` entries.
-  When the ``--icon`` option is given, the provided icon will be applied to
-  all executables. When the option ``--python-minimal`` is used, then the
-  location of the python-minmal directory is overriden and the following step
-  to create a copy is skipped.
+- Create executables for all ``scripts`` and ``console_scripts`` entries.  When
+  the ``--icon`` option is given, the provided icon will be applied to all
+  executables. When the option ``--python-minimal`` is used, then the location
+  of the python-minimal directory is overridden and the following step to
+  create a copy is skipped.
 - Finally, copy/download a ``pythonX-minimal`` distribution to the ``dist``
   directory (that is, unless ``--python-minimal`` was used).
 
-Options for 'bdist_launcher' command::
+Options for ``bdist_launcher`` command::
 
     --icon                  filename of icon to use
     --python-minimal        change the location of the python-minimal location
@@ -99,9 +86,9 @@ The ``example`` directory has demos where these steps are written in a batch
 file that is ready to run. The description here explains the steps.
 On Windows, once Python 3 is installed, the Python Launcher ``py`` is
 available, this is what is used here. Otherwise replace ``py -2``/``py -3`` with
-``python``/``python3``. When packaging an app, the same Python version that
-is packaged, should be used to run the steps here (using ``py -2`` or
-``py -3`` accordingly).
+``python``/``python3``. When packaging an application, the same Python version
+that is packaged, should be used to run the steps here (using ``py -2`` or ``py
+-3`` accordingly).
 
 
 Assuming your own project has a ``setup.py``, install to a ``dist`` directory::
@@ -116,7 +103,7 @@ Create a Python distribution::
 
     py -2 create_python27_minimal.py -d dist
 
-or for Python 3::
+Or for Python 3::
 
     py -3 -m launcher_tool.download_python3_minimal -d dist
 
@@ -132,7 +119,7 @@ Use the launcher tool to write the exe, calling your app::
 Variations
 ----------
 Instead of ``--prefix=dist`` it is also possible to use ``--user`` when the
-envirionment variable ``PYTHONUSERBASE`` is set to ``dist``. This will install
+environment variable ``PYTHONUSERBASE`` is set to ``dist``. This will install
 into a slightly different subdirectory of ``dist`` but ``lanucher.py`` also
 searches this one.
 
@@ -169,7 +156,7 @@ source may not work, it is recommended to only use wheels for this step.
 .. _get-pip.py: https://bootstrap.pypa.io/get-pip.py:
 
 
-Python 3's zipapp module can be used to package the application::
+Python 3's ``zipapp`` module can be used to package the application::
 
     py -3 -m zipapp myapp.py -o myapp.pyz
     py -3 -m launcher_tool -o myapp.exe --run-path myapp.pyz
@@ -187,9 +174,9 @@ Tools
     Options to specify the entry point:
 
     - ``--entry-point MODULE:FUNC``: import given module and call function
-    - ``--run-path FILE``: execute given file (e.g. .py, .zip). The path
-      is processed using ``os.path.expandvars()``, e.g. ``$SELF`` will be
-      expanded to the directoy of the executable.
+    - ``--run-path FILE``: execute given file (e.g. ``.py``, ``.zip``). The
+      path is processed using ``os.path.expandvars()``, e.g. ``$SELF`` will be
+      expanded to the directory of the executable.
     - ``--run-module MODULE``: execute module (similar to python -m)
     - ``--main FILE``: use this as ``__main__.py`` instead of built-in code.
 
@@ -210,7 +197,7 @@ Tools
 ``launcher_tool.resource_editor``
     A small Windows resource editor that can modify the launcher. It uses
     Windows API functions to read and write the data.
-    
+
     - adding and editing strings
     - retrieving and writing icons
     - export resources as (binary) blob
@@ -321,25 +308,25 @@ exe. It contains a few helper functions.
 ``launcher.patch_sys_path()``
     Add directories (relative to executable, if existing) to ``sys.path``.
 
-    - the direcrtory of the executable
+    - the directory of the executable
     - ``Python{py.major}{py.minor}/site-packages``
     - ``Python{py.major}{py.minor}/Lib/site-packages``
     - ``Lib/site-packages``
-    
+
     These locations are also scanned for ``.pth`` files.
 
 ``launcher.extend_sys_path_by_pattern(pattern)``
     Add files matching a pattern (e.g. ``*.zip``, ``*.whl``, ``*.egg``) to
-    ``sys.path``. the pattern is prefixed with the location of the executable.
+    ``sys.path``. The pattern is prefixed with the location of the executable.
     In case of wheel files, it only works for pure Python wheels and only if
     they do no access the file system to load data on their own (should use
     pkgutil_). This function is used if the command line option
     ``--extend-sys-path`` is used.
 
 ``launcher.restore_sys_argv()``
-    Get original command line via Windows API. Restores sys.argv (which is used
-    by the launcher to pass the location of Python). This function is called
-    by the default boot code (``__main__``).
+    Get original command line via Windows API. Restores ``sys.argv`` (which is
+    used by the launcher to pass the location of Python). This function is
+    called by the default boot code (``__main__``).
 
 ``launcher.close_console()``
     Useful for GUI applications, it closes a separate console window if there
@@ -403,3 +390,20 @@ multiple ``python.exe`` and ``pythonXY.dll``...
 ``pip install --prefix=dist`` installs the packages to a subdirectory
 ``Lib/site-packages``.
 
+
+Other Tools
+-----------
+See also py2exe_, pyinstaller_, cx_Freeze_.
+I guess the basic idea is different from these tools, as we try to combine
+complete packages with a Python minimal distribution: Python + wheel files.
+There is no attempt made to search together all the required files, there is
+no scan for ``import`` statements etc.
+
+See also pex_, which can grab dependencies from pypi_ and make zip
+applications, but that does not bundle the Python interpreter.
+
+.. _py2exe: http://www.py2exe.org/
+.. _pyinstaller: http://www.pyinstaller.org/
+.. _cx_Freeze: http://cx-freeze.sourceforge.net/
+.. _pex: https://github.com/pantsbuild/pex
+.. _pypi: https://pypi.python.org/pypi
