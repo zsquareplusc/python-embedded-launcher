@@ -11,7 +11,8 @@ appended to the exe. It isolates the execution from the environment (e.g. other
 Python installations on the same machine).
 
 Dependencies are installed with pip. The is no automatic detection or scanning
-of source files. Instead, ``setup.py`` or ``requirements.txt`` is used.
+of source files. Instead, ``setup.py`` (with setuptools' ``install_requires``)
+or ``requirements.txt`` is used.
 
 
 Quick Start
@@ -60,7 +61,7 @@ Then running ``python setup.py bdist_launcher`` will do the following steps:
 
 Options for ``bdist_launcher`` command::
 
-    --icon                  filename of icon to use
+    --icon                  filename of icon to use (.ico format)
     --python-minimal        change the location of the python-minimal location
     --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
                             (separated by ";")
@@ -76,6 +77,16 @@ The section that applies globally is called ``[bdist_launcher]`` but for
 customization of single files, it is also possible to make such a section per
 file, e.g. if an ``example.exe`` is generated, the corresponding section
 would be ``[bdist_launcher.example.exe]``.
+
+Note that ``requirements.txt`` is currently not automatically handler. To
+install this list of packages, use::
+
+    python -m pip install --prefix=%DIST% --ignore-installed -r ../requirements.txt
+
+with ``%DIST%`` pointing to the folder where the created exe is located.
+Optionally, to avoid internet access when using ``pip install``, make a local
+cache of wheel files using ``pip wheel ...`` and use
+``--find-links=wheels --no-index`` when installing (see "Variations" below).
 
 
 Advanced Usage
@@ -407,3 +418,11 @@ applications, but that does not bundle the Python interpreter.
 .. _cx_Freeze: http://cx-freeze.sourceforge.net/
 .. _pex: https://github.com/pantsbuild/pex
 .. _pypi: https://pypi.python.org/pypi
+
+
+Other Resources
+===============
+- See http://www.lfd.uci.edu/~gohlke/pythonlibs for a cache of many prebuilt
+  wheels for Windows of modules with binary components.
+
+- USer guide for ``pip``: https://pip.pypa.io/en/stable/
