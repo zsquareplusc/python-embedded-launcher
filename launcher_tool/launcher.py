@@ -6,6 +6,9 @@
 # SPDX-License-Identifier:    BSD-3-Clause
 """\
 Helper functions for executables packaged with python-embedded-launcher.
+
+This file is added to the zip archive that is appended to the exe. It provides
+functions that the application (and the startup code) can use.
 """
 
 # imports are delayed, made within the function calls. this is intentionally
@@ -30,6 +33,8 @@ def process_pth_file(root, filename):
     - excute lines starting with 'import'
     - all others: take it as path, test if path exists and append it to
       sys.path when it does.
+
+    Usually called by patch_sys_path().
     """
     with open(filename, 'rU') as pth_file:
         for line in pth_file:
@@ -62,20 +67,25 @@ def patch_sys_path(root=os.path.dirname(sys.executable), scan_pth=True):
 
 
 def extend_sys_path_by_pattern(pattern):
-    """add files matching pattern (e.g. *.zip, *.whl, *.egg) to sys.path"""
+    """\
+    Add files matching pattern (e.g. *.zip, *.whl, *.egg) to sys.path.
+
+    Usually called by the generated __main__.py.
+    """
     import glob
-    for whl in glob.glob(os.path.join(os.path.dirname(sys.executable), pattern)):
-        sys.path.append(whl)
+    for path in glob.glob(os.path.join(os.path.dirname(sys.executable), pattern)):
+        sys.path.append(path)
 
-
-#~ def restore_sys_argv():
-    #~ """get original command line via Windows API"""
-    #~ import ctypes
-    #~ import shlex
-    #~ commandline = ctypes.c_wchar_p(ctypes.windll.kernel32.GetCommandLineW())
-    #~ sys.argv = shlex.split(commandline.value, posix=False)
 
 def restore_sys_argv():
+    """\
+    Restore original command line arguments. The launcher.exe header used
+    the command line to pass internas to Python, this function sets sys.argv
+    to the values passed to the exe.
+
+    Usually called by the generated __main__.py.
+    """
+    # pylint: disable=invalid-name
     import ctypes
     import ctypes.wintypes
     LocalFree = ctypes.windll.kernel32.LocalFree
@@ -98,8 +108,10 @@ def restore_sys_argv():
 
 def is_separate_console_window():
     """\
-    return true if the console window was opened with this process.
-    return false if the console was already open and this application was
+    Check if the process owns a console window.
+
+    Return True if the console window was opened with this process.
+    Return False if the console was already open and this application was
     started within it.
     """
     import ctypes
@@ -111,7 +123,9 @@ def is_separate_console_window():
 
 
 def hide_console(hide=True):
-    """hides the console window, if one was opened for the process"""
+    """\
+    Hides the console window, if one was opened for the process.
+    """
     if is_separate_console_window():
         import ctypes
         window = ctypes.windll.kernel32.GetConsoleWindow()
@@ -122,7 +136,12 @@ def hide_console(hide=True):
 
 
 def close_console():
-    """closes the console window, if one was opened for the process"""
+    """\
+    Closes the console window, if one was opened for the process.
+
+    Can be used by GUI applcations to get rid of separate console window.
+    See also hide_console_until_error().
+    """
     if is_separate_console_window():
         import ctypes
         ctypes.windll.kernel32.CloseHandle(4294967286)  # STD_INPUT_HANDLE
@@ -132,10 +151,14 @@ def close_console():
 
 
 def hide_console_until_error():
+    """\
+    Hides the console window, if one was opened for the process, but shows the
+    console window again when a traceback is printed.
+    """
     if not is_separate_console_window():
         return
 
-    def handle_exception(exctype, value, tb, orig_hook=sys.excepthook):
+    def handle_exception(exctype, value, tb, orig_hook=sys.excepthook):  # pylint: disable=invalid-name
         """Print a exception and wait for a key"""
         hide_console(False)
         orig_hook(exctype, value, tb)
@@ -146,7 +169,9 @@ def hide_console_until_error():
 
 
 def wait_at_exit():
-    """wait at exit, but only if console window was opened separately"""
+    """\
+    Wait at exit, but only if console window was opened separately.
+    """
     if not is_separate_console_window():
         return
 
@@ -164,14 +189,16 @@ def wait_at_exit():
 
 
 def wait_on_error():
-    """wait on exception, but only if console window was opened separately"""
+    """\
+    Wait on exception, but only if console window was opened separately.
+    """
     if not is_separate_console_window():
         return
 
     import msvcrt
     import traceback
 
-    def handle_exception(exctype, value, tb):
+    def handle_exception(exctype, value, tb):  # pylint: disable=invalid-name
         """Print a exception and wait for a key"""
         traceback.print_exception(exctype, value, tb)
         sys.stdout.write('\n[Press any key]\n')
