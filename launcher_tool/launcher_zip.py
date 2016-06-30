@@ -20,18 +20,23 @@ launcher.restore_sys_argv()
 {run}
 """
 
-
+# pylint: disable=too-many-arguments
 def make_main(entry_point=None, run_path=None, run_module=None,
               extend_sys_path=(), wait_at_exit=False, wait_on_error=False,
               use_bin_dir=False,
               main_script=DEFAULT_MAIN):
+    """\
+    Generate code for __main__.py. The arguments represent different options
+    to start an application, handle sys.path and exit options, which influence
+    the code that is generated.
+    """
     run_lines = []
     if extend_sys_path:
         for pattern in extend_sys_path:
             run_lines.append('launcher.extend_sys_path_by_pattern({!r})'.format(pattern))
     if wait_at_exit:
         run_lines.append('launcher.wait_at_exit()')
-    if wait_on_error and not wait_at_exit: # waiting on error only needed if not already generally waiting
+    if wait_on_error and not wait_at_exit:  # waiting on error only needed if not already generally waiting
         run_lines.append('launcher.wait_on_error()')
 
     if entry_point is not None:

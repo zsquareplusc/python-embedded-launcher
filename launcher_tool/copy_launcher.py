@@ -35,14 +35,18 @@ def main():
     group_out.add_argument('-o', '--output', metavar='FILE',
                            help='write to this file')
 
-    group_bits = parser.add_argument_group('architecture', 'default value is based on sys.executable')
+    group_bits = parser.add_argument_group(
+        'architecture',
+        'default value is based on sys.executable')
     group_bits_choice = group_bits.add_mutually_exclusive_group()
     group_bits_choice.add_argument('--32', dest='bits32', action='store_true', default=False,
                                    help='force copy of 32 bit version')
     group_bits_choice.add_argument('--64', dest='bits64', action='store_true', default=False,
                                    help='force copy of 64 bit version')
 
-    group_pyver = parser.add_argument_group('launcher Python version', 'default value is based on sys.executable')
+    group_pyver = parser.add_argument_group(
+        'launcher Python version',
+        'default value is based on sys.executable')
     group_pyver_choice = group_pyver.add_mutually_exclusive_group()
     group_pyver_choice.add_argument('-2', dest='py2', action='store_true', default=False,
                                     help='force use of Python 2.7 launcher')

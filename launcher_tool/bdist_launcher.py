@@ -28,7 +28,7 @@ def convert_boolean_option(value):
     return value.strip().lower() in ('1', 'true', 'yes')
 
 
-class bdist_launcher(distutils.cmd.Command):
+class bdist_launcher(distutils.cmd.Command):  # pylint: disable=too-many-instance-attributes
     """\
     Additional command for distutils/setuptools.
     """
