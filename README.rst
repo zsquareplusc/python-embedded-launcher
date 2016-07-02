@@ -62,7 +62,7 @@ Then running ``python setup.py bdist_launcher`` will do the following steps:
 Options for ``bdist_launcher`` command::
 
     --icon                  filename of icon to use (.ico format)
-    --python-minimal        change the location of the python-minimal location
+    --python-minimal        change the location of the python-minimal directory
     --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
                             (separated by ";")
     --wait-at-exit          do not close console window automatically
@@ -78,7 +78,7 @@ customization of single files, it is also possible to make such a section per
 file, e.g. if an ``example.exe`` is generated, the corresponding section
 would be ``[bdist_launcher.example.exe]``.
 
-Note that ``requirements.txt`` is currently not automatically handler. To
+Note that ``requirements.txt`` is currently not automatically handled. To
 install this list of packages, use::
 
     python -m pip install --prefix=%DIST% --ignore-installed -r ../requirements.txt
@@ -144,7 +144,7 @@ Fetch the dependencies once::
 
 Then use these with ``--find-links`` and ``--no-index`` options::
 
-    py -m pip install --prefix=dist --ignore-installed --find-links=wheels --no-index -r requirements.txt
+    py -m pip install --isolated --prefix=dist --ignore-installed --find-links=wheels --no-index -r requirements.txt
 
 
 Alternatives
@@ -186,8 +186,8 @@ Tools
 
     - ``--entry-point MODULE:FUNC``: import given module and call function
     - ``--run-path FILE``: execute given file (e.g. ``.py``, ``.zip``). The
-      path is processed using ``os.path.expandvars()``, e.g. ``$SELF`` will be
-      expanded to the directory of the executable.
+      path is processed using ``os.path.expandvars()``, e.g. ``%SELF%`` will
+      be expanded to the directory of the executable.
     - ``--run-module MODULE``: execute module (similar to python -m)
     - ``--main FILE``: use this as ``__main__.py`` instead of built-in code.
 
