@@ -135,6 +135,17 @@ def hide_console(hide=True):
             ctypes.windll.user32.ShowWindow(window, 5) # SW_SHOW
 
 
+class DummyFile:
+    """Dummy File object to replace stdio when console is closed"""
+    def write(self, data):
+        """all operations are ignored"""
+    def flush(self):
+        """all operations are ignored"""
+    def read(self, size=None):
+        """all operations are ignored"""
+        return ''
+
+
 def close_console():
     """\
     Closes the console window, if one was opened for the process.
@@ -148,6 +159,7 @@ def close_console():
         ctypes.windll.kernel32.CloseHandle(4294967285)  # STD_OUTPUT_HANDLE
         ctypes.windll.kernel32.CloseHandle(4294967284)  # STD_ERROR_HANDLE
         ctypes.windll.kernel32.FreeConsole()
+        sys.stdout = sys.stderr = sys.stdin = DummyFile()
 
 
 def hide_console_until_error():
