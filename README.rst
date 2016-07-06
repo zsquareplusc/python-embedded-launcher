@@ -350,6 +350,16 @@ exe. It contains a few helper functions.
     Return true if the console window was opened with this process (e.g.
     the console was opened because the exe was started from the file Explorer).
 
+``hide_console(hide=True)``
+    Hides the console window, if one was opened for the process. The function
+    can also be called to show the window again. This function is used
+    by ``hide_console_until_error()``
+
+``launcher.hide_console_until_error()``
+    Hides the console window, if one was opened for the process, but shows the
+    console window again when a traceback is printed. ``sys.excepthook`` is
+    set by this function.
+
 ``launcher.wait_at_exit()``
     Wait at exit, but only if console window was opened separately.
     This function is called automatically if the command line option
