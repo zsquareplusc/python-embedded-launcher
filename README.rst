@@ -342,6 +342,9 @@ exe. It contains a few helper functions.
 ``launcher.close_console()``
     Useful for GUI applications, it closes a separate console window if there
     is one, e.g. when the exe was started by a double click.
+    Note that ``sys.stdout``, ``sys.stderr`` and ``sys.stdin`` are replaced
+    with a dummy object that ignores ``write()``/``flush()`` and returns
+    empty strings on ``read()``.
 
 ``launcher.is_separate_console_window()``
     Return true if the console window was opened with this process (e.g.
