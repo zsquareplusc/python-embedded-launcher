@@ -130,13 +130,14 @@ def hide_console(hide=True):
         import ctypes
         window = ctypes.windll.kernel32.GetConsoleWindow()
         if hide:
-            ctypes.windll.user32.ShowWindow(window, 0) # SW_HIDE
+            ctypes.windll.user32.ShowWindow(window, 0)  # SW_HIDE
         else:
-            ctypes.windll.user32.ShowWindow(window, 5) # SW_SHOW
+            ctypes.windll.user32.ShowWindow(window, 5)  # SW_SHOW
 
 
-class DummyFile:
+class DummyFile(object):
     """Dummy File object to replace stdio when console is closed"""
+    # pylint: disable=unused-argument, no-self-use
     def write(self, data):
         """all operations are ignored"""
     def flush(self):

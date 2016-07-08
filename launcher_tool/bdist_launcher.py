@@ -23,6 +23,7 @@ import launcher_tool.create_python27_minimal
 import launcher_tool.download_python3_minimal
 from launcher_tool.download_python3_minimal import URL_32, URL_64
 
+
 def convert_boolean_option(value):
     """convert a string representation of a boolean to a bool"""
     return value.strip().lower() in ('1', 'true', 'yes')
@@ -47,7 +48,6 @@ class bdist_launcher(distutils.cmd.Command):  # pylint: disable=too-many-instanc
     ]
 
     boolean_options = ['wait-at-exit', 'wait-on-error', 'bin-dir']
-
 
     def initialize_options(self):
         self.icon = None
@@ -77,7 +77,7 @@ class bdist_launcher(distutils.cmd.Command):  # pylint: disable=too-many-instanc
         combine options (from command line and bdist_launcher setings in setup.cfg)
         with options that can be specified per file
         """
-        options = dict(self.distribution.get_option_dict('bdist_launcher')) # copy!
+        options = dict(self.distribution.get_option_dict('bdist_launcher'))  # copy!
         options.update(self.distribution.get_option_dict('bdist_launcher:{}'.format(os.path.basename(filename))))
         resulting_options = {}
         for k, v in options.items():

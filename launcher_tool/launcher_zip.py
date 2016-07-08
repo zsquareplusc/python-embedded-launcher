@@ -20,6 +20,7 @@ launcher.restore_sys_argv()
 {run}
 """
 
+
 # pylint: disable=too-many-arguments
 def make_main(entry_point=None, run_path=None, run_module=None,
               extend_sys_path=(), wait_at_exit=False, wait_on_error=False,
