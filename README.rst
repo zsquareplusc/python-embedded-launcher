@@ -339,12 +339,18 @@ exe. It contains a few helper functions.
     used by the launcher to pass the location of Python). This function is
     called by the default boot code (``__main__``).
 
+    Note: Python 2 usually has ``str`` elements in ``sys.argv``, but this
+    function sets them to be ``unicode``.
+
 ``launcher.close_console()``
     Useful for GUI applications, it closes a separate console window if there
     is one, e.g. when the exe was started by a double click.
     Note that ``sys.stdout``, ``sys.stderr`` and ``sys.stdin`` are replaced
     with a dummy object that ignores ``write()``/``flush()`` and returns
     empty strings on ``read()``.
+    
+    Note: some functions may access the std streams, bypassing ``sys.stdXXX```,
+    those will fail due to the closed steams.
 
 ``launcher.is_separate_console_window()``
     Return true if the console window was opened with this process (e.g.
@@ -358,7 +364,7 @@ exe. It contains a few helper functions.
 ``launcher.hide_console_until_error()``
     Hides the console window, if one was opened for the process, but shows the
     console window again when a traceback is printed. ``sys.excepthook`` is
-    set by this function.
+    set by this function and it calls the previous value.
 
 ``launcher.wait_at_exit()``
     Wait at exit, but only if console window was opened separately.

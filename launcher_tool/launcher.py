@@ -153,6 +153,9 @@ def close_console():
 
     Can be used by GUI applcations to get rid of separate console window.
     See also hide_console_until_error().
+    
+    sys.stdout/stderr/stdin are replaced with a dummy object that ignores
+    writes / reads empty strings.
     """
     if is_separate_console_window():
         import ctypes
@@ -172,7 +175,7 @@ def hide_console_until_error():
         return
 
     def handle_exception(exctype, value, tb, orig_hook=sys.excepthook):  # pylint: disable=invalid-name
-        """Print a exception and wait for a key"""
+        """Print an exception and wait for a key"""
         hide_console(False)
         orig_hook(exctype, value, tb)
 
@@ -193,9 +196,9 @@ def wait_at_exit():
 
     def wait_at_end():
         """Print a message and wait for a key"""
+        sys.stderr.flush()
         sys.stdout.write('\n[Press any key]\n')
         sys.stdout.flush()
-        sys.stderr.flush()
         msvcrt.getch()
 
     atexit.register(wait_at_end)
@@ -212,11 +215,11 @@ def wait_on_error():
     import traceback
 
     def handle_exception(exctype, value, tb):  # pylint: disable=invalid-name
-        """Print a exception and wait for a key"""
+        """Print an exception and wait for a key"""
         traceback.print_exception(exctype, value, tb)
+        sys.stderr.flush()
         sys.stdout.write('\n[Press any key]\n')
         sys.stdout.flush()
-        sys.stderr.flush()
         msvcrt.getch()
 
     sys.excepthook = handle_exception
