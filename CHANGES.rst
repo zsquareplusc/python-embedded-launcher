@@ -5,6 +5,9 @@
 master
 ======
 - support variables in --run-path (e.g. $SELF)
+- new function: launcher.hide_console()
+- new function: launcher.hide_console_until_error()
+- update download_python3_minimal to download 3.5.2
 
 0.6
 ===
