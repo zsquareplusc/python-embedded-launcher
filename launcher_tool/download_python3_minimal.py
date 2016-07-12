@@ -21,8 +21,8 @@ import zipfile
 import requests
 
 
-URL_32 = 'https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-win32.zip'
-URL_64 = 'https://www.python.org/ftp/python/3.5.1/python-3.5.1-embed-amd64.zip'
+URL_32 = 'https://www.python.org/ftp/python/3.5.2/python-3.5.2-embed-win32.zip'
+URL_64 = 'https://www.python.org/ftp/python/3.5.2/python-3.5.2-embed-amd64.zip'
 
 
 def extract(url, destination, force_download=False):
