@@ -2,8 +2,8 @@
  Changes
 =========
 
-master
-======
+0.7
+===
 - support variables in --run-path (e.g. $SELF)
 - new function: launcher.hide_console()
 - new function: launcher.hide_console_until_error()
