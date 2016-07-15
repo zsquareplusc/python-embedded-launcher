@@ -2,6 +2,9 @@
  Changes
 =========
 
+master
+======
+
 0.7
 ===
 - support variables in --run-path (e.g. $SELF)
