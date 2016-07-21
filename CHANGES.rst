@@ -5,6 +5,10 @@
 master
 ======
 
+0.8
+===
+- support variables in --extend-sys-path (e.g. $SELF)
+
 0.7
 ===
 - support variables in --run-path (e.g. $SELF)

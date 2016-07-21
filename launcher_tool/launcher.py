@@ -73,7 +73,8 @@ def extend_sys_path_by_pattern(pattern):
     Usually called by the generated __main__.py.
     """
     import glob
-    for path in glob.glob(os.path.join(os.path.dirname(sys.executable), pattern)):
+    for path in glob.glob(os.path.join(os.path.dirname(sys.executable),
+                                       os.path.expandvars(pattern))):
         sys.path.append(path)
 
 
