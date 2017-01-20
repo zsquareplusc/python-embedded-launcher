@@ -1,5 +1,13 @@
-@set PATH=C:\TDM-GCC-32\bin;%PATH%
-@for /f %%i in ('python -c "import sys,os; print(os.path.dirname(sys.executable))"') do set PY2_INC=%%i
-windres -F pe-i386 launcher27.rc -O coff -o launcher27.res
-gcc -m32 -o ..\..\launcher_tool\launcher27.exe launcher27.c launcher27.res -Wall -I %PY2_INC%\\include
-strip ..\..\launcher_tool\launcher27.exe
+set PY2_64_INC=C:\Python27
+set PY2_32_INC=C:\Python27-32
+
+echo %PY2_64_INC%
+echo %PY2_32_INC%
+
+windres -F pe-i386 launcher27.rc -O coff -o launcher27-32.res
+gcc -m32 -o ..\..\launcher_tool\launcher27-32.exe launcher27.c launcher27-32.res -std=gnu99 -Wall -I %PY2_32_INC%\\include
+strip ..\..\launcher_tool\launcher27-32.exe 
+
+windres -F pe-x86-64 launcher27.rc -O coff -o launcher27-64.res
+gcc -m64 -o ..\..\launcher_tool\launcher27-64.exe launcher27.c launcher27-64.res -std=gnu99 -Wall -I %PY2_64_INC%\\include
+strip ..\..\launcher_tool\launcher27-64.exe

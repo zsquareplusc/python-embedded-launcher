@@ -71,10 +71,17 @@ def main():
 
     args = parser.parse_args()
 
+    is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
     if (sys.version_info.major == 2 and not args.py3) or args.py2:
-        launcher_filename = 'launcher27.exe'
+        if args.bits64:
+            launcher_filename = 'launcher27-64.exe'
+        elif args.bits32:
+            launcher_filename = 'launcher27-32.exe'
+        elif is_64bits:
+            launcher_filename = 'launcher27-64.exe'
+        else:
+            launcher_filename = 'launcher27-32.exe'
     else:
-        is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
         if args.bits64:
             launcher_filename = 'launcher3-64.exe'
         elif args.bits32:
