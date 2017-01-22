@@ -16,9 +16,10 @@ import sys
 def copy_launcher(fileobj, use_py2=False, use_64bits=False):
     """copy raw launcher exe to given file object"""
     if use_py2:
-        filename = 'launcher27.exe'
         if use_64bits:
-            raise ValueError('64 bit support for Python 2.7 currently not implemented')
+            filename = 'launcher27-64.exe'
+        else:
+            filename = 'launcher27-32.exe'
     else:
         if use_64bits:
             filename = 'launcher3-64.exe'

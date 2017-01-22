@@ -33,10 +33,17 @@ def copy_python(destination):
     if not os.path.exists(destination):
         os.makedirs(destination)
 
-    for name in ('python.exe', 'pythonw.exe', 'w9xpopen.exe', 'README.txt',
+    for name in ('python.exe', 'pythonw.exe', 'README.txt',
                  'NEWS.txt', 'LICENSE.txt'):
         shutil.copy2(os.path.join(python_source, name),
                      os.path.join(destination, name))
+    try: 
+        # w9xpopen.exe only exists on python27 32bit
+        name = 'w9xpopen.exe'
+        shutil.copy2(os.path.join(python_source, name),
+                     os.path.join(destination, name))
+    except IOError:
+        pass
 
     dll_excludes = ('tcl85.dll', 'tclpip85.dll', 'tk85.dll', '_tkinter.pyd')
     for name in os.listdir(os.path.join(python_source, 'DLLs')):
