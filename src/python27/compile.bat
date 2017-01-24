@@ -1,5 +1,5 @@
-set PY2_64_INC=C:\Python27
-set PY2_32_INC=C:\Python27-32
+set PY2_64_INC=C:\Python27-64
+set PY2_32_INC=C:\Python27
 
 echo %PY2_64_INC%
 echo %PY2_32_INC%

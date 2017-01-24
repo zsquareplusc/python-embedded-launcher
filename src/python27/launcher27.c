@@ -46,7 +46,7 @@ bool test_zip_file(const char *path) {
     if (hFile != INVALID_HANDLE_VALUE) {
         char zipid[22];
         DWORD len;
-        SetFilePointer(hFile, -sizeof(zipid), NULL, FILE_END);
+        SetFilePointer(hFile, -(LONG)sizeof(zipid), NULL, FILE_END);
         ReadFile(hFile, zipid, sizeof(zipid), &len, NULL);
         CloseHandle(hFile);
         return 0 == memcmp(zipid, "PK\005\006", 4);

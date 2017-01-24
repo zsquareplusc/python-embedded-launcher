@@ -23,7 +23,7 @@ setup(
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",
     packages=['launcher_tool'],
-    package_data={'launcher_tool': ['launcher27-32.exe', 'launcher27-32.exe', 'launcher3-32.exe', 'launcher3-64.exe']},
+    package_data={'launcher_tool': ['launcher27-32.exe', 'launcher27-64.exe', 'launcher3-32.exe', 'launcher3-64.exe']},
     license="BSD",
     long_description=open('README.rst').read(),
     entry_points={
