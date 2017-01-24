@@ -10,9 +10,9 @@ The launcher is a small C program that loads the Python DLL and calls
 appended to the exe. It isolates the execution from the environment (e.g. other
 Python installations on the same machine).
 
-Dependencies are installed with pip. The is no automatic detection or scanning
-of source files. Instead, ``setup.py`` (with setuptools' ``install_requires``)
-or ``requirements.txt`` is used.
+Dependencies are installed with pip. There is no automatic detection or
+scanning of source files. Instead, ``setup.py`` (with setuptools'
+``install_requires``) or ``requirements.txt`` is used.
 
 
 Quick Start
@@ -348,7 +348,7 @@ exe. It contains a few helper functions.
     Note that ``sys.stdout``, ``sys.stderr`` and ``sys.stdin`` are replaced
     with a dummy object that ignores ``write()``/``flush()`` and returns
     empty strings on ``read()``.
-    
+
     Note: some functions may access the std streams, bypassing ``sys.stdXXX```,
     those will fail due to the closed steams.
 
@@ -444,4 +444,4 @@ Other Resources
 - See http://www.lfd.uci.edu/~gohlke/pythonlibs for a cache of many prebuilt
   wheels for Windows of modules with binary components.
 
-- USer guide for ``pip``: https://pip.pypa.io/en/stable/
+- User guide for ``pip``: https://pip.pypa.io/en/stable/

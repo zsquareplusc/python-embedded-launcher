@@ -1,6 +1,6 @@
 # setup.py for python-embedded-launcher
 #
-# (C) 2016 Chris Liechti <cliechti@gmx.net>
+# (C) 2016-2017 Chris Liechti <cliechti@gmx.net>
 #
 # SPDX-License-Identifier:    BSD-3-Clause
 import subprocess
@@ -18,7 +18,7 @@ if 'sdist' in sys.argv[1:] or 'bdist_wheel' in sys.argv[1:]:
 setup(
     name="python-embedded-launcher",
     description="Launcher exe for distributing Python apps on Windows",
-    version='0.8',
+    version='0.9',
     author="Chris Liechti",
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",

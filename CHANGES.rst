@@ -2,8 +2,9 @@
  Changes
 =========
 
-master
-======
+0.9
+===
+- support for 64 bit Python 2.7
 
 0.8
 ===
@@ -47,4 +48,4 @@ re-release for pypi (fix descriptions in setup.py)
 ===
 - add --extend-sys-path argument
 - allow glob patterns for --add-file and --add-zip
-- otehr fixes
+- other fixes
