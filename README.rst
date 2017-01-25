@@ -262,9 +262,8 @@ Distribute an application
     Bundle Python with an application so that users can use it without having
     to install Python.
 
-    In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
-    ``"%SELF%\\python27-minimal"`` (this is already the default). This way,
-    the Python distribution is expected at the location of the executable. The
+    By default de launcher searches ``"%SELF%\\python27-minimal"``, so the
+    Python distribution is expected at the location of the executable. The
     environment variable ``SELF`` is set automatically by the launcher itself
     (*dirname* of *abspath* of *exe*).
 
@@ -274,10 +273,12 @@ Common python-minimal package
     manager. Python can be provided as one package and separate application
     packages can use that Python distribution to run.
 
-    In ``launcher27.rc`` set ``IDS_PYTHONHOME`` to
-    ``"%PACKAGE_ROOT%\\python27-minimal"``. This way, the Python distribution
-    is expected to be at a fixed location, where the ``PACKAGE_ROOT`` variable
-    points at. It is expected to be set by the package manager.
+    The reosurce in the launcher exe needs to be patched to override the
+    python location to e.g. ``"%PACKAGE_ROOT%\\python-minimal"``.
+    
+    This can be done with any resource editor or the included one::
+
+        python -m launcher_tool.resource_editor %DIST%/myapp.exe edit_strings --set 1:^%PACKAGE_ROOT^%\python-minimal
 
 
 Build
@@ -292,6 +293,8 @@ file. The ``compile_all.bat`` file runs both of them.
 
 The resulting binaries will be placed in the ``launcher_tool`` directory so
 that they are available as data files for the Python tool.
+
+Note that the source and wheel releases already contain precompiled exes.
 
 
 Requirements

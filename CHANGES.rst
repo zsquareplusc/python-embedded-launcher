@@ -4,7 +4,7 @@
 
 0.9
 ===
-- support for 64 bit Python 2.7
+- 64 bit support for Python 2.7
 
 0.8
 ===
