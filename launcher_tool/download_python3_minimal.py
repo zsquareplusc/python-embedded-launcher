@@ -20,9 +20,12 @@ import sys
 import zipfile
 import requests
 
+DEFAULT_VERSION = '3.6.0'
+URL_TEMPLATE = 'https://www.python.org/ftp/python/{version}/python-{version}-embed-{bits}.zip'
 
-URL_32 = 'https://www.python.org/ftp/python/3.5.2/python-3.5.2-embed-win32.zip'
-URL_64 = 'https://www.python.org/ftp/python/3.5.2/python-3.5.2-embed-amd64.zip'
+
+def get_url(version, bits):
+    return URL_TEMPLATE.format(version=version, bits='amd64' if 64 else 'win32')
 
 
 def extract(url, destination, force_download=False):
@@ -30,7 +33,6 @@ def extract(url, destination, force_download=False):
     extract zip file from cache, download if needed.
     e.g. extract(URL_32, 'python3-minimal')
     """
-
     # where to store
     cache_dir = os.path.abspath(os.path.expandvars('%LOCALAPPDATA%/python-embedded-launcher/cache'))  # XXX windows only
     cache_name = os.path.join(cache_dir, re.sub(r'[^\w]', '', url))
@@ -66,12 +68,15 @@ def main():
                            help='set a directory name [default: %(default)s]')
 
     group_download = parser.add_argument_group('download options')
-    group_url = group_download.add_mutually_exclusive_group()
-    group_url.add_argument('--32', dest='bits32', action='store_true', default=False,
+    group_bits = group_download.add_mutually_exclusive_group()
+    group_bits.add_argument('--32', dest='bits32', action='store_true', default=False,
                            help='force download of 32 bit version')
-    group_url.add_argument('--64', dest='bits64', action='store_true', default=False,
+    group_bits.add_argument('--64', dest='bits64', action='store_true', default=False,
                            help='force download of 64 bit version')
-    group_url.add_argument('--url', help='override download URL')
+    group_download.add_argument('--this-version', action='store_true', default=False,
+                           help='choose this Python version that is running now')
+    group_download.add_argument('-p', '--python-version', default=DEFAULT_VERSION, help='choose Python version (major.minor, default=%(default)s)')
+    group_download.add_argument('--url', help='override download URL')
     group_download.add_argument('-f', '--force-download', action='store_true', default=False,
                                 help='force download (ignore/overwrite cached file)')
 
@@ -79,15 +84,20 @@ def main():
 
     #~ print args
 
+    if args.bits32:
+        bits = 32
+    elif args.bits64:
+        bits = 64
+    elif platform.architecture()[0] == '64bit':  # autodetect
+        bits = 64
+    else:
+        bits = 32
+
+    if args.this_version:
+        args.python_version = '{0.major}.{0.minor}.{0.micro}'.format(sys.version_info)
+
     if args.url is None:
-        if args.bits32:
-            args.url = URL_32
-        elif args.bits64:
-            args.url = URL_64
-        elif platform.architecture()[0] == '64bit':  # autodetect
-            args.url = URL_64
-        else:
-            args.url = URL_32
+        args.url = get_url(args.python_version, bits)
 
     python_destination = os.path.join(args.directory, args.name)
     extract(args.url, python_destination, args.force_download)
