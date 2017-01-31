@@ -21,7 +21,6 @@ import launcher_tool.launcher_zip
 import launcher_tool.resource_editor
 import launcher_tool.create_python27_minimal
 import launcher_tool.download_python3_minimal
-from launcher_tool.download_python3_minimal import URL_32, URL_64
 
 
 def convert_boolean_option(value):
@@ -223,7 +222,9 @@ class bdist_launcher(distutils.cmd.Command):  # pylint: disable=too-many-instanc
                 if not os.path.exists(os.path.join(self.dest_dir, 'python3-minimal')):
                     log.info('extracting python minimal installation')
                     launcher_tool.download_python3_minimal.extract(
-                        URL_64 if self.is_64bits else URL_32,
+                        launcher_tool.download_python3_minimal.get_url(
+                            '{0.major}.{0.minor}.{0.micro}'.format(sys.version_info),
+                            64 if self.is_64bits else 32),
                         os.path.join(self.dest_dir, 'python3-minimal'))
                 else:
                     log.info('python3-minimal installation already present')
