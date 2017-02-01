@@ -171,6 +171,29 @@ int main() {
     wchar_t pydll_path[PATH_MAX];
     wchar_t python_version[20];
     LoadString(NULL, IDS_PY_VERSION, python_version, sizeof(python_version));
+    
+    // expand pattern in "python_version" string.
+    // search for the zip file (only one match and we use it's name below anyway)
+    // while for the DLL it would find python3.dll and python3x.dll...
+    append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, python_version,  L".zip");
+    WIN32_FIND_DATA find_data;
+    HANDLE find_handle = FindFirstFile(pydll_path, &find_data);
+    if (find_handle == NULL || find_handle == INVALID_HANDLE_VALUE) {
+        wprintf(L"Python is expected in: %s\n\n"
+                 "ERROR Python DLL not be found!\n"
+                 "full path: %s\n\n" , pythonhome_absolute, pydll_path);
+        print_last_error_message();
+        show_message_from_resource(IDS_PYDLL_NOT_FOUND);
+        return 1;
+    } else {
+        // copy base name without extension
+        for (wchar_t *s=find_data.cFileName, *d=python_version; *s && *s != L'.'; s++) {
+            *d++ = *s;
+            *d = L'\0';
+        }
+        FindClose(find_handle);
+    }
+
     append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, python_version,  L".dll");
     HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {
