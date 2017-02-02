@@ -43,5 +43,4 @@ STRINGTABLE
     IDS_PYDLL_NOT_FOUND,        "Python DLL could not be loaded! (File not found)"
     IDS_PYDLL_ERROR,            "Python DLL could not be loaded! (Symbols)"
     IDS_ZIP_NOT_FOUND,          "Zip data not appended to launcher!"
-    IDS_PY_VERSION,             "python3?"
 } 

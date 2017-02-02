@@ -1,5 +1,5 @@
 // This file is part of https://github.com/zsquareplusc/python-embedded-launcher
-// (C) 2016 Chris Liechti <cliechti@gmx.net>
+// (C) 2016-2017 Chris Liechti <cliechti@gmx.net>
 //
 // SPDX-License-Identifier:    BSD-3-Clause
 
@@ -23,16 +23,18 @@
     }
 
 
-wchar_t pythonhome_relative[PATH_MAX];
-wchar_t pythonhome_absolute[PATH_MAX];
+#define PATH_LENGTH     PATH_MAX
+
+wchar_t pythonhome_relative[PATH_LENGTH];
+wchar_t pythonhome_absolute[PATH_LENGTH];
 
 
 // show a message dialog with text from the built-in resource
 void show_message_from_resource(int id) {
     wchar_t name[80];
     wchar_t message[1024];
-    LoadString(NULL, IDS_NAME, name, sizeof(name));
-    LoadString(NULL, id, message, sizeof(message));
+    LoadString(NULL, IDS_NAME, name, 80);
+    LoadString(NULL, id, message, 1024);
     MessageBox(NULL, message, name, MB_OK | MB_ICONSTOP);
 }
 
@@ -102,8 +104,8 @@ bool check_if_directory_exists(wchar_t * path) {
 
 // set an environment variable "SELF" pointing to the location of the executable
 void set_self_env(void) {
-    static wchar_t env_self[PATH_MAX];
-    GetModuleFileName(NULL, env_self, sizeof(env_self));
+    static wchar_t env_self[PATH_LENGTH];
+    GetModuleFileName(NULL, env_self, PATH_LENGTH);
     cut_away_filename(env_self);
     SetEnvironmentVariable(L"SELF", env_self);
 }
@@ -111,19 +113,19 @@ void set_self_env(void) {
 
 // where to find our python?
 void get_pythonhome(void) {
-    wchar_t pythonhome_in[PATH_MAX];
-    LoadString(NULL, IDS_PYTHONHOME, pythonhome_in, sizeof(pythonhome_in));
-    ExpandEnvironmentStrings(pythonhome_in, pythonhome_relative, sizeof(pythonhome_relative));
-    GetFullPathName(pythonhome_relative, sizeof(pythonhome_absolute), pythonhome_absolute, NULL);
+    wchar_t pythonhome_in[PATH_LENGTH];
+    LoadString(NULL, IDS_PYTHONHOME, pythonhome_in, PATH_LENGTH);
+    ExpandEnvironmentStrings(pythonhome_in, pythonhome_relative, PATH_LENGTH);
+    GetFullPathName(pythonhome_relative, PATH_LENGTH, pythonhome_absolute, NULL);
     //~ wprintf(L"env: %s\n", pythonhome_absolute);
 }
 
 
 // prefix PATH environment variable with the location of our Python installation
 void patch_path_env(void) {
-    static wchar_t env_path[32760];
-    unsigned pos = snwprintf(env_path, sizeof(env_path), L"%s;", pythonhome_absolute);
-    GetEnvironmentVariable(L"PATH", &env_path[pos], sizeof(env_path) - pos);
+    static wchar_t env_path[32768];
+    unsigned pos = snwprintf(env_path, 32768, L"%s;", pythonhome_absolute);
+    GetEnvironmentVariable(L"PATH", &env_path[pos], 32768 - pos);
     SetEnvironmentVariable(L"PATH", env_path);
 }
 
@@ -168,14 +170,13 @@ int main() {
     // patch PATH so that DLLs can be found
     patch_path_env();
 
-    wchar_t pydll_path[PATH_MAX];
+    wchar_t pydll_path[PATH_LENGTH];
     wchar_t python_version[20];
-    LoadString(NULL, IDS_PY_VERSION, python_version, sizeof(python_version));
     
     // expand pattern in "python_version" string.
     // search for the zip file (only one match and we use it's name below anyway)
     // while for the DLL it would find python3.dll and python3x.dll...
-    append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, python_version,  L".zip");
+    append_filename(pydll_path, PATH_LENGTH, pythonhome_absolute, L"python3?",  L".zip");
     WIN32_FIND_DATA find_data;
     HANDLE find_handle = FindFirstFile(pydll_path, &find_data);
     if (find_handle == NULL || find_handle == INVALID_HANDLE_VALUE) {
@@ -187,14 +188,14 @@ int main() {
         return 1;
     } else {
         // copy base name without extension
-        for (wchar_t *s=find_data.cFileName, *d=python_version; *s && *s != L'.'; s++) {
+        for (wchar_t *s=find_data.cFileName, *d=python_version; *s && *s != L'.' && d < &python_version[20]; s++) {
             *d++ = *s;
             *d = L'\0';
         }
         FindClose(find_handle);
     }
 
-    append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, python_version,  L".dll");
+    append_filename(pydll_path, PATH_LENGTH, pythonhome_absolute, python_version,  L".dll");
     HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {
         wprintf(L"Python is expected in: %s\n\n"
@@ -212,13 +213,13 @@ int main() {
     FIND_FUNCTION(Py_SetPath)
 
     // Set the name and isolate Python from the environment
-    wchar_t argv_0[PATH_MAX];
-    GetModuleFileName(NULL, argv_0, sizeof(argv_0));
+    wchar_t argv_0[PATH_LENGTH];
+    GetModuleFileName(NULL, argv_0, PATH_LENGTH);
     Py_SetProgramName(argv_0);
     Py_SetPythonHome(pythonhome_absolute);
     // must ensure that python finds its "landmark file" Lib/os.py (it is in python35.zip)
     wchar_t pythonpath[32768];
-    snwprintf(pythonpath, sizeof(pythonpath), L"%s;%s\\%s.zip", 
+    snwprintf(pythonpath, 32768, L"%s;%s\\%s.zip", 
               pythonhome_absolute, pythonhome_absolute, python_version);
     Py_SetPath(pythonpath);
 
