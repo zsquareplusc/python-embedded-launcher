@@ -25,7 +25,7 @@ URL_TEMPLATE = 'https://www.python.org/ftp/python/{version}/python-{version}-emb
 
 
 def get_url(version, bits):
-    return URL_TEMPLATE.format(version=version, bits='amd64' if 64 else 'win32')
+    return URL_TEMPLATE.format(version=version, bits='amd64' if bits == 64 else 'win32')
 
 
 def extract(url, destination, force_download=False):
