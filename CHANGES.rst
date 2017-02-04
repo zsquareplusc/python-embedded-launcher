@@ -2,6 +2,11 @@
  Changes
 =========
 
+0.10
+====
+- support for Python 3.6+ in launcher
+- support for any Python 3.x (x>5) version in download_python3_minimal
+
 0.9
 ===
 - 64 bit support for Python 2.7
