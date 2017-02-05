@@ -399,19 +399,20 @@ can see the output - and wait for the program to terminate etc.
 Starting with Python 3.5, an embedded Python distribution is already available
 (and used here) for download, see
 https://docs.python.org/3/using/windows.html#embedded-distribution
+``launcher_tool.download_python3_minimal`` downloads these.
 
 While Python 3 has a ``python3.dll``, which would be nice to use, as it would
 make the launcher independent of the Python version -- it won't work.
 ``Py_SetPath`` is not exposed by that library. As a workaround, the name
-(e.g. ``python35``) is in the resources of ``launcher3.exe`` so that it can
-be changed without recompiling.
+of the DLL is searched using the ``FindFirstFile`` Windows function.
+Actually the ZIP file is searached (``python3?.zip``) as there is only one
+match while ``python3?.dll`` matches ``python3.dll`` and ``python3x.dll``.
 
 Python is loaded dynamically via ``LoadLibrary``. The launcher is not linked
 against the DLL. This has the advantage that the location of the DLL can be
-different to the one of the exe and that the DLL name can be provided and
-edited as resource (only in ``launcher.exe``). The separation would also allow
-to check if the VC runtime is installed and direct the user to the download
-if it is not, but this is not implemented yet.
+different to the one of the exe. The separation would also allow to check if
+the VC runtime is installed and direct the user to the download if it is not,
+but this is not implemented yet.
 
 Why put Python in a subdirectory? Because someone could add the directory
 containing the exe to the ``PATH`` and then the system would potentially find

@@ -5,6 +5,7 @@
 # SPDX-License-Identifier:    BSD-3-Clause
 import subprocess
 import sys
+
 try:
     from setuptools import setup
 except ImportError:
@@ -23,7 +24,8 @@ setup(
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",
     packages=['launcher_tool'],
-    package_data={'launcher_tool': ['launcher27-32.exe', 'launcher27-64.exe', 'launcher3-32.exe', 'launcher3-64.exe']},
+    package_data={'launcher_tool': ['launcher27-32.exe', 'launcher27-64.exe',
+                                    'launcher3-32.exe', 'launcher3-64.exe']},
     license="BSD",
     long_description=open('README.rst').read(),
     entry_points={
@@ -32,7 +34,7 @@ setup(
         ],
     },
     classifiers=[
-        #~ 'Development Status :: 5 - Production/Stable',
+        'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: BSD License',
         'Natural Language :: English',
@@ -44,6 +46,7 @@ setup(
         'Programming Language :: Python :: 3.3',
         'Programming Language :: Python :: 3.4',
         'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
         'Topic :: Software Development :: Libraries',
     ],
     platforms='any',
