@@ -3,11 +3,11 @@
 ============================================
 
 Wheels are copied as-is. While not officially supported by the wheel
-standard, is the advantage of this setup, that the wheels can easily be
-changed, e.g. updated with newer or custom verions.
+standard, the advantage of this setup is, that the wheels can easily be
+changed, e.g. updated with newer or custom versions.
 
 
-This is an exmaple with depenencies.
+This is an example with dependencies.
 
 - dependencies are cached locally as wheels (``pip wheel -r requirements.txt``)
 - the launcher is customized
