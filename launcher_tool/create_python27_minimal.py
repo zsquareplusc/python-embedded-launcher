@@ -13,6 +13,8 @@ files from there.
 You do not need this for Python 3.5, just download the embedded
 distribution from the official site instead!
 """
+# pylint: disable=line-too-long
+
 import argparse
 import os
 import shutil
@@ -37,7 +39,7 @@ def copy_python(destination):
                  'NEWS.txt', 'LICENSE.txt'):
         shutil.copy2(os.path.join(python_source, name),
                      os.path.join(destination, name))
-    try: 
+    try:
         # w9xpopen.exe only exists on python27 32bit
         name = 'w9xpopen.exe'
         shutil.copy2(os.path.join(python_source, name),
@@ -89,10 +91,12 @@ def main():
     parser = argparse.ArgumentParser(description='extract a copy of python27-minimal')
 
     group_out = parser.add_argument_group('output options')
-    group_out.add_argument('-d', '--directory', metavar='DIR', default='.',
-                           help='set a destination directory, a subdirectory NAME will be creted [default: %(default)s]')
-    group_out.add_argument('-n', '--name', metavar='NAME', default='python27-minimal',
-                           help='Set a directory name [default: %(default)s]')
+    group_out.add_argument(
+        '-d', '--directory', metavar='DIR', default='.',
+        help='set a destination directory, a subdirectory DIR will be creted [default: %(default)s]')
+    group_out.add_argument(
+        '-n', '--name', metavar='NAME', default='python27-minimal',
+        help='Set a directory name [default: %(default)s]')
 
     args = parser.parse_args()
 

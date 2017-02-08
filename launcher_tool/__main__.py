@@ -24,50 +24,70 @@ def main():
 
     group_out = parser.add_argument_group('output options')
     group_out_out = group_out.add_mutually_exclusive_group(required=True)
-    group_out_out.add_argument('-o', '--output', metavar='FILE',
-                               help='filename to write the result to')
-    group_out_out.add_argument('-a', '--append-only', metavar='FILE',
-                               help='append to this file instead of creating a new one')
+    group_out_out.add_argument(
+        '-o', '--output', metavar='FILE',
+        help='filename to write the result to')
+    group_out_out.add_argument(
+        '-a', '--append-only', metavar='FILE',
+        help='append to this file instead of creating a new one')
 
     group_run_group = parser.add_argument_group('entry point options')
     group_run = group_run_group.add_mutually_exclusive_group()
-    group_run.add_argument('-e', '--entry-point', metavar='MODULE:FUNC',
-                           help='import given module and call function')
-    group_run.add_argument('--run-path', metavar='FILE',
-                           help='execute given file (e.g. .py, .zip)')
-    group_run.add_argument('-m', '--run-module', metavar='MODULE',
-                           help='execute module (similar to python -m)')
-    group_run.add_argument('--main', metavar='FILE',
-                           help='use this as __main__.py instead of built-in code')
+    group_run.add_argument(
+        '-e', '--entry-point', metavar='MODULE:FUNC',
+        help='import given module and call function')
+    group_run.add_argument(
+        '--run-path', metavar='FILE',
+        help='execute given file (e.g. .py, .zip)')
+    group_run.add_argument(
+        '-m', '--run-module', metavar='MODULE',
+        help='execute module (similar to python -m)')
+    group_run.add_argument(
+        '--main', metavar='FILE',
+        help='use this as __main__.py instead of built-in code')
 
     group_custom = parser.add_argument_group('customization')
 
-    group_custom.add_argument('--add-file', action='append', default=[], metavar='FILE',
-                              help='add additional file(s) to zip')
-    group_custom.add_argument('--add-zip', action='append', default=[], metavar='ZIPFILE',
-                              help='add contents of zip file(s)')
-    group_custom.add_argument('--launcher', metavar='EXE',
-                              help='launcher executable to use instead of built-in one')
-    group_custom.add_argument('--wait', action='store_true', default=False,
-                              help='do not close console window automatically')
-    group_custom.add_argument('--wait-on-error', action='store_true', default=False,
-                              help='wait if there is an exception')
-    group_custom.add_argument('-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
-                              help='add search pattern for files added to sys.path')
+    group_custom.add_argument(
+        '--add-file', action='append', default=[], metavar='FILE',
+        help='add additional file(s) to zip')
+    group_custom.add_argument(
+        '--add-zip', action='append', default=[], metavar='ZIPFILE',
+        help='add contents of zip file(s)')
+    group_custom.add_argument(
+        '--launcher', metavar='EXE',
+        help='launcher executable to use instead of built-in one')
+    group_custom.add_argument(
+        '--wait', action='store_true', default=False,
+        help='do not close console window automatically')
+    group_custom.add_argument(
+        '--wait-on-error', action='store_true', default=False,
+        help='wait if there is an exception')
+    group_custom.add_argument(
+        '-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
+        help='add search pattern for files added to sys.path')
 
-    group_bits = parser.add_argument_group('launcher architecture', 'default value is based on sys.executable')
+    group_bits = parser.add_argument_group(
+        'launcher architecture',
+        'default value is based on sys.executable')
     group_bits_choice = group_bits.add_mutually_exclusive_group()
-    group_bits_choice.add_argument('--32', dest='bits32', action='store_true', default=False,
-                                   help='force copy of 32 bit version')
-    group_bits_choice.add_argument('--64', dest='bits64', action='store_true', default=False,
-                                   help='force copy of 64 bit version')
+    group_bits_choice.add_argument(
+        '--32', dest='bits32', action='store_true', default=False,
+        help='force copy of 32 bit version')
+    group_bits_choice.add_argument(
+        '--64', dest='bits64', action='store_true', default=False,
+        help='force copy of 64 bit version')
 
-    group_pyver = parser.add_argument_group('launcher Python version', 'default value is based on sys.executable')
+    group_pyver = parser.add_argument_group(
+        'launcher Python version',
+        'default value is based on sys.executable')
     group_pyver_choice = group_pyver.add_mutually_exclusive_group()
-    group_pyver_choice.add_argument('-2', dest='py2', action='store_true', default=False,
-                                    help='force use of Python 2.7 launcher')
-    group_pyver_choice.add_argument('-3', dest='py3', action='store_true', default=False,
-                                    help='force use of Python 3.x launcher')
+    group_pyver_choice.add_argument(
+        '-2', dest='py2', action='store_true', default=False,
+        help='force use of Python 2.7 launcher')
+    group_pyver_choice.add_argument(
+        '-3', dest='py3', action='store_true', default=False,
+        help='force use of Python 3.x launcher')
 
     args = parser.parse_args()
 

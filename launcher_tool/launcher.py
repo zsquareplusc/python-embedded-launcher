@@ -154,7 +154,7 @@ def close_console():
 
     Can be used by GUI applcations to get rid of separate console window.
     See also hide_console_until_error().
-    
+
     sys.stdout/stderr/stdin are replaced with a dummy object that ignores
     writes / reads empty strings.
     """

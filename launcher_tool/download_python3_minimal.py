@@ -12,6 +12,7 @@ Extract the official Python embedded distribution
 - 32/64 bit selection
 - custom URL, force download
 """
+# pylint: disable=line-too-long
 import argparse
 import platform
 import os
@@ -25,6 +26,7 @@ URL_TEMPLATE = 'https://www.python.org/ftp/python/{version}/python-{version}-emb
 
 
 def get_url(version, bits):
+    """calculate download URL for Python embed distribution, based on version and architecture"""
     return URL_TEMPLATE.format(version=version, bits='amd64' if bits == 64 else 'win32')
 
 
@@ -34,7 +36,8 @@ def extract(url, destination, force_download=False):
     e.g. extract(URL_32, 'python3-minimal')
     """
     # where to store
-    cache_dir = os.path.abspath(os.path.expandvars('%LOCALAPPDATA%/python-embedded-launcher/cache'))  # XXX windows only
+    # XXX windows only, should use other directory in case of other platforms
+    cache_dir = os.path.abspath(os.path.expandvars('%LOCALAPPDATA%/python-embedded-launcher/cache'))
     cache_name = os.path.join(cache_dir, re.sub(r'[^\w]', '', url))
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
@@ -62,23 +65,35 @@ def main():
     parser = argparse.ArgumentParser(description='download/extract for python3-minimal')
 
     group_out = parser.add_argument_group('output options')
-    group_out.add_argument('-d', '--directory', metavar='DIR', default='.',
-                           help='set a destination directory, a subdirectory NAME will be creted [default: %(default)s]')
-    group_out.add_argument('-n', '--name', metavar='NAME', default='python3-minimal',
-                           help='set a directory name [default: %(default)s]')
+    group_out.add_argument(
+        '-d', '--directory', metavar='DIR', default='.',
+        help='set a destination directory, a subdirectory DIR will be created [default: %(default)s]')
+    group_out.add_argument(
+        '-n', '--name', metavar='NAME', default='python3-minimal',
+        help='set a directory name [default: %(default)s]')
 
     group_download = parser.add_argument_group('download options')
+
     group_bits = group_download.add_mutually_exclusive_group()
-    group_bits.add_argument('--32', dest='bits32', action='store_true', default=False,
-                           help='force download of 32 bit version')
-    group_bits.add_argument('--64', dest='bits64', action='store_true', default=False,
-                           help='force download of 64 bit version')
-    group_download.add_argument('--this-version', action='store_true', default=False,
-                           help='choose this Python version that is running now')
-    group_download.add_argument('-p', '--python-version', default=DEFAULT_VERSION, help='choose Python version (major.minor, default=%(default)s)')
-    group_download.add_argument('--url', help='override download URL')
-    group_download.add_argument('-f', '--force-download', action='store_true', default=False,
-                                help='force download (ignore/overwrite cached file)')
+    group_bits.add_argument(
+        '--32', dest='bits32', action='store_true', default=False,
+        help='force download of 32 bit version')
+    group_bits.add_argument(
+        '--64', dest='bits64', action='store_true', default=False,
+        help='force download of 64 bit version')
+
+    group_download.add_argument(
+        '--this-version', action='store_true', default=False,
+        help='choose this Python version that is running now')
+    group_download.add_argument(
+        '-p', '--python-version', default=DEFAULT_VERSION,
+        help='choose Python version (major.minor, default=%(default)s)')
+    group_download.add_argument(
+        '--url',
+        help='override download URL')
+    group_download.add_argument(
+        '-f', '--force-download', action='store_true', default=False,
+        help='force download (ignore/overwrite cached file)')
 
     args = parser.parse_args()
 
