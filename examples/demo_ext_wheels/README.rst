@@ -6,6 +6,9 @@ Wheels are copied as-is. While not officially supported by the wheel
 standard, the advantage of this setup is, that the wheels can easily be
 changed, e.g. updated with newer or custom versions.
 
+This also only works with pure Python modules. Binary extensions (.pyd files)
+must still be extracted.
+
 
 This is an example with dependencies.
 

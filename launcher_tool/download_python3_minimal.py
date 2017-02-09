@@ -9,8 +9,8 @@ Extract the official Python embedded distribution
 
 - download when necessary
 - extract a cached version by default
-- 32/64 bit selection
-- custom URL, force download
+- 32/64 bit and version selection
+- custom URL, force download options
 """
 # pylint: disable=line-too-long
 import argparse
