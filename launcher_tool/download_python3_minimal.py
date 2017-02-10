@@ -36,8 +36,15 @@ def extract(url, destination, force_download=False):
     e.g. extract(URL_32, 'python3-minimal')
     """
     # where to store
-    # XXX windows only, should use other directory in case of other platforms
-    cache_dir = os.path.abspath(os.path.expandvars('%LOCALAPPDATA%/python-embedded-launcher/cache'))
+    if sys.platform == 'win32':
+        cache_dir = os.path.abspath(os.path.expandvars('%LOCALAPPDATA%/python-embedded-launcher/cache'))
+    else:
+        cache_dir = os.path.join(
+            os.environ.get(
+                'XDG_CONFIG_HOME',
+                os.path.join(os.environ.get('HOME', '~'), '.cache')),
+            'python-embedded-launcher')
+
     cache_name = os.path.join(cache_dir, re.sub(r'[^\w]', '', url))
     if not os.path.exists(cache_dir):
         os.makedirs(cache_dir)
