@@ -188,18 +188,22 @@ Tools
     - ``--run-path FILE``: execute given file (e.g. ``.py``, ``.zip``). The
       path is processed using ``os.path.expandvars()``, e.g. ``%SELF%`` will
       be expanded to the directory of the executable.
-    - ``--run-module MODULE``: execute module (similar to python -m)
+    - ``--run-module MODULE``: execute module (similar to ``python -m``)
     - ``--main FILE``: use this as ``__main__.py`` instead of built-in code.
 
 ``launcher_tool.create_python27_minimal``
     Used to create a python27-minimal distribution. It copies the Python
     installation from the system.
 
+    There is no official "embedded" distribution for Python 2.x so this tool
+    packages a local copy of Python. It does not package tkinter.
+
 ``launcher_tool.download_python3_minimal``
     Unpack a Python 3 embedded distribution. The data is downloaded from
     https://www.python.org/downloads/windows/
     and cached locally (so that for repeated runs, it does not need to use
-    the Internet again).
+    the Internet again). Command line options can be used to select the
+    desired Python version and architecture.
 
 ``launcher_tool.copy_launcher``
     Copy the ``launcher.exe`` to a file. Used e.g. for customizations using
@@ -245,7 +249,7 @@ and makes that the ``%`` is not treated specially but as normal text (and the
 variable is thus not expanded). For some reason ``%%`` must be used instead of
 ``^%`` when these lines are put in a ``.bat`` file.
 
-An 3rd party tool would be resourcehacker_. It can even edit exe files with
+A 3rd party tool would be resourcehacker_. It can even edit exe files with
 attached zip data without destroying them.
 
 Alternatively use the sources here to recompile the binaries, it really just
