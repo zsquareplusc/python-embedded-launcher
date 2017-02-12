@@ -17,3 +17,4 @@
 /examples/demo*/build
 /examples/demo*/*.egg-info
 /xxx
+/documentation/_build
