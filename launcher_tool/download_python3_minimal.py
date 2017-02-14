@@ -74,7 +74,7 @@ def main():
     group_out = parser.add_argument_group('output options')
     group_out.add_argument(
         '-d', '--directory', metavar='DIR', default='.',
-        help='set a destination directory, a subdirectory DIR will be created [default: %(default)s]')
+        help='set a destination directory, a subdirectory NAME (see --name) will be created [default: %(default)s]')
     group_out.add_argument(
         '-n', '--name', metavar='NAME', default='python3-minimal',
         help='set a directory name [default: %(default)s]')
