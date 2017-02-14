@@ -4,8 +4,9 @@
 
 .. note::
 
-    The source and wheel releases already contain precompiled exes
-    so that this step is usually not needed to create exes.
+    The source and wheel releases already contain precompiled exeecutables
+    so that this step is usually not needed to use this tool.
+
 
 Compiling
 =========

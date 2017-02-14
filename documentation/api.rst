@@ -2,6 +2,8 @@
  API
 =====
 
+Launcher
+========
 A small helper module called ``launcher`` is automatically packaged with the
 exe. It contains a few helper functions.
 
@@ -20,7 +22,7 @@ exe. It contains a few helper functions.
 
 .. function:: extend_sys_path_by_pattern(pattern)
 
-    :param str pattern: String with directory and/or wildcard
+    :param str pattern: String with wildcard
 
     Add files matching a pattern (e.g. ``*.zip``, ``*.whl``, ``*.egg``) to
     ``sys.path``. The pattern is prefixed with the location of the executable.
@@ -41,7 +43,10 @@ exe. It contains a few helper functions.
 .. function:: close_console()
 
     Useful for GUI applications, it closes a separate console window if there
-    is one, e.g. when the exe was started by a double click.
+    is one, e.g. when the exe was started by a double click. It is safe to
+    call this function even if the application was started in a console
+    (determined with :func:`is_separate_console_window()`)
+
     Note that ``sys.stdout``, ``sys.stderr`` and ``sys.stdin`` are replaced
     with a dummy object that ignores ``write()``/``flush()`` and returns
     empty strings on ``read()``.
@@ -72,7 +77,11 @@ exe. It contains a few helper functions.
 
 .. function:: wait_at_exit()
 
-    Wait at exit, but only if console window was opened separately.
+    Wait at exit, but only if console window was opened separately. So if
+    the application was started in a console, there is no extra waiting, while
+    when it was started from the GUI and a separate console window is opended,
+    it will wait extra, so that the user can read the output.
+
     This function is called automatically if the command line option
     ``--wait`` is used.
 
@@ -80,6 +89,7 @@ exe. It contains a few helper functions.
 
     Wait if the program terminates with an exception, but only if console
     window was opened separately.
+
     This function is called automatically if the command line option
     ``--wait-on-error`` is used.
 
