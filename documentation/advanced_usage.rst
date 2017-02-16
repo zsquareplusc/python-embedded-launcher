@@ -40,6 +40,8 @@ Use the launcher tool to write the exe, calling your app::
           this usually not needed for a packaged app, so this can be deleted.
 
 
+.. _variations:
+
 Variations
 ----------
 Instead of ``--prefix=dist`` it is also possible to use ``--user`` when the

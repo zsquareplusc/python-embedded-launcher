@@ -1,9 +1,12 @@
+.. _bdist_launcher:
+
 ================
  bdist_launcher
 ================
 
-Is setuptools is installed on the development machine, then this command
-is automatically registered.
+If setuptools is installed on the development machine, then this command
+is automatically registered. It allows to crate executables based on a
+``setup.py``.
 
 Usage
 =====
@@ -42,12 +45,13 @@ Then running ``python setup.py bdist_launcher`` will do the following steps:
 
 Options for ``bdist_launcher`` command::
 
-    --icon                  filename of icon to use (.ico format)
-    --python-minimal        change the location of the python-minimal directory
-    --extend-sys-path (-p)  add search pattern(s) for files added to sys.path
-                            (separated by ";")
-    --wait-at-exit          do not close console window automatically
-    --wait-on-error         wait if there is an exception
+  --icon                  filename of icon to use                           
+  --python-minimal        change the location of the python-minimal location
+  --extend-sys-path (-p)  add search pattern(s) for files added to sys.path 
+                          (separated by ";")                                
+  --wait-at-exit          do not close console window automatically         
+  --wait-on-error         wait if there is an exception                     
+  --bin-dir               put binaries in subdirectory /bin                 
 
 These options apply to all created launchers (if more than one is generated).
 
@@ -67,4 +71,4 @@ install this list of packages, use::
 with ``%DIST%`` pointing to the folder where the created exe is located.
 Optionally, to avoid internet access when using ``pip install``, make a local
 cache of wheel files using ``pip wheel ...`` and use
-``--find-links=wheels --no-index`` when installing (see "Variations" below).
+``--find-links=wheels --no-index`` when installing (see :ref:`variations`).
