@@ -3,7 +3,6 @@
 ==========================
 
 An other tool to make standalone Windows applications with Python.
-For Windows only.
 
 The launcher is a small C program that loads the Python DLL and calls
 ``Py_Main`` with itself as parameter, loading a zipped Python application
@@ -25,4 +24,6 @@ Done. See result in ``dist/launcher*``.
 
 Documentation
 =============
-See documentation/index.rst for more details.
+See `documentation/index.rst`_ for more details.
+
+.. _`documentation/index.rst`: documentation/index.rst

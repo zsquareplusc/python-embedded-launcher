@@ -35,11 +35,12 @@ Examples
 ========
 The ``example`` directory has demos where these steps are written in a batch
 file that is ready to run. The description here explains the steps.
+
 On Windows, once Python 3 is installed, the Python Launcher ``py`` is
-available, this is what is used here. Otherwise replace ``py -2``/``py -3`` with
-``python``/``python3``. When packaging an application, the same Python version
-that is packaged, should be used to run the steps here (using ``py -2`` or ``py
--3`` accordingly).
+available, this is what is used here. Otherwise replace ``py -2``/``py -3``
+with ``python``/``python3``. When packaging an application, the same Python
+version that is packaged, should be used to run the steps here (using ``py -2``
+or ``py -3`` accordingly).
 
 
 Assuming your own project has a ``setup.py``, install to a ``dist`` directory::
@@ -207,7 +208,7 @@ machines.
 - ``launcher_tool.resource_editor`` uses the Windows API to perform
   modifications, so it can only be run on Windows. This limitation also
   applies to ``bdist_launcher`` which uses this tool, depending on the
-  command line switches.
+  command line switches. (Untested: Wine may support this).
 
 - ``launcher_tool.create_python27_minimal`` copies from an installed Python
   2.7 and therefore needs to be run on Windows (Use Python 3 to avoid this).
