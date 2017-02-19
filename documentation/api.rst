@@ -20,6 +20,9 @@ exe. It contains a few helper functions.
 
     These locations are also scanned for ``.pth`` files.
 
+    This function is called automatically by the start code.
+
+
 .. function:: extend_sys_path_by_pattern(pattern)
 
     :param str pattern: String with wildcard
@@ -31,6 +34,7 @@ exe. It contains a few helper functions.
     pkgutil_). This function is used if the command line option
     ``--extend-sys-path`` is used.
 
+
 .. function :: restore_sys_argv()
 
     Get original command line via Windows API. Restores ``sys.argv`` (which is
@@ -40,6 +44,7 @@ exe. It contains a few helper functions.
     Note: Python 2 usually has ``str`` elements in ``sys.argv``, but this
     function sets them to be ``unicode``.
 
+
 .. function:: close_console()
 
     Useful for GUI applications, it closes a separate console window if there
@@ -48,11 +53,12 @@ exe. It contains a few helper functions.
     (determined with :func:`is_separate_console_window()`)
 
     Note that ``sys.stdout``, ``sys.stderr`` and ``sys.stdin`` are replaced
-    with a dummy object that ignores ``write()``/``flush()`` and returns
+    with a dummy objects that ignore ``write()``/``flush()`` and return
     empty strings on ``read()``.
 
     Note: some functions may access the std streams, bypassing ``sys.stdXXX```,
     those will fail due to the closed steams.
+
 
 .. function:: is_separate_console_window()
 
@@ -60,6 +66,7 @@ exe. It contains a few helper functions.
 
     Return true if the console window was opened with this process (e.g.
     the console was opened because the exe was started from the file Explorer).
+
 
 .. function:: hide_console(hide=True)
 
@@ -69,11 +76,14 @@ exe. It contains a few helper functions.
     can also be called to show the window again. This function is used
     by ``hide_console_until_error()``
 
+
 .. function:: hide_console_until_error()
 
     Hides the console window, if one was opened for the process, but shows the
     console window again when a traceback is printed. ``sys.excepthook`` is
-    set by this function and it calls the previous value.
+    set by this function and it calls the previous value after showing the
+    console window again.
+
 
 .. function:: wait_at_exit()
 
@@ -84,6 +94,7 @@ exe. It contains a few helper functions.
 
     This function is called automatically if the command line option
     ``--wait`` is used.
+
 
 .. function:: wait_on_error()
 

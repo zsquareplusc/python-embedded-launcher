@@ -40,7 +40,7 @@ On Windows, once Python 3 is installed, the Python Launcher ``py`` is
 available, this is what is used here. Otherwise replace ``py -2``/``py -3``
 with ``python``/``python3``. When packaging an application, the same Python
 version that is packaged, should be used to run the steps here (using ``py -2``
-or ``py -3`` accordingly).
+or ``py -3`` accordingly, so that pip uses the correct versions).
 
 
 Assuming your own project has a ``setup.py``, install to a ``dist`` directory::
@@ -94,7 +94,7 @@ Using Wheels directly
 =====================
 .. note::
 
-    Note that using zipimport on wheels is not officially supported by the
+    Using `zipimport` on wheels is not officially supported by the
     wheel standard. It will work with many pure Python modules though.
 
 Wheels (``*.whl``) are zip files and most pure Python packages can be kept
@@ -108,7 +108,7 @@ Advantages are:
   ``--extend-sys-path=*.whl``)
 
 As mentioned, this does not work for binary extensions. It may work with some
-modules that the wheels are kept and only the .PYD and .DLL files are extacted.
+modules when the wheel is kept and only the .PYD and .DLL files are extacted.
 But it may also be needed to extract the entire module.
 
 There are also pure Python modules that read data files from their package. If
@@ -192,12 +192,36 @@ variable is thus not expanded). For some reason ``%%`` must be used instead of
 A 3rd party tool would be resourcehacker_. It can even edit exe files with
 attached zip data without destroying them.
 
-Alternatively use the sources here to recompile the binaries, it really just
-needs a mingw gcc (which is only a few dozens of megabytes large). In that case
-the ``launcher*.rc`` within the ``src/python*`` directory are edited with a
-text editor and ``compile.bat`` is used to recreate the exe.
+Alternatively use the sources to recompile the launcher binaries, it really
+just needs a mingw gcc (which is only a few dozens of megabytes large). In that
+case the ``launcher*.rc`` within the ``src/python*`` directory are edited with
+a text editor and ``compile.bat`` is used to recreate the exe.
 
 .. _resourcehacker: http://www.angusj.com/resourcehacker/
+
+
+Launcher module
+===============
+A module called :mod:`launcher` is added to the zip file at the end of the
+exe. It can be used to control some aspects of the execution. It is also used
+to implement operations that are done automatically by the start code, based
+on command line switches.
+
+To use this module, it's best to surround the import with a ``try...catch``,
+so that the script can be run without the module (e.g. when the developer
+runs the script)::
+
+    try:
+        # it is an exe
+        import launcher
+    except ImportError:
+        # it is not using python-embedded-launcher
+        launcher = None
+
+    # ...
+
+    if launcher is not None:
+        launcher.close_console()
 
 
 Cross platform support
