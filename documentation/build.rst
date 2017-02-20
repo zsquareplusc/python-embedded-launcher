@@ -4,7 +4,7 @@
 
 .. note::
 
-    The source and wheel releases already contain precompiled exeecutables
+    The source and wheel releases already contain precompiled executables
     so that this step is usually not needed to use this tool.
 
 
@@ -27,5 +27,10 @@ Requirements
 
 - mingw(-64) GCC compiler, e.g. http://tdm-gcc.tdragon.net/ has one.
 
-The either ``PATH`` must be set so that ``gcc`` can be found or the
-``compile*.bat`` files have to be edited (they set ``PATH``).
+Either the ``PATH`` environment variable must be set so that ``gcc`` can be
+found or the ``compile*.bat`` files have to be edited (they set ``PATH``).
+
+It is certainly possible to use other compilers, as the application is not
+very complex, but one should check that the resulting binary is not depending
+on libraries that may be missing on the users systems. One way to ensure that
+is to statically link any runtime support.

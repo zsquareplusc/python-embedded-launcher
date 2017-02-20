@@ -108,7 +108,7 @@ Advantages are:
   ``--extend-sys-path=*.whl``)
 
 As mentioned, this does not work for binary extensions. It may work with some
-modules when the wheel is kept and only the .PYD and .DLL files are extacted.
+modules when the wheel is kept and only the .PYD and .DLL files are extracted.
 But it may also be needed to extract the entire module.
 
 There are also pure Python modules that read data files from their package. If
@@ -116,7 +116,7 @@ it is using ``pkgutil`` this is not problem. If it is accessing the files
 directly, it is also needed to extract these modules.
 
 ``*.egg`` files are also ZIP files containing Python modules. They were
-designed to be put in ``sys.path`` directly, without extaction. Otherwise
+designed to be put in ``sys.path`` directly, without extraction. Otherwise
 the information from this section should also be applicable to these eggs.
 
 
@@ -152,14 +152,14 @@ Python 3's ``zipapp`` module can be used to package the application::
 This setup is useful for cross platform applications. The .pyz file can
 be run directly on systems that have Python installed, e.g. GNU/Linux. While
 on windows the exe can be used. Note that starting the .pyz file uses the
-systems Python installation without any efforrts to separate the application
+systems Python installation without any efforts to separate the application
 from the system. So different versions of dependencies may be available etc.
 
 
 Virtualenv
 ==========
 Virtualenv also has the idea to separate Python installations from each other.
-But it's meanto for the local machine / developer etc, not as a means to
+But it's meant to for the local machine / developer etc, not as a means to
 distribute applications.
 
 Virtualenvs are not designed to be moved around on the disk (though there is a

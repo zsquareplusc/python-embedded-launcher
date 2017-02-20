@@ -40,8 +40,8 @@ Loading Python DLL
 Python is loaded dynamically via ``LoadLibrary``. The launcher is not linked
 against the DLL. This has several advantages:
 
-- The lauuncher does not need to be recompiled for different Python versions,
-  current and future (though, it still requires seaprate launchers for 32/64
+- The launcher does not need to be recompiled for different Python versions,
+  current and future (though, it still requires separate launchers for 32/64
   bit and Python 2.x/3.x).
 - The location of the DLL can be different to the one of the exe, see
   Subdirectory_ below.
@@ -77,7 +77,7 @@ of this tool is, that it is possible to create and use exes without installers.
 
 
 Other notes
------------
+===========
 ``pip install --user`` installs the packages into a subdirectory
 ``PythonXY/site-packages`` named after the Python version.
 

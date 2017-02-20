@@ -5,8 +5,8 @@
 What's this tool and what it's not
 ==================================
 
-Distibuting applications on Windows systems usually requires some exe. One may
-not wat to burden the user with installing Python and the required extension
+Distributing applications on Windows systems usually requires some exe. One may
+not want to burden the user with installing Python and the required extension
 modules. So we need a way to package applications with a bundled Python
 installation. This is not new... Python's own freeze, py2exe, pyinstaller,
 cx_Freeze are examples for tools to do so.
@@ -16,14 +16,14 @@ file level. While giving small distributions, this also has the problem that
 not always all dependencies are identified correctly (dynamic imports, plugin
 systems etc.).
 
-Some of them do not fully isolate the distribution from a Python installtion
+Some of them do not fully isolate the distribution from a Python installation
 already present on the system. This is often a problem for the developer, as
 finding a suitable test machine required with not Python installed. It may
 also lead to import errors on the users system but not on the developers
 machine due to this.
 
 Handling the licenses of all dependencies is also not so easy if the tool
-just collected the files "randmoly". Identifying which modules were used
+just collected the files "randomly". Identifying which modules were used
 may get tricky and sometimes additional modules are collected just because of
 some test code or dynamic choice of a package, even if that module is not
 required for the application that is packaged.
@@ -91,13 +91,13 @@ Common python-minimal package
     manager. Python can be provided as one package and separate application
     packages can use that Python distribution to run.
 
-    The reosurce in the launcher exe needs to be patched to override the
+    The resource in the launcher exe needs to be patched to override the
     python location to e.g. ``"%PACKAGE_ROOT%\\python-minimal"``.
-    
+
     This can be done with any resource editor or the included one::
 
         python -m launcher_tool.resource_editor %DIST%/myapp.exe edit_strings --set 1:^%PACKAGE_ROOT^%\python-minimal
-    
+
     ``bdist_launcher`` has the ``--python-minimal`` command line option to
     override this setting.
 

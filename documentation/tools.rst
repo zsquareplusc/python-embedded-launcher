@@ -73,7 +73,7 @@ packages a local copy of Python.
 
 Used to create a python27-minimal distribution. It copies the Python
 installation from the system. So there must be an unmodified copy of Python 2.7
-installed (e.g. no changes to Pythons library, installed modules in site-packes
+installed (e.g. no changes to Pythons library, installed modules in site-packages
 are OK, they are not used). Ensure to update to get the latest security fixes.
 
 It does not package tkinter and tests (comparable to the Python 3 embedded
@@ -134,7 +134,7 @@ launcher_tool.copy_launcher
 ===========================
 Copy the ``launcher.exe`` to a file. Used e.g. for customizations using
 ``launcher_tool.resource_editor``. Launcher executables are bundled as package
-data. This tool can be used to extract them, selecting the variant, as
+data and this tool can be used to extract them, selecting the variant, as
 multiple exist (four, one for each combination of Python 2.x/3.x and 32/64
 bits).
 
@@ -166,8 +166,10 @@ Here is the output of ``python -m launcher_tool.copy_launcher -h``::
 
 launcher_tool.resource_editor
 =============================
-A small Windows resource editor that can modify the launcher. It uses
-Windows API functions to read and write the data (and therefore can
+This is a small Windows resource editor that can modify resources in exe files
+so for example in the launcher executables.
+
+It uses Windows API functions to read and write the data (and therefore can
 only be run under Windows).
 
 - adding and editing strings

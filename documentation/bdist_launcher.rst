@@ -5,7 +5,7 @@
 ================
 
 If setuptools is installed on the development machine, then this command
-is automatically registered. It allows to crate executables based on a
+is automatically registered. It allows to create executables based on a
 ``setup.py``.
 
 Usage
