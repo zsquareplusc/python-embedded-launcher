@@ -30,4 +30,5 @@ Quick Start
 - run ``python setup.py bdist_launcher``
 
 Done. See result in ``dist/launcher*``. See :ref:`bdist_launcher` for more
-details on this way of using the tool.
+details on this way of using the tool. See :ref:`advanced` for alternative
+uses.

@@ -1,3 +1,5 @@
+.. _advanced:
+
 ================
  Advanced Usage
 ================
@@ -74,8 +76,8 @@ Variations
 ----------
 Instead of ``--prefix=dist`` it is also possible to use ``--user`` when the
 environment variable ``PYTHONUSERBASE`` is set to ``dist``. This will install
-into a slightly different subdirectory of ``dist`` but ``lanucher.py`` also
-searches this one.
+into a slightly different subdirectory of ``dist`` but
+:func:`launcher.patch_sys_path` also searches this one.
 
 It is also possible download all dependencies as wheels first, so that
 subsequent runs to create a distribution do not need to download from the
@@ -151,9 +153,9 @@ Python 3's ``zipapp`` module can be used to package the application::
 
 This setup is useful for cross platform applications. The .pyz file can
 be run directly on systems that have Python installed, e.g. GNU/Linux. While
-on windows the exe can be used. Note that starting the .pyz file uses the
+on Windows the exe can be used. Note that starting the .pyz file uses the
 systems Python installation without any efforts to separate the application
-from the system. So different versions of dependencies may be available etc.
+from the system. So different versions of dependencies may be used etc.
 
 
 Virtualenv
@@ -241,7 +243,7 @@ Though there may be workarounds for that by doing these things only once on
 a Windows machine and making the results available to the build machine under
 a different OS.
 
-Also note that it may be needed to explicitly state --32/--64 and the Python
+Also note that it may be needed to explicitly state ``--32``/``--64`` and the
 Python version instead of using the autodetection. Also if modules are
 installed / extracted with ``pip install`` a wrong architecture may be used
 (especially for binary extensions where pip would install the version
