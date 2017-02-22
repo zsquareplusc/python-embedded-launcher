@@ -75,8 +75,8 @@ There is no official "embedded" distribution for Python 2.x so this tool
 packages a local copy of Python to create a python27-minimal distribution.
 
 There must be an unmodified copy of Python 2.7 installed (e.g. no changes to
-Pythons library, installed modules in ``site-packages?? are OK, they are not
-used). Ensure to update to get the latest security fixes.
+Pythons library, installed modules in ``site-packages`` are OK, they are not
+copied). Ensure to update to get the latest security fixes.
 
 It does not package tkinter and tests (comparable to the Python 3 embedded
 distribution).

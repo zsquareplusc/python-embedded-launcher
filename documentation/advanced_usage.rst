@@ -13,8 +13,8 @@ Distribution types
 
 Extract all Python modules
     This is what ``bdist_launcher`` does and it is the most compatible
-    solution. It works with extensions that have binary code / DLLs / PYD
-    files.
+    solution. It works with extensions that have binary code / DLLs / 
+    PYD files.
 
     It has the drawback that it generates a lot of individual files.
 
@@ -66,8 +66,10 @@ Use the launcher tool to write the exe, calling your app::
     py -m launcher_tool -o dist/myapp.exe -e mymodule:main
 
 
-.. note:: pip will also install scripts in a subdirectory called ``Scripts``.
-          this usually not needed for a packaged app, so this can be deleted.
+.. note::
+
+    ``pip`` will also install scripts in a subdirectory called ``Scripts``.
+    This usually not needed for a packaged app, so this can be deleted.
 
 
 .. _variations:
@@ -99,8 +101,8 @@ Using Wheels directly
     Using `zipimport` on wheels is not officially supported by the
     wheel standard. It will work with many pure Python modules though.
 
-Wheels (``*.whl``) are zip files and most pure Python packages can be kept
-zipped in the wheel file, which is added to ``sys.path``. 
+Wheels (``*.whl``) are ZIP files and most pure Python packages can be
+kept zipped in the wheel file, which is added to ``sys.path``. 
 
 Advantages are:
 
@@ -110,8 +112,8 @@ Advantages are:
   ``--extend-sys-path=*.whl``)
 
 As mentioned, this does not work for binary extensions. It may work with some
-modules when the wheel is kept and only the .PYD and .DLL files are extracted.
-But it may also be needed to extract the entire module.
+modules when the wheel is kept and only the ``.pyd`` and ``.dll`` files are
+extracted. But it may also be needed to extract the entire module.
 
 There are also pure Python modules that read data files from their package. If
 it is using ``pkgutil`` this is not problem. If it is accessing the files
@@ -124,15 +126,15 @@ the information from this section should also be applicable to these eggs.
 
 Using pip within the distribution
 =================================
-It is also possible to install pip within the embedded Python distribution
-and use that distribution itself to install packages. Pip is not available
-by default but ``get-pip.py`` is provided in the Python 3 embedded
-distribution::
+It is also possible (but probably not recommended) to install pip within the
+embedded Python distribution and use that distribution itself to install
+packages. ``pip`` is not available by default but `get-pip.py`_ can be used
+to fix that::
 
     py -3 -m launcher_tool.download_python3_minimal
     cd python3-minimal
-    python get-pip.py
-    python -m pip install --find-links=/path/to/wheels --no-index -r requirements.txt
+    .\python get-pip.py
+    .\python -m pip install --find-links=/path/to/wheels --no-index -r requirements.txt
     cd ..
     py -3 -m launcher_tool -o myapp.exe -e mymodule:main
 
@@ -151,9 +153,9 @@ Python 3's ``zipapp`` module can be used to package the application::
     py -3 -m zipapp myapp.py -o myapp.pyz
     py -3 -m launcher_tool -o myapp.exe --run-path myapp.pyz
 
-This setup is useful for cross platform applications. The .pyz file can
+This setup is useful for cross platform applications. The ``.pyz`` file can
 be run directly on systems that have Python installed, e.g. GNU/Linux. While
-on Windows the exe can be used. Note that starting the .pyz file uses the
+on Windows the exe can be used. Note that starting the ``.pyz`` file uses the
 systems Python installation without any efforts to separate the application
 from the system. So different versions of dependencies may be used etc.
 
@@ -192,7 +194,7 @@ variable is thus not expanded). For some reason ``%%`` must be used instead of
 ``^%`` when these lines are put in a ``.bat`` file.
 
 A 3rd party tool would be resourcehacker_. It can even edit exe files with
-attached zip data without destroying them.
+attached ZIP data without destroying them.
 
 Alternatively use the sources to recompile the launcher binaries, it really
 just needs a mingw gcc (which is only a few dozens of megabytes large). In that
@@ -204,7 +206,7 @@ a text editor and ``compile.bat`` is used to recreate the exe.
 
 Launcher module
 ===============
-A module called :mod:`launcher` is added to the zip file at the end of the
+A module called :mod:`launcher` is added to the ZIP file at the end of the
 exe. It can be used to control some aspects of the execution. It is also used
 to implement operations that are done automatically by the start code, based
 on command line switches.
@@ -248,8 +250,7 @@ Python version instead of using the autodetection. Also if modules are
 installed / extracted with ``pip install`` a wrong architecture may be used
 (especially for binary extensions where pip would install the version
 compatible with the host and not the one for Windows).
-  
-    
+
 
 Other Resources
 ===============
