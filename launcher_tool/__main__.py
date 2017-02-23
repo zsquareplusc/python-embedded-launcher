@@ -49,12 +49,6 @@ def main():
     group_custom = parser.add_argument_group('customization')
 
     group_custom.add_argument(
-        '--add-file', action='append', default=[], metavar='FILE',
-        help='add additional file(s) to zip')
-    group_custom.add_argument(
-        '--add-zip', action='append', default=[], metavar='ZIPFILE',
-        help='add contents of zip file(s)')
-    group_custom.add_argument(
         '--launcher', metavar='EXE',
         help='launcher executable to use instead of built-in one')
     group_custom.add_argument(
@@ -88,6 +82,15 @@ def main():
     group_pyver_choice.add_argument(
         '-3', dest='py3', action='store_true', default=False,
         help='force use of Python 3.x launcher')
+
+    group_add_contents = parser.add_argument_group('additional ZIP contents')
+
+    group_add_contents.add_argument(
+        '--add-file', action='append', default=[], metavar='FILE',
+        help='add additional file(s) to zip')
+    group_add_contents.add_argument(
+        '--add-zip', action='append', default=[], metavar='ZIPFILE',
+        help='add contents of zip file(s)')
 
     args = parser.parse_args()
 

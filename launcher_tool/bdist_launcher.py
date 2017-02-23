@@ -38,7 +38,7 @@ class bdist_launcher(distutils.cmd.Command):  # pylint: disable=too-many-instanc
 
     user_options = [
         ('icon=', None, 'filename of icon to use'),
-        ('python-minimal=', None, 'change the location of the python-minimal location'),
+        ('python-minimal=', None, 'change the location of the python-minimal distribution'),
         ('extend-sys-path=', 'p', 'add search pattern(s) for files added to '
                                   'sys.path (separated by "{}")'.format(os.pathsep)),
         ('wait-at-exit', None, 'do not close console window automatically'),

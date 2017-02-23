@@ -48,8 +48,6 @@ Here is the output of ``python -m launcher_tool -h``::
       --main FILE           use this as __main__.py instead of built-in code                              
                                                                                                           
     customization:                                                                                        
-      --add-file FILE       add additional file(s) to zip                                                 
-      --add-zip ZIPFILE     add contents of zip file(s)                                                   
       --launcher EXE        launcher executable to use instead of built-in one                            
       --wait                do not close console window automatically                                     
       --wait-on-error       wait if there is an exception                                                 
@@ -68,6 +66,10 @@ Here is the output of ``python -m launcher_tool -h``::
       -2                    force use of Python 2.7 launcher                                              
       -3                    force use of Python 3.x launcher                                              
 
+    additional ZIP contents:                              
+      --add-file FILE       add additional file(s) to zip 
+      --add-zip ZIPFILE     add contents of zip file(s)   
+                                                        
 
 launcher_tool.create_python27_minimal
 =====================================
