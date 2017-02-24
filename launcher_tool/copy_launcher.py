@@ -15,16 +15,9 @@ import sys
 
 def copy_launcher(fileobj, use_py2=False, use_64bits=False):
     """copy raw launcher exe to given file object"""
-    if use_py2:
-        if use_64bits:
-            filename = 'launcher27-64.exe'
-        else:
-            filename = 'launcher27-32.exe'
-    else:
-        if use_64bits:
-            filename = 'launcher3-64.exe'
-        else:
-            filename = 'launcher3-32.exe'
+    filename = 'launcher{}-{}.exe'.format(
+        '27' if use_py2 else '3',
+        '64' if use_64bits else '32')
     fileobj.write(pkgutil.get_data(__name__, filename))
 
 
@@ -61,19 +54,10 @@ def main():
 
     args = parser.parse_args()
 
-    use_python27 = False
-    if (sys.version_info.major == 2 and not args.py3) or args.py2:
-        use_python27 = True
-
+    use_python27 = (sys.version_info.major == 2 and not args.py3) or args.py2
     is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
-    if args.bits64:
-        use_64bits = True
-    elif args.bits32:
-        use_64bits = False
-    elif is_64bits:
-        use_64bits = True
-    else:
-        use_64bits = False
+    use_64bits = args.bits64 or (is_64bits and not args.bits32)
+
     dest_dir = os.path.dirname(args.output)
     if dest_dir and not os.path.exists(dest_dir):
         os.makedirs(dest_dir)

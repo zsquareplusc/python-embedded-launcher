@@ -106,20 +106,14 @@ def main():
 
     #~ print args
 
-    if args.bits32:
-        bits = 32
-    elif args.bits64:
-        bits = 64
-    elif platform.architecture()[0] == '64bit':  # autodetect
-        bits = 64
-    else:
-        bits = 32
+    is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
+    use_64bits = args.bits64 or (is_64bits and not args.bits32)
 
     if args.this_version:
         args.python_version = '{0.major}.{0.minor}.{0.micro}'.format(sys.version_info)
 
     if args.url is None:
-        args.url = get_url(args.python_version, bits)
+        args.url = get_url(args.python_version, 64 if use_64bits else 32)
 
     python_destination = os.path.join(args.directory, args.name)
     extract(args.url, python_destination, args.force_download)
