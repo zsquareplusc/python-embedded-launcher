@@ -52,3 +52,56 @@ def make_main(entry_point=None, run_path=None, run_module=None,
     if use_bin_dir:
         patch = 'os.path.dirname(os.path.dirname(sys.executable))'
     return main_script.format(run='\n'.join(run_lines), patch=patch)
+
+
+def main():
+    """Command line tool entry point"""
+    import argparse
+    import sys
+    parser = argparse.ArgumentParser(description='create __main__.py')
+
+
+    group_run_group = parser.add_argument_group('entry point options')
+    group_run = group_run_group.add_mutually_exclusive_group()
+    group_run.add_argument(
+        '-e', '--entry-point', metavar='MODULE:FUNC',
+        help='import given module and call function')
+    group_run.add_argument(
+        '--run-path', metavar='FILE',
+        help='execute given file (e.g. .py, .zip)')
+    group_run.add_argument(
+        '-m', '--run-module', metavar='MODULE',
+        help='execute module (similar to python -m)')
+
+    group_custom = parser.add_argument_group('customization')
+    group_custom.add_argument(
+        '--launcher', metavar='EXE',
+        help='launcher executable to use instead of built-in one')
+    group_custom.add_argument(
+        '--wait', action='store_true', default=False,
+        help='do not close console window automatically')
+    group_custom.add_argument(
+        '--wait-on-error', action='store_true', default=False,
+        help='wait if there is an exception')
+    group_custom.add_argument(
+        '-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
+        help='add search pattern for files added to sys.path')
+
+    parser.add_argument(
+        '--bin-dir', action='store_true', default=False,
+        help='put binaries in subdirectory /bin')
+
+    args = parser.parse_args()
+
+    sys.stdout.write(make_main(
+        entry_point=args.entry_point,
+        run_path=args.run_path,
+        run_module=args.run_module,
+        extend_sys_path=args.extend_sys_path,
+        wait_at_exit=args.wait,
+        wait_on_error=args.wait_on_error,
+        use_bin_dir=args.bin_dir))
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+if __name__ == '__main__':
+    main()
