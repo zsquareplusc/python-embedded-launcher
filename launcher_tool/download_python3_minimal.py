@@ -116,7 +116,10 @@ def main():
         args.url = get_url(args.python_version, 64 if use_64bits else 32)
 
     python_destination = os.path.join(args.directory, args.name)
-    extract(args.url, python_destination, args.force_download)
+    if os.path.exists(python_destination):
+        sys.stderr.write('"{}" already exists, skipping extraction'.format(python_destination))
+    else:
+        extract(args.url, python_destination, args.force_download)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
