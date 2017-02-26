@@ -14,8 +14,64 @@ import glob
 import os
 import pkgutil
 import sys
+import tempfile
 import zipfile
 import launcher_tool.launcher_zip
+import launcher_tool.resource_editor
+
+
+def get_customized_launcher(args):
+    """\
+    Return launcher as string. The command line arguments in args determine
+    the type 32/64 (args.bits32 / args.bits64) bit and Python 2.7/3
+    (args.py2 / args.py3), autodetection is used if the flags from the
+    command line are all false.
+
+    If args.icon or args.python_minimal is used, a temp file is created, the
+    resource editor applied and that result is returned.
+    """
+    use_python27 = (sys.version_info.major == 2 and not args.py3) or args.py2
+    is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
+    use_64bits = args.bits64 or (is_64bits and not args.bits32)
+
+    filename = 'launcher{}-{}.exe'.format(
+        '27' if use_python27 else '3',
+        '64' if use_64bits else '32')
+    launcher = pkgutil.get_data(__name__, filename)
+
+    # the following options only work only on a real file, but do not create
+    # a file if not needed for best cross platform compatibility
+    if args.icon is not None or args.python_minimal is not None or args.bin_dir:
+        # get a temporary file and write the launcher
+        with tempfile.NamedTemporaryFile(delete=False) as temp_exe:
+            temp_exe.write(launcher)
+            temp_exe.close()
+            # now modify according to options
+            if args.icon is not None:
+                ico = launcher_tool.resource_editor.icon.Icon()
+                ico.load(args.icon)
+                with launcher_tool.resource_editor.ResourceEditor(temp_exe.name) as res:
+                    ico.save_as_resource(res, 1, 1033)
+            if args.python_minimal is not None:
+                with launcher_tool.resource_editor.ResourceReader(temp_exe.name) as res:
+                    string_table = res.get_string_table()
+                string_table.languages[1033][1] = args.python_minimal
+                with launcher_tool.resource_editor.ResourceEditor(temp_exe.name) as res:
+                    string_table.save_to_resource(res)
+            if args.bin_dir:
+                with launcher_tool.resource_editor.ResourceReader(temp_exe.name) as res:
+                    string_table = res.get_string_table()
+                if use_python27:
+                    string_table.languages[1033][1] = '%SELF%/../python27-minimal'
+                else:
+                    string_table.languages[1033][1] = '%SELF%/../python3-minimal'
+                with launcher_tool.resource_editor.ResourceEditor(temp_exe.name) as res:
+                    string_table.save_to_resource(res)
+            # read back as byte array
+            with open(temp_exe.name, 'rb') as temp_exe:
+                launcher = temp_exe.read()
+            os.remove(temp_exe.name)
+    return launcher
 
 
 def main():
@@ -61,6 +117,18 @@ def main():
         '-p', '--extend-sys-path', metavar='PATTERN', action='append', default=[],
         help='add search pattern for files added to sys.path')
 
+    group_extra_custom = parser.add_argument_group('extra customization')
+
+    group_extra_custom.add_argument(
+        '--icon', metavar='ICON',
+        help='filename of icon to use')
+    group_extra_custom.add_argument(
+        '--python-minimal', metavar='ICON',
+        help='change the location of the python-minimal distribution')
+    group_extra_custom.add_argument(
+        '--bin-dir', action='store_true', default=False,
+        help='put binaries in subdirectory /bin')
+
     group_bits = parser.add_argument_group(
         'launcher architecture',
         'default value is based on sys.executable')
@@ -94,26 +162,6 @@ def main():
 
     args = parser.parse_args()
 
-    is_64bits = sys.maxsize > 2**32  # recommended by docs.python.org "platform" module
-    if (sys.version_info.major == 2 and not args.py3) or args.py2:
-        if args.bits64:
-            launcher_filename = 'launcher27-64.exe'
-        elif args.bits32:
-            launcher_filename = 'launcher27-32.exe'
-        elif is_64bits:
-            launcher_filename = 'launcher27-64.exe'
-        else:
-            launcher_filename = 'launcher27-32.exe'
-    else:
-        if args.bits64:
-            launcher_filename = 'launcher3-64.exe'
-        elif args.bits32:
-            launcher_filename = 'launcher3-32.exe'
-        elif is_64bits:
-            launcher_filename = 'launcher3-64.exe'
-        else:
-            launcher_filename = 'launcher3-32.exe'
-
     if args.append_only:
         args.output = args.append_only  # easier to handle below
         mode = 'ab'
@@ -129,7 +177,8 @@ def main():
             run_module=args.run_module,
             extend_sys_path=args.extend_sys_path,
             wait_at_exit=args.wait,
-            wait_on_error=args.wait_on_error)
+            wait_on_error=args.wait_on_error,
+            use_bin_dir=args.bin_dir)
 
     dest_dir = os.path.dirname(args.output)
     if dest_dir and not os.path.exists(dest_dir):
@@ -140,7 +189,7 @@ def main():
             if args.launcher:
                 exe.write(open(args.launcher, 'rb').read())
             else:
-                exe.write(pkgutil.get_data(__name__, launcher_filename))
+                exe.write(get_customized_launcher(args))
         with zipfile.ZipFile(exe, 'a', compression=zipfile.ZIP_DEFLATED) as archive:
             archive.writestr('__main__.py', main_script.encode('utf-8'))
             archive.writestr('launcher.py', pkgutil.get_data(__name__, 'launcher.py'))
