@@ -100,7 +100,11 @@ def main():
 
     args = parser.parse_args()
 
-    copy_python(os.path.join(args.directory, args.name))
+    python_destination = os.path.join(args.directory, args.name)
+    if os.path.exists(python_destination):
+        sys.stderr.write('"{}" already exists, skipping extraction'.format(python_destination))
+    else:
+        copy_python(python_destination)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 if __name__ == '__main__':
