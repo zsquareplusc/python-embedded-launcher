@@ -123,7 +123,7 @@ def main():
         '--icon', metavar='ICON',
         help='filename of icon to use')
     group_extra_custom.add_argument(
-        '--python-minimal', metavar='ICON',
+        '--python-minimal', metavar='DIR',
         help='change the location of the python-minimal distribution')
     group_extra_custom.add_argument(
         '--bin-dir', action='store_true', default=False,
