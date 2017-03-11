@@ -105,3 +105,56 @@ exe. It contains a few helper functions.
     ``--wait-on-error`` is used.
 
 .. _pkgutil: https://docs.python.org/3/library/pkgutil.html
+
+
+Launcher Package
+================
+The launcher tools can not only used as scripts but also as Python libraries.
+
+``download_python3_minimal``
+----------------------------
+.. module:: download_python3_minimal
+
+.. function:: get_url(version, bits)
+
+    :param str version: Version specification, such as '3.5.2' or '3.6'
+    :param int bits: 32 or 64
+
+    Calculate download URL for Python embed distribution, based on version
+    and architecture.
+
+
+.. function:: extract(url, destination, force_download=False)
+
+    :param str url: download URL
+    :param str destination: destination directory
+    :param bool force_download: download even if a file is cached
+
+    Extract ZIP file from cache, download if needed.
+    e.g. ``extract(URL_32, 'python3-minimal')``
+
+``create_python27_minimal``
+---------------------------
+
+.. module:: create_python27_minimal
+
+.. function:: copy_python(destination)
+
+    :param str destination: destination directory
+
+    Make a copy of Python 2.7. Including standard library (as zip) excluding
+    tcl/tk, tests and site-packages. The Python files in the standard library
+    are compiled.
+
+``copy_launcher``
+-----------------
+
+.. module:: copy_launcher
+
+.. function:: copy_launcher(fileobj, use_py2=False, use_64bits=False)
+
+    :param filelike fileobj: a writable filelike object
+    :param bool use_py2: Use Python 2.7 when true, else use Python 3.x
+    :param bool use_64bits: Use 64 bit binary when true, else use 32 bit
+
+    Copy raw launcher exe to given file object.
