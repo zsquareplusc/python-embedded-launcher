@@ -76,7 +76,7 @@ class Icon(object):
                 ico_file.write(struct.pack(ICONDIRENTRY, *image_info))
 
     def load_from_resource(self, res, res_name, res_lang=1033):
-        """Load icon from resources"""
+        """Load icon from resource"""
         self.clear()
         info = res.get_resource(RT_GROUP_ICON, res_name, res_lang)
         _, image_type, num_images = struct.unpack(GRPICONDIR, info[0:6])
@@ -89,7 +89,7 @@ class Icon(object):
             self.data.append(res.get_resource(RT_ICON, image_info.offset, res_lang))
 
     def save_as_resource(self, res, res_name, res_lang=1033):
-        """Store icon as resources"""
+        """Store icon as resource"""
         info = [struct.pack(GRPICONDIR, 0, TYPE_ICO, len(self.images))]
         for n, (image_info, data) in enumerate(zip(self.images, self.data), 1):
             info.append(struct.pack(GRPICONDIRENTRY,

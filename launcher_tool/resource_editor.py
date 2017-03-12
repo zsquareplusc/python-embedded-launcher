@@ -198,8 +198,8 @@ class StringTable(object):
 class ResourceReader(object):
     """Access resources in exe and dll"""
 
-    def __init__(self, filname):
-        self.filename = filname
+    def __init__(self, filename):
+        self.filename = filename
         self.hsrc = None
 
     def __enter__(self):
@@ -290,8 +290,8 @@ class ResourceEditor(object):
     """Access resources for editing in exe and dll"""
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, filname):
-        self.filename = filname
+    def __init__(self, filename):
+        self.filename = filename
         self.hdst = None
 
     def __enter__(self):
