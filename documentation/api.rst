@@ -109,11 +109,13 @@ exe. It contains a few helper functions.
 
 Launcher Package
 ================
-The launcher tools can not only used as scripts but also as Python libraries.
+The launcher tools can not only be used as scripts but also as Python
+libraries.
+
 
 ``download_python3_minimal``
 ----------------------------
-.. module:: download_python3_minimal
+.. module:: launcher_tool.download_python3_minimal
 
 .. function:: get_url(version, bits)
 
@@ -133,10 +135,11 @@ The launcher tools can not only used as scripts but also as Python libraries.
     Extract ZIP file from cache, download if needed.
     e.g. ``extract(URL_32, 'python3-minimal')``
 
+
 ``create_python27_minimal``
 ---------------------------
 
-.. module:: create_python27_minimal
+.. module:: launcher_tool.create_python27_minimal
 
 .. function:: copy_python(destination)
 
@@ -144,12 +147,13 @@ The launcher tools can not only used as scripts but also as Python libraries.
 
     Make a copy of Python 2.7. Including standard library (as zip) excluding
     tcl/tk, tests and site-packages. The Python files in the standard library
-    are compiled.
+    are compiled. ``site-packages`` are skipped.
+
 
 ``copy_launcher``
 -----------------
 
-.. module:: copy_launcher
+.. module:: launcher_tool.copy_launcher
 
 .. function:: copy_launcher(fileobj, use_py2=False, use_64bits=False)
 
@@ -157,4 +161,141 @@ The launcher tools can not only used as scripts but also as Python libraries.
     :param bool use_py2: Use Python 2.7 when true, else use Python 3.x
     :param bool use_64bits: Use 64 bit binary when true, else use 32 bit
 
-    Copy raw launcher exe to given file object.
+    Copy selected variant of raw launcher exe to given file object.
+
+
+``launcher_zip``
+----------------
+
+.. module:: launcher_tool.launcher_zip
+
+.. function:: make_main(entry_point=None, run_path=None, run_module=None, \
+              extend_sys_path=(), wait_at_exit=False, wait_on_error=False, \
+              use_bin_dir=False, main_script=DEFAULT_MAIN)
+
+    :param str entry_point: entry point name (optional)
+    :param str run_path: script name (optional)
+    :param str run_module: module name (optional)
+    :param list extend_sys_path: list of paths/patterns
+    :param bool wait_at_exit: add code to wait at exit
+    :param bool wait_on_error: add code to wait on error
+    :param str main_script: alternative to main script template
+    :return: code for ``__main__.py``
+    
+    Generate code for ``__main__.py``. The arguments represent different
+    options to start an application, handle ``sys.path`` and exit options,
+    which influence the code that is generated.
+
+    Only one of ``entry_point``, ``run_module`` and ``run_path`` should be
+    used.
+
+
+``resource_editor``
+-------------------
+
+.. module:: launcher_tool.resource_editor
+
+.. class:: ResourceReader
+
+    Read resources from a file. Can be used as context manager.
+
+    .. method:: __init__(filename)
+
+        :param str filename: Filename of EXE to open.
+    
+    .. method:: enumerate_types()
+
+        :return: a list of resource types in the file
+
+    .. method:: enumerate_names(res_type)
+        
+        :return: a list of resource names (actually numbers) for given
+                 resource type in the file.
+
+    .. method:: enumerate_languages(res_type, res_name)
+        
+        :param int res_type: resource type
+        :param int res_name: resource name
+        :return: a list of language ID's for given resource name and type in
+                 the file.
+
+    .. method:: get_resource(res_type, res_name, res_lang)
+
+        :param int res_type: resource type
+        :param int res_name: resource name
+        :param int res_lang: language code
+        :return: resource as binary blob (bytes)
+
+    .. method:: list_resources()
+
+        :return: Get a flat list of resources in the file
+
+    .. method:: make_dict()
+
+        :return: Convert all resource entries to a dictionary and return that
+
+    .. method:: get_string_table()
+
+        :return: Get a decoded string table
+
+
+.. class:: ResourceEditor
+
+    Access resources for editing in EXE and DLL.
+    Can be used as context manager.
+
+    .. method __init__(filename)
+
+        :param str filename: Filename of exe to open.
+
+    .. method:: update(res_type, res_name, res_lang, data)
+
+        :param int res_type: resource type
+        :param int res_name: resource name
+        :param int res_lang: language code
+        :param bytes data: resource as binary blob (bytes) or ``None`` to delete
+
+        Write (add, modify or delete) a resource entry.
+        Delete entry if data is ``None``.
+
+
+``icon``
+--------
+
+.. module:: launcher_tool.icon
+
+Windows ICO file load/save to .ico file and resource file (.exe, .dll).
+
+.. class:: Icon
+
+    .. function:: clear()
+
+        Erase current icon data.
+
+    .. function:: load(filename)
+
+        :param str filename: Filename to load
+
+        Load icon from file.
+
+    .. function:: save(filename)
+
+        :param str filename: Filename to write to
+        
+        Save icon to file.
+
+    .. function:: load_from_resource(res, res_name, res_lang=1033)
+
+        :param ResourceReader res: resource
+        :param int res_name: resource name
+        :param int res_lang: language code
+
+        Load icon from resource.
+
+    .. function:: save_as_resource(res, res_name, res_lang=1033)
+
+        :param ResourceEditor res: resource
+        :param int res_name: resource name
+        :param int res_lang: language code
+        
+        Store icon as resource.
