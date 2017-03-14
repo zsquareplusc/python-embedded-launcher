@@ -2,6 +2,12 @@
  Changes
 =========
 
+0.11
+====
+- extend command line interface of launcher_tool (launcher.exe customizations)
+- cross platform support improved
+- documentation extended
+
 0.10
 ====
 - support for Python 3.6+ in launcher
