@@ -197,7 +197,7 @@ libraries.
 
 .. class:: ResourceReader
 
-    Read resources from a file. Can be used as context manager.
+    Read resources from a file.
 
     .. method:: __init__(filename)
 
@@ -238,11 +238,26 @@ libraries.
 
         :return: Get a decoded string table
 
+    Can be used as context manager:
+
+    .. method:: __enter__()
+
+        :return: self
+
+        Load the resources. e.g.
+
+        >>> with ResourceReader('xy.exe') as res:
+        ...     print(res.list_resources())
+
+    .. method:: __exit__()
+
+        Closes the file.
+
+
 
 .. class:: ResourceEditor
 
     Access resources for editing in EXE and DLL.
-    Can be used as context manager.
 
     .. method __init__(filename)
 
@@ -257,6 +272,21 @@ libraries.
 
         Write (add, modify or delete) a resource entry.
         Delete entry if data is ``None``.
+
+    Can be used as context manager:
+
+    .. method:: __enter__()
+
+        :return: self
+
+        Load the resources. e.g.
+
+        >>> with ResourceEditor('xy.exe') as res:
+        ...     res.update(int(res_type), int(res_name), int(res_lang), data)
+
+    .. method:: __exit__()
+
+        Closes the file.
 
 
 ``icon``
@@ -292,6 +322,11 @@ Windows ICO file load/save to .ico file and resource file (.exe, .dll).
 
         Load icon from resource.
 
+        >>> ico = icon.Icon()
+        >>> with ResourceReader(args.FILE) as res:
+        ...     ico.load_from_resource(res, args.name, args.lang)
+        >>> ico.save(args.output)
+
     .. function:: save_as_resource(res, res_name, res_lang=1033)
 
         :param ResourceEditor res: resource
@@ -299,3 +334,8 @@ Windows ICO file load/save to .ico file and resource file (.exe, .dll).
         :param int res_lang: language code
         
         Store icon as resource.
+
+        >>> ico = icon.Icon()
+        >>> ico.load(args.ICON)
+        >>> with ResourceEditor(args.FILE) as res:
+        ...     ico.save_as_resource(res, args.name, args.lang)
