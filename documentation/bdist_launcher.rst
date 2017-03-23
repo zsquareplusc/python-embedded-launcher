@@ -13,7 +13,7 @@ Usage
 The simplest way to use this tool is to add a ``setup.py`` to the application
 that should be distributed.
 
-::
+.. code-block:: python
 
     setup(
         name="sample_application",
@@ -43,6 +43,8 @@ Then running ``python setup.py bdist_launcher`` will do the following steps:
 - Finally, copy/download a ``pythonX-minimal`` distribution to the ``dist``
   directory (that is, unless ``--python-minimal`` was used).
 
+Options
+-------
 Options for ``bdist_launcher`` command::
 
   --icon                  filename of icon to use                           
@@ -63,6 +65,33 @@ customization of single files, it is also possible to make such a section per
 file, e.g. if an ``example.exe`` is generated, the corresponding section
 would be ``[bdist_launcher.example.exe]``.
 
+Example ``setup.cfg``:
+
+.. code-block:: ini
+
+    # universal should only be specified for applications that are compatible
+    # with Python 2.x and Python 3.x and do not contain binary extensions.
+    [bdist_wheel]
+    universal=1
+
+    # by default, options would go into the section [bdist_launcher]
+    # in that case, they apply to all generated files
+    [bdist_launcher]
+    bin_dir = yes
+
+    # as an extension, it is also possible to specify per file options by
+    # appending the filename to the section title:
+    [bdist_launcher:mt.exe]
+    icon = icon.ico
+    wait_on_error = yes
+
+    [bdist_launcher:ports.exe]
+    icon = icon.ico
+    wait_at_exit = yes
+
+
+requirements.txt
+----------------
 Note that ``requirements.txt`` is currently not automatically handled. To
 install this list of packages, use::
 

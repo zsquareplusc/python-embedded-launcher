@@ -110,7 +110,7 @@ exe. It contains a few helper functions.
 Launcher Package
 ================
 The launcher tools can not only be used as scripts but also as Python
-libraries.
+library.
 
 
 ``download_python3_minimal``
@@ -134,6 +134,11 @@ libraries.
 
     Extract ZIP file from cache, download if needed.
     e.g. ``extract(URL_32, 'python3-minimal')``
+
+    The cache is located at ``%LOCALAPPDATA%/python-embedded-launcher/cache``
+    on Windows or in ``$XDG_CONFIG_HOME/.cache/python-embedded-launcher`` on
+    POSIX (``$XDG_CONFIG_HOME`` defaults to ``~``).
+
 
 
 ``create_python27_minimal``
