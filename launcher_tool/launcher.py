@@ -36,6 +36,9 @@ def process_pth_file(root, filename):
 
     Usually called by patch_sys_path().
     """
+    # the following is a fix for namespace packages where python accesses the
+    # local 'sitedir' of the caller... see also issue #7
+    sitedir = root
     with open(filename, 'rU') as pth_file:
         for line in pth_file:
             line = line.rstrip()
