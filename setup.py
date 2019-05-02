@@ -14,7 +14,7 @@ except ImportError:
 if 'sdist' in sys.argv[1:] or 'bdist_wheel' in sys.argv[1:]:
     # compile the launcher binaries
     # other users may need to edit the batch file or add gcc somehow to the PATH
-    sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True))
+    sys.stdout.write(subprocess.check_output(['compile_all.bat'], cwd='src', shell=True, encoding='utf-8'))
 
 setup(
     name="python-embedded-launcher",
