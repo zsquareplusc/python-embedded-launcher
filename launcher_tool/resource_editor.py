@@ -1,7 +1,7 @@
 #!python
 #
 # This file is part of https://github.com/zsquareplusc/python-embedded-launcher
-# (C) 2016 Chris Liechti <cliechti@gmx.net>
+# (C) 2016-2019 Chris Liechti <cliechti@gmx.net>
 #
 # SPDX-License-Identifier:    BSD-3-Clause
 """\
@@ -261,7 +261,11 @@ class ResourceReader(object):
         """Get a flat list of resources in the file"""
         resources = []
         for res_type in self.enumerate_types():
+            if res_type > 10000:
+                continue
             for res_name in self.enumerate_names(res_type):
+                if res_name > 10000:
+                    continue
                 for res_lang in self.enumerate_languages(res_type, res_name):
                     resources.append((res_type, res_name, res_lang))
         return resources
@@ -401,7 +405,8 @@ def main():
         binary_stdout = sys.stdout
     parser = argparse.ArgumentParser(description='Windows Resource Editor')
     parser.add_argument('FILE', help='file containing the resources (.exe, .dll)')
-    subparsers = parser.add_subparsers(help='sub-command help')
+    subparsers = parser.add_subparsers(dest='command', help='sub-command help')
+    subparsers.required = True
 
     parser_dump = subparsers.add_parser('dump', help='read and output resources.')
     parser_dump.set_defaults(func=action_dump)
