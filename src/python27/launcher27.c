@@ -138,7 +138,6 @@ int main() {
     patch_path_env();
 
     char pydll_path[PATH_MAX];
-    // XXX would like to use python3.dll but it would not find the real python dll (e.g. python27.dll ...)
     append_filename(pydll_path, sizeof(pydll_path), pythonhome_absolute, "python27.dll");
     HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {

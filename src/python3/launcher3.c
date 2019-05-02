@@ -181,7 +181,7 @@ int main() {
     HANDLE find_handle = FindFirstFile(pydll_path, &find_data);
     if (find_handle == NULL || find_handle == INVALID_HANDLE_VALUE) {
         wprintf(L"Python is expected in: %s\n\n"
-                 "ERROR Python DLL not be found!\n"
+                 "ERROR Python DLL not found!\n"
                  "full path: %s\n\n" , pythonhome_absolute, pydll_path);
         print_last_error_message();
         show_message_from_resource(IDS_PYDLL_NOT_FOUND);
@@ -195,12 +195,13 @@ int main() {
         FindClose(find_handle);
     }
 
+    // XXX would like to use python3.dll but it would not find the real python dll (e.g. python36.dll ...)
     append_filename(pydll_path, PATH_LENGTH, pythonhome_absolute, python_version,  L".dll");
     HMODULE python_dll = LoadLibrary(pydll_path);
     if (python_dll == NULL) {
         wprintf(L"Python is expected in: %s\n\n"
-                 "ERROR Python DLL not be loaded!\n"
-                 "full path: %s\n\n" , pythonhome_absolute, pydll_path);
+                "ERROR Python DLL not found!\n"
+                "File not found: %s\n" , pythonhome_absolute, pydll_path);
         print_last_error_message();
         show_message_from_resource(IDS_PYDLL_NOT_FOUND);
         return 1;
@@ -217,7 +218,7 @@ int main() {
     GetModuleFileName(NULL, argv_0, PATH_LENGTH);
     Py_SetProgramName(argv_0);
     Py_SetPythonHome(pythonhome_absolute);
-    // must ensure that python finds its "landmark file" Lib/os.py (it is in python35.zip)
+    // must ensure that python finds its "landmark file" Lib/os.py (it is in python3x.zip)
     wchar_t pythonpath[32768];
     snwprintf(pythonpath, 32768, L"%s;%s\\%s.zip", 
               pythonhome_absolute, pythonhome_absolute, python_version);
