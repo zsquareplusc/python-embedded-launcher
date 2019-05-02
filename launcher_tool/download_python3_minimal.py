@@ -1,7 +1,7 @@
 #!python
 #
 # This file is part of https://github.com/zsquareplusc/python-embedded-launcher
-# (C) 2016 Chris Liechti <cliechti@gmx.net>
+# (C) 2016-2019 Chris Liechti <cliechti@gmx.net>
 #
 # SPDX-License-Identifier:    BSD-3-Clause
 """
@@ -21,7 +21,7 @@ import sys
 import zipfile
 import requests
 
-DEFAULT_VERSION = '3.6.0'
+DEFAULT_VERSION = '3.7.3'
 URL_TEMPLATE = 'https://www.python.org/ftp/python/{version}/python-{version}-embed-{bits}.zip'
 
 
