@@ -2,9 +2,15 @@
  Changes
 =========
 
+0.12
+====
+- workaround for namespace packages .pth files
+- improvements
+- update download_python3_minimal to download 3.7.3
+
 0.11
 ====
-- extend command line interface of launcher_tool (launcher.exe customizations)
+- extend command line interface of launcher_tool (launcher.exe customization)
 - cross platform support improved
 - documentation extended
 
@@ -42,7 +48,7 @@
 ===
 - bdist_launcher distuils/setuptools command added
 - new example: demo_app for use with bdist_launcher
-- fix: close stdio channels before closing cosole window, fixes an issue with
+- fix: close stdio channels before closing console window, fixes an issue with
   subprocess
 
 0.4
