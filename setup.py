@@ -19,7 +19,7 @@ if 'sdist' in sys.argv[1:] or 'bdist_wheel' in sys.argv[1:]:
 setup(
     name="python-embedded-launcher",
     description="Launcher exe for distributing Python apps on Windows",
-    version='0.12',
+    version='0.13',
     author="Chris Liechti",
     author_email="cliechti@gmx.net",
     url="https://github.com/zsquareplusc/python-embedded-launcher",

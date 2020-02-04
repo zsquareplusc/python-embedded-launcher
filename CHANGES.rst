@@ -2,6 +2,10 @@
  Changes
 =========
 
+0.13
+====
+- fix for large handle values on Win10 / 64 bit
+
 0.12
 ====
 - workaround for namespace packages .pth files
