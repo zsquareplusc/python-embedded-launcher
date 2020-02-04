@@ -51,6 +51,10 @@ RESOURCE_TYPES = {
     24: 'RT_MANIFEST',
 }
 
+def check_null(result, function, arguments, *args):
+    if result is None or result == 0:
+        raise ctypes.WinError()
+    return result
 
 def ValidHandle(value):
     """Check if it is not NULL, raise WinError if it is."""
@@ -62,16 +66,23 @@ check_bool = ValidHandle
 
 LoadLibraryEx = ctypes.windll.kernel32.LoadLibraryExW
 LoadLibraryEx.argtypes = [LPCWSTR, HANDLE, DWORD]
-LoadLibraryEx.restype = ValidHandle
+LoadLibraryEx.restype = HMODULE
+LoadLibraryEx.errcheck = check_null
+
+FreeLibrary = ctypes.windll.kernel32.FreeLibrary
+FreeLibrary.argtypes = [HMODULE]
+FreeLibrary.restype = BOOL
 
 LoadResource = ctypes.windll.kernel32.LoadResource
 LoadResource.argtypes = [HMODULE, HRSRC]  # hModule,  hResInfo
-LoadResource.restype = ValidHandle
+LoadResource.restype = HMODULE
+LoadResource.errcheck = check_null
 
 FindResourceEx = ctypes.windll.kernel32.FindResourceExW
 #~ FindResourceEx.argtypes =  [HMODULE, LPCTSTR, LPCTSTR, WORD]  # hModule, lpType, lpName, wLanguage
 FindResourceEx.argtypes = [HMODULE, ctypes.c_int, ctypes.c_int, WORD]  # hModule, lpType, lpName, wLanguage
-FindResourceEx.restype = ValidHandle
+FindResourceEx.restype = HRSRC
+FindResourceEx.errcheck = check_null
 
 SizeofResource = ctypes.windll.kernel32.SizeofResource
 SizeofResource.argtypes = [HMODULE, HRSRC]  # hModule,  hResInfo
@@ -208,7 +219,7 @@ class ResourceReader(object):
 
     def __exit__(self, *args):
         if self.hsrc:
-            ctypes.windll.kernel32.FreeLibrary(self.hsrc)
+            FreeLibrary(self.hsrc)
         self.hsrc = None
 
     def enumerate_types(self):
