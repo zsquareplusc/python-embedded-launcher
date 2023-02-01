@@ -176,7 +176,7 @@ int main() {
     // expand pattern in "python_version" string.
     // search for the zip file (only one match and we use it's name below anyway)
     // while for the DLL it would find python3.dll and python3x.dll...
-    append_filename(pydll_path, PATH_LENGTH, pythonhome_absolute, L"python3?",  L".zip");
+    append_filename(pydll_path, PATH_LENGTH, pythonhome_absolute, L"python3*",  L".zip");
     WIN32_FIND_DATA find_data;
     HANDLE find_handle = FindFirstFile(pydll_path, &find_data);
     if (find_handle == NULL || find_handle == INVALID_HANDLE_VALUE) {
@@ -224,7 +224,7 @@ int main() {
               pythonhome_absolute, pythonhome_absolute, python_version);
     Py_SetPath(pythonpath);
 
-    // the application is appended as zip to the exe. so load ourselfes
+    // the application is appended as zip to the exe. so load ourselves
     // to get a nice user feedback, test first if the zip is really appended
     if (!test_zip_file(argv_0)) {
         wprintf(L"ERROR application not found!\n"
